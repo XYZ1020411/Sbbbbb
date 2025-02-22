@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兌換系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffcccc; /* 淡紅色背景 */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #b30000; /* 深紅色 */
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #FFD700; /* 金黃色按鈕 */
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #FFC300; /* 更深的金黃色 */
+        }
+        .hidden { display: none; }
+        #customerMessage {
+            margin-top: 10px;
+            color: #d9534f; /* 鮮紅色錯誤訊息 */
+        }
+        #notificationList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #notificationList li {
+            background: #ffe6e6; /* 淡紅色通知 */
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .cart-item {
+            background: #e6ffe6; /* 淡綠色背景 */
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+    </style>
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <div class="container" id="loginContainer">
+        <h2>登錄</h2>
+        <input type="text" id="username" placeholder="用戶名">
+        <input type="password" id="password" placeholder="密碼">
+        <button onclick="login()">登錄</button>
+        <button onclick="toggleVisibility('registerContainer', true)">註冊</button>
+    </div>
+
+    <div class="container hidden" id="registerContainer">
+        <h2>註冊</h2>
+        <input type="text" id="newUsername" placeholder="用戶名">
+        <input type="password" id="newPassword" placeholder="密碼">
+        <button onclick="register()">註冊</button>
+        <button onclick="toggleVisibility('registerContainer', false)">返回登錄</button>
+    </div>
+
+    <div class="container hidden" id="customerContainer">
+        <h2>客戶功能</h2>
+        <button id="checkInButton" onclick="checkIn()">每日簽到</button>
+        <button id="scratchCardButton" onclick="showScratchCard()">刮刮樂</button>
+        <button id="viewPointsButton" onclick="viewPoints()">查看點數</button>
+        <h3>可兌換物品</h3>
+        <div id="redeemItemsContainer"></div>
+        <h3>購物車</h3>
+        <div id="cartContainer"></div>
+        <button onclick="checkout()">結帳</button>
+        <input type="text" id="redeemCode" placeholder="輸入兌換碼">
+        <button onclick="redeemWithCode()">兌換碼兌換</button>
+        <h3>收件夾</h3>
+        <ul id="inboxList"></ul>
+        <p id="customerMessage"></p>
+    </div>
+
+    <script>
+        const CLIENT_ID = 'YOUR_CLIENT_ID'; // 替換為您的客戶端 ID
+        const API_KEY = 'YOUR_API_KEY'; // 替換為您的 API 金鑰
+        const SPREADSHEET_ID = '1jEBDo08iDpCSkij-waauWGRFP2Rlj7uTy9fzUiD2vo8';
+        const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
+
+        let currentUser = null;
+        let redeemItems = {};
+        let cart = []; // 購物車陣列
+        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {};
+        let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        let inbox = JSON.parse(localStorage.getItem('inbox')) || {};
+        let prizeAmount = 0; // 獲得的獎勵點數
+
+        // 初始化 Google API 客戶端
+        function handleClientLoad() {
+            gapi.load('client:auth2', initClient);
+        }
+
+        function initClient() {
+            gapi.client.init({
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                scope: SCOPE,
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }).then(() => {
+                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+            });
+        }
+
+        function updateSigninStatus(isSignedIn) {
+            if (isSignedIn) {
+                loadRedeemItems(); // 登入後加載可兌換物品
+            } else {
+                gapi.auth2.getAuthInstance().signIn();
+            }
+        }
+
+        function loadRedeemItems() {
+            const params = {
+                spreadsheetId: SPREADSHEET_ID,
+                range: 'RedeemItems!A:B', // 假設 A 列是物品名稱，B 列是所需點數
+            };
+
+            gapi.client.sheets.spreadsheets.values.get(params).then(response => {
+                const items = response.result.values;
+                items.forEach(item => {
+                    redeemItems[item[0]] = { cost: parseInt(item[1]), used: false };
+                });
+                displayRedeemItems();
+            }, error => {
+                console.error('獲取可兌換物品失敗：', error);
+            });
+        }
+
+        function toggleVisibility(containerId, isVisible) {
+            document.getElementById(containerId).classList.toggle('hidden', !isVisible);
+        }
+
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                alert("請輸入用戶名和密碼！");
+                return;
+            }
+
+            const adminUsername = "xyz1020411";
+            const adminPassword = "xyz1020411";
+
+            if (username === adminUsername && password === adminPassword) {
+                currentUser = { username, points: 100, isAdmin: true };
+            } else {
+                if (registeredUsers[username] && registeredUsers[username].password === password) {
+                    currentUser = { username, ...registeredUsers[username] };
+                } else {
+                    alert("用戶名或密碼錯誤！");
+                    return;
+                }
+            }
+
+            toggleVisibility('loginContainer', false);
+            toggleVisibility(currentUser.isAdmin ? 'adminContainer' : 'customerContainer', true);
+            displayRedeemItems();
+            updateButtons();
+            updateInbox();
+        }
+
+        function register() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+
+            if (!username || !password) {
+                alert("請輸入用戶名和密碼！");
+                return;
+            }
+
+            if (registeredUsers[username]) {
+                alert("用戶名已存在，請選擇其他用戶名！");
+                return;
+            }
+
+            registeredUsers[username] = { password, points: 0, lastCheckIn: null, lastLottery: null };
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            alert("註冊成功！您現在可以登錄。");
+            toggleVisibility('registerContainer', false);
+        }
+
+        function viewPoints() {
+            alert(`您的當前點數: ${currentUser.points}`);
+        }
+
+        function updateInbox() {
+            const inboxList = document.getElementById('inboxList');
+            inboxList.innerHTML = ""; // 清空收件夾
+            if (inbox[currentUser.username]) {
+                inbox[currentUser.username].forEach(message => {
+                    const li = document.createElement('li');
+                    li.textContent = message;
+                    inboxList.appendChild(li);
+                });
+            }
+            localStorage.setItem('inbox', JSON.stringify(inbox));
+        }
+
+        function updateButtons() {
+            const today = getCurrentDate();
+            const userData = registeredUsers[currentUser.username];
+
+            if (userData.lastCheckIn === today) {
+                document.getElementById('checkInButton').disabled = true;
+                document.getElementById('checkInButton').innerText = "今日已簽到";
+            } else {
+                document.getElementById('checkInButton').disabled = false;
+                document.getElementById('checkInButton').innerText = "每日簽到";
+            }
+        }
+
+        function checkIn() {
+            if (!currentUser) return;
+            const today = getCurrentDate();
+            if (registeredUsers[currentUser.username].lastCheckIn === today) {
+                alert("您今天已經簽到過了！");
+                return;
+            }
+            currentUser.points += 10; // 每日簽到增加10點
+            registeredUsers[currentUser.username].lastCheckIn = today; // 更新簽到日期
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            alert("簽到成功！獲得10點數。");
+            updateButtons(); // 更新按鈕狀態
+        }
+
+        function displayRedeemItems() {
+            const container = document.getElementById('redeemItemsContainer');
+            container.innerHTML = ""; // 清空容器
+            for (const [itemName, itemData] of Object.entries(redeemItems)) {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'redeem-item';
+                itemDiv.textContent = `${itemName} - ${itemData.cost} 點數 (${itemData.used ? '已使用' : '未使用'})`;
+                itemDiv.onclick = () => addToCart(itemName, itemData.cost);
+                container.appendChild(itemDiv);
+            }
+        }
+
+        function addToCart(itemName, itemCost) {
+            if (currentUser.points < itemCost) {
+                document.getElementById('customerMessage').innerText = "點數不足，無法加入購物車！";
+                return;
+            }
+            cart.push({ name: itemName, cost: itemCost });
+            displayCart();
+            document.getElementById('customerMessage').innerText = `${itemName} 已加入購物車！`;
+        }
+
+        function displayCart() {
+            const cartContainer = document.getElementById('cartContainer');
+            cartContainer.innerHTML = ""; // 清空購物車容器
+            cart.forEach(item => {
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.className = 'cart-item';
+                cartItemDiv.textContent = `${item.name} - ${item.cost} 點數`;
+                cartContainer.appendChild(cartItemDiv);
+            });
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                document.getElementById('customerMessage').innerText = "購物車是空的！";
+                return;
+            }
+            let totalCost = cart.reduce((sum, item) => sum + item.cost, 0);
+            if (currentUser.points < totalCost) {
+                document.getElementById('customerMessage').innerText = "點數不足，無法結帳！";
+                return;
+            }
+            cart.forEach(item => {
+                currentUser.points -= item.cost;
+                redeemItems[item.name].used = true; // 標記為已使用
+                const usageCode = generateUsageCode(); // 生成使用碼
+                document.getElementById('customerMessage').innerText += `成功兌換 ${item.name}！您的使用碼是: ${usageCode}（已使用）\n`;
+                notifyAdmin(currentUser.username, item.name, usageCode);
+                addToInbox(currentUser.username, `您已成功兌換 ${item.name}，使用碼是 ${usageCode}，請聯絡管理員使用。`);
+            });
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            localStorage.setItem('redeemItems', JSON.stringify(redeemItems)); // 更新資料庫
+            cart = []; // 清空購物車
+            displayCart(); // 更新購物車顯示
+            displayRedeemItems(); // 更新可兌換物品顯示
+        }
+
+        function generateUsageCode() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase(); // 隨機生成使用碼
+        }
+
+        function redeemWithCode() {
+            const code = document.getElementById('redeemCode').value.trim();
+            if (code) {
+                if (code === "DISCOUNT10") {
+                    currentUser.points += 10; // 兌換碼增加10點
+                    alert("兌換碼使用成功，獲得10點數！");
+                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                } else {
+                    alert("無效的兌換碼！");
+                }
+            }
+        }
+
+        // 在頁面加載時初始化 Google API 客戶端
+        window.onload = handleClientLoad;
+    </script>
+</body>
+</html>
