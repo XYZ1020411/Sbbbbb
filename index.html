@@ -64,19 +64,19 @@
             text-align: center;
             margin-top: 10px;
             border-radius: 8px;
+            position: relative;
+            overflow: hidden;
         }
         #scratchResult {
             margin-top: 10px;
             font-weight: bold;
         }
-        #userList {
-            margin-top: 10px;
-        }
-        #userList li {
-            background: #f0f0f0; /* 淡灰色 */
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 4px;
+        .scratch-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: gray;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -108,7 +108,7 @@
         <button onclick="checkout()">結帳</button>
         <h3>刮刮樂</h3>
         <div id="scratchCard">
-            <button onclick="playScratchCard()">刮刮樂</button>
+            <div class="scratch-layer" onclick="scratchCard(event)"></div>
             <div id="scratchResult"></div>
         </div>
         <input type="text" id="redeemCode" placeholder="輸入兌換碼">
@@ -163,7 +163,7 @@
                 return;
             }
 
-            const adminUsername = "xyz1020411";
+            const adminUsername = "admin";
             const adminPassword = "xyz1020411";
 
             if (username === adminUsername && password === adminPassword) {
@@ -279,7 +279,10 @@
         }
 
         // 刮刮樂功能
-        function playScratchCard() {
+        function scratchCard(event) {
+            const scratchLayer = document.querySelector('.scratch-layer');
+            scratchLayer.style.background = 'transparent'; // 刮開後變透明
+
             const prizes = [
                 { type: "點數", amount: 10 },
                 { type: "點數", amount: 20 },
