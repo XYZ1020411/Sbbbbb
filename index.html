@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -140,6 +139,8 @@
     </div>
 
     <script>
+        const DATABASE_KEY = "nbwt1_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJlZGIuZC5hbGwiOnRydWUsImVkYi5pLmFsbCI6dHJ1ZSwiZWRiLnIuYWxsIjp0cnVlLCJpYXQiOjE3NDA0MDcyNDksImlzcyI6ImF3cy5lZGdlZGIuY2xvdWQiLCJqdGkiOiJlZ1pneXZLN0VlLWpzcHUySmJlZXFBIiwic3ViIjoiZFNRVnpQSzVFZS04LUx2NjhHNmY4ZyJ9.120RxjXAWJGZxdU201YRkDLnaoy3r1ilAbsmqDsrUumbhxSSFxZCo6l3QC0tbejnyEjIU9lL7g88V0Qrs2w4VA"; // 你的金鑰
+
         let currentUser = null;
         let redeemItems = {
             "商品A": { cost: 20, used: false },
@@ -149,6 +150,52 @@
         let cart = []; // 購物車陣列
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {};
         let inbox = JSON.parse(localStorage.getItem('inbox')) || {};
+
+        // 每日簽到和刮刮樂的狀態
+        function checkIn() {
+            const today = new Date().toDateString();
+            if (currentUser.lastCheckIn === today) {
+                alert("您今天已經簽到過了！");
+                return;
+            }
+            currentUser.points += 5; // 簽到獲得5點
+            currentUser.lastCheckIn = today;
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            alert("簽到成功！您獲得了5點數！");
+        }
+
+        function scratchCard(event) {
+            if (currentUser.scratchUsed) {
+                alert("您今天已經使用過刮刮樂了！");
+                return;
+            }
+            const scratchLayer = document.querySelector('.scratch-layer');
+            scratchLayer.style.background = 'transparent'; // 刮開後變透明
+
+            const prizes = [
+                { type: "點數", amount: 10 },
+                { type: "點數", amount: 20 },
+                { type: "點數", amount: 50 },
+                { type: "獎品", name: "神秘禮物" },
+                { type: "無獎", amount: 0 }
+            ];
+            const randomIndex = Math.floor(Math.random() * prizes.length);
+            const prize = prizes[randomIndex];
+
+            let resultMessage = "";
+            if (prize.type === "點數") {
+                currentUser.points += prize.amount;
+                resultMessage = `恭喜！您贏得了 ${prize.amount} 點數！`;
+            } else if (prize.type === "獎品") {
+                resultMessage = `恭喜！您贏得了 ${prize.name}！`;
+            } else {
+                resultMessage = "很遺憾，您沒有贏得任何獎品。";
+            }
+
+            document.getElementById('scratchResult').innerText = resultMessage;
+            currentUser.scratchUsed = true; // 標記為已使用
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        }
 
         function toggleVisibility(containerId, isVisible) {
             document.getElementById(containerId).classList.toggle('hidden', !isVisible);
@@ -163,7 +210,7 @@
                 return;
             }
 
-            const adminUsername = "xyz1020411";
+            const adminUsername = "admin";
             const adminPassword = "xyz1020411";
 
             if (username === adminUsername && password === adminPassword) {
@@ -196,7 +243,7 @@
                 return;
             }
 
-            registeredUsers[username] = { password, points: 0, lastCheckIn: null };
+            registeredUsers[username] = { password, points: 0, lastCheckIn: null, scratchUsed: false };
             localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
             alert("註冊成功！您現在可以登錄。");
             toggleVisibility('registerContainer', false);
@@ -276,35 +323,6 @@
                     alert("無效的兌換碼！");
                 }
             }
-        }
-
-        // 刮刮樂功能
-        function scratchCard(event) {
-            const scratchLayer = document.querySelector('.scratch-layer');
-            scratchLayer.style.background = 'transparent'; // 刮開後變透明
-
-            const prizes = [
-                { type: "點數", amount: 10 },
-                { type: "點數", amount: 20 },
-                { type: "點數", amount: 50 },
-                { type: "獎品", name: "神秘禮物" },
-                { type: "無獎", amount: 0 }
-            ];
-            const randomIndex = Math.floor(Math.random() * prizes.length);
-            const prize = prizes[randomIndex];
-
-            let resultMessage = "";
-            if (prize.type === "點數") {
-                currentUser.points += prize.amount;
-                resultMessage = `恭喜！您贏得了 ${prize.amount} 點數！`;
-            } else if (prize.type === "獎品") {
-                resultMessage = `恭喜！您贏得了 ${prize.name}！`;
-            } else {
-                resultMessage = "很遺憾，您沒有贏得任何獎品。";
-            }
-
-            document.getElementById('scratchResult').innerText = resultMessage;
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
         }
 
         // 管理員功能
