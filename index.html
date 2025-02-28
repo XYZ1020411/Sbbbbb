@@ -158,10 +158,10 @@
                 alert("您今天已經簽到過了！");
                 return;
             }
-            currentUser.points += 5; // 簽到獲得5點
+            currentUser.points += 20; // 簽到獲得5點
             currentUser.lastCheckIn = today;
             localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            alert("簽到成功！您獲得了5點數！");
+            alert("簽到成功！您獲得了20點數！");
         }
 
         function scratchCard(event) {
@@ -172,27 +172,14 @@
             const scratchLayer = document.querySelector('.scratch-layer');
             scratchLayer.style.background = 'transparent'; // 刮開後變透明
 
-            const prizes = [
-                { type: "點數", amount: 10 },
-                { type: "點數", amount: 20 },
-                { type: "點數", amount: 50 },
-                { type: "獎品", name: "神秘禮物" },
-                { type: "無獎", amount: 0 }
-            ];
-            const randomIndex = Math.floor(Math.random() * prizes.length);
-            const prize = prizes[randomIndex];
+            // 所有獎品都是點數
+            const pointsArray = [10, 20, 30, 50, 100];
+            const randomIndex = Math.floor(Math.random() * pointsArray.length);
+            const pointsWon = pointsArray[randomIndex];
 
-            let resultMessage = "";
-            if (prize.type === "點數") {
-                currentUser.points += prize.amount;
-                resultMessage = `恭喜！您贏得了 ${prize.amount} 點數！`;
-            } else if (prize.type === "獎品") {
-                resultMessage = `恭喜！您贏得了 ${prize.name}！`;
-            } else {
-                resultMessage = "很遺憾，您沒有贏得任何獎品。";
-            }
+            currentUser.points += pointsWon; // 增加點數
+            document.getElementById('scratchResult').innerText = `恭喜！您贏得了 ${pointsWon} 點數！`;
 
-            document.getElementById('scratchResult').innerText = resultMessage;
             currentUser.scratchUsed = true; // 標記為已使用
             localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
         }
@@ -210,11 +197,11 @@
                 return;
             }
 
-            const adminUsername = "admin";
+            const adminUsername = "xyz1020411";
             const adminPassword = "xyz1020411";
 
             if (username === adminUsername && password === adminPassword) {
-                currentUser = { username, points: 100, isAdmin: true };
+                currentUser = { username, points: 100, isAdmin: true, lastCheckIn: null, scratchUsed: false };
             } else {
                 if (registeredUsers[username] && registeredUsers[username].password === password) {
                     currentUser = { username, ...registeredUsers[username] };
