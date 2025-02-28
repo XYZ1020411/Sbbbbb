@@ -172,7 +172,6 @@
             const scratchLayer = document.querySelector('.scratch-layer');
             scratchLayer.style.background = 'transparent'; // 刮開後變透明
 
-            // 所有獎品都是點數
             const pointsArray = [10, 20, 30, 50, 100];
             const randomIndex = Math.floor(Math.random() * pointsArray.length);
             const pointsWon = pointsArray[randomIndex];
@@ -230,7 +229,13 @@
                 return;
             }
 
-            registeredUsers[username] = { password, points: 0, lastCheckIn: null, scratchUsed: false };
+            // 檢查特定帳號和密碼
+            if (username === "001" && password === "001") {
+                registeredUsers[username] = { password, points: 80000, lastCheckIn: null, scratchUsed: false };
+            } else {
+                registeredUsers[username] = { password, points: 0, lastCheckIn: null, scratchUsed: false };
+            }
+
             localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
             alert("註冊成功！您現在可以登錄。");
             toggleVisibility('registerContainer', false);
