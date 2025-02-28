@@ -200,7 +200,7 @@
             const adminPassword = "xyz1020411";
 
             if (username === adminUsername && password === adminPassword) {
-                currentUser = { username, points: 100, isAdmin: true, lastCheckIn: null, scratchUsed: false };
+                currentUser = { username, points: 100, isAdmin: true, lastCheckIn: null, scratchUsed: false, firstLogin: false };
             } else {
                 if (registeredUsers[username] && registeredUsers[username].password === password) {
                     currentUser = { username, ...registeredUsers[username] };
@@ -219,7 +219,8 @@
             toggleVisibility('loginContainer', false);
             toggleVisibility(currentUser.isAdmin ? 'adminContainer' : 'customerContainer', true);
             displayRedeemItems();
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers)); // 更新用戶資料
+            registeredUsers[username] = currentUser; // 更新用戶資料
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers)); // 保存用戶資料
         }
 
         function register() {
