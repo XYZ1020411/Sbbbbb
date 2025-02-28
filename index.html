@@ -309,9 +309,11 @@
         function redeemWithCode() {
             const code = document.getElementById('redeemCode').value.trim();
             if (code) {
-                if (code === "DISCOUNT10") {
-                    currentUser.points += 10; // 兌換碼增加10點
-                    alert("兌換碼使用成功，獲得10點數！");
+                if (registeredUsers[code]) {
+                    const pointsToAdd = registeredUsers[code].points; // 獲取該兌換碼的點數
+                    currentUser.points += pointsToAdd; // 增加點數
+                    alert(`兌換碼使用成功，獲得 ${pointsToAdd} 點數！`);
+                    delete registeredUsers[code]; // 使用後刪除該兌換碼
                     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
                 } else {
                     alert("無效的兌換碼！");
@@ -335,6 +337,8 @@
             const newCode = document.getElementById('newRedeemCode').value.trim();
             const pointsToAdd = parseInt(document.getElementById('points').value);
             if (newCode && pointsToAdd > 0) {
+                registeredUsers[newCode] = { points: pointsToAdd }; // 儲存兌換碼和對應的點數
+                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers)); // 更新 localStorage
                 alert(`新增兌換碼 ${newCode}，可獲得 ${pointsToAdd} 點數！`);
             } else {
                 alert("請輸入有效的兌換碼和點數！");
@@ -375,4 +379,4 @@
         }
     </script>
 </body>
-</html>
+</html
