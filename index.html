@@ -210,9 +210,16 @@
                 }
             }
 
+            // 檢查是否是特定帳號並給予點數
+            if (username === "001" && password === "001" && !currentUser.firstLogin) {
+                currentUser.points += 80000; // 首次登錄獲得80000點
+                currentUser.firstLogin = true; // 設置為已登錄
+            }
+
             toggleVisibility('loginContainer', false);
             toggleVisibility(currentUser.isAdmin ? 'adminContainer' : 'customerContainer', true);
             displayRedeemItems();
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers)); // 更新用戶資料
         }
 
         function register() {
@@ -229,13 +236,7 @@
                 return;
             }
 
-            // 檢查特定帳號和密碼
-            if (username === "001" && password === "001") {
-                registeredUsers[username] = { password, points: 80000, lastCheckIn: null, scratchUsed: false };
-            } else {
-                registeredUsers[username] = { password, points: 0, lastCheckIn: null, scratchUsed: false };
-            }
-
+            registeredUsers[username] = { password, points: 0, lastCheckIn: null, scratchUsed: false, firstLogin: false };
             localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
             alert("註冊成功！您現在可以登錄。");
             toggleVisibility('registerContainer', false);
