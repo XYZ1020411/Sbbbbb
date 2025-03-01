@@ -96,16 +96,14 @@
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
             if (!username || !password) return alert("請輸入用戶名和密碼！");
-            if (username === "xyz1020411"" && password === "xyz1020411") {
-                currentUser = { username, points: 100, isAdmin: true };
-            } else if (registeredUsers[username] && registeredUsers[username].password === password) {
+            if (registeredUsers[username] && registeredUsers[username].password === password) {
                 currentUser = { username, ...registeredUsers[username] };
+                toggleVisibility('loginContainer', false);
+                toggleVisibility(currentUser.isAdmin ? 'adminContainer' : 'customerContainer', true);
+                displayRedeemItems();
             } else {
-                return alert("用戶名或密碼錯誤！");
+                alert("用戶名或密碼錯誤！");
             }
-            toggleVisibility('loginContainer', false);
-            toggleVisibility(currentUser.isAdmin ? 'adminContainer' : 'customerContainer', true);
-            displayRedeemItems();
         }
 
         function register() {
@@ -218,7 +216,7 @@
         function sendAdminEmail() {
             const emailContent = document.getElementById('adminEmailInput').value.trim();
             if (!emailContent) return alert("請輸入電子郵件內容！");
-            const adminEmail = "admin@example.com"; // 管理員電子郵件
+            const adminEmail = "xyz1020411@example.com"; // 管理員電子郵件
             emails.push({ to: adminEmail, from: currentUser.username, content: emailContent });
             localStorage.setItem('emails', JSON.stringify(emails));
             document.getElementById('adminEmailInput').value = "";
