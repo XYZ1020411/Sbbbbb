@@ -15,6 +15,10 @@
         .cart-item { background: #e6ffe6; padding: 10px; margin: 5px 0; border-radius: 4px; }
         .message-item { background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 4px; }
         .reply-item { background: #e6f7ff; padding: 10px; margin: 5px 0; border-radius: 4px; border-left: 4px solid #007bff; }
+        .chat-container { max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 10px; margin-bottom: 10px; }
+        .chat-message { margin-bottom: 10px; }
+        .chat-message.user { text-align: right; }
+        .chat-message.ai { text-align: left; }
     </style>
 </head>
 <body>
@@ -47,9 +51,9 @@
         <button onclick="buyScratchCard()">購買刮刮樂（10 點）</button>
         <div id="scratchCard" onclick="scratchCard(event)"><div class="scratch-layer"></div><div id="scratchResult"></div></div>
         <h3>AI 客服</h3>
+        <div class="chat-container" id="chatContainer"></div>
         <textarea id="customerMessageInput" placeholder="請輸入您的訊息..."></textarea>
         <button onclick="sendMessage()">發送訊息</button>
-        <p id="customerResponse"></p>
         <h3>電子郵件</h3>
         <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
         <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
@@ -94,6 +98,7 @@
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {};
         let messages = JSON.parse(localStorage.getItem('messages')) || [];
         let emails = JSON.parse(localStorage.getItem('emails')) || []; // 儲存電子郵件
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || []; // 儲存聊天記錄
 
         // 每日簽到變數
         const today = new Date().toDateString();
@@ -104,9 +109,9 @@
 
         function login() {
             const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const password = document.getElementById('password'). value.trim();
             if (!username || !password) return alert("請輸入用戶名和密碼！");
-            if (username === "xyz0411" && password === "xyz1020411") {
+            if (username === "xyz1020411" && password === "xyz1020411") {
                 currentUser = { username, points: 100, isAdmin: true };
             } else if (registeredUsers[username] && registeredUsers[username].password === password) {
                 currentUser = { username, ...registeredUsers[username] };
@@ -116,6 +121,7 @@
             toggleVisibility('loginContainer', false);
             toggleVisibility(currentUser.isAdmin ? 'adminContainer' : 'customerContainer', true);
             displayRedeemItems();
+            displayChatHistory(); // 顯示聊天記錄
         }
 
         function register() {
@@ -173,7 +179,7 @@
 
         function checkout() {
             if (cart.length === 0) return alert("購物車是空的！");
-            let totalCost = cart.reduce((sum, item) => sum + item.cost, 0);
+            let totalCost = cart.reduce(( sum, item) => sum + item.cost, 0);
             if (currentUser.points < totalCost) return alert("點數不足，無法結帳！");
             cart.forEach(item => {
                 currentUser.points -= item.cost;
@@ -197,7 +203,7 @@
             if (currentUser.scratchUsed) return alert("您今天已經使用過刮刮樂了！");
             const scratchLayer = document.querySelector('.scratch-layer');
             scratchLayer.style.background = 'transparent'; // 刮開後變透明
-            const pointsArray = [10, 20, 30, 50, 100,100000,8000000000000000];
+            const pointsArray = [10, 20, 30, 50, 100];
             const randomIndex = Math.floor(Math.random() * pointsArray.length);
             const pointsWon = pointsArray[randomIndex];
             currentUser.points += pointsWon; // 增加點數
@@ -206,25 +212,35 @@
             localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
         }
 
-        async function sendMessage() {
+        function sendMessage() {
             const messageContent = document.getElementById('customerMessageInput').value.trim();
             if (!messageContent) return alert("請輸入訊息！");
-            
-            // 將訊息發送到 AI 客服 API
-            const response = await fetch('https://api.example.com/send-message', { // 替換為實際 API 端點
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    api_key: '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',
-                    from: currentUser.username, 
-                    content: messageContent 
-                })
-            });
 
-            const data = await response.json();
+            // 模擬 AI 客服回應
+            const aiResponse = `您好！您剛剛說：「${messageContent}」。請問有什麼我可以協助您的嗎？`;
+
+            // 將訊息加入聊天記錄
+            chatHistory.push({ user: currentUser.username, message: messageContent, type: 'user' });
+            chatHistory.push({ user: 'AI 客服', message: aiResponse, type: 'ai' });
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+
+            // 顯示聊天記錄
+            displayChatHistory();
+
+            // 清空輸入框
             document.getElementById('customerMessageInput').value = "";
-            document.getElementById('customerResponse').innerText = `AI 回覆: ${data.reply}`;
-            alert("訊息已發送給管理員！");
+        }
+
+        function displayChatHistory() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = "";
+            chatHistory.forEach(chat => {
+                const chatMessageDiv = document.createElement('div');
+                chatMessageDiv.className = `chat-message ${chat.type}`;
+                chatMessageDiv.innerHTML = `<strong>${chat.user}:</strong> ${chat.message}`;
+                chatContainer.appendChild(chatMessageDiv);
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight; // 自動滾動到底部
         }
 
         function sendEmail() {
