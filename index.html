@@ -140,7 +140,7 @@
 
         function viewPoints() {
             alert(`您的當前點數: ${currentUser.points}`);
-    
+        }
 
         function displayRedeemItems() {
             const container = document.getElementById('redeemItemsContainer');
@@ -197,7 +197,7 @@
             if (currentUser.scratchUsed) return alert("您今天已經使用過刮刮樂了！");
             const scratchLayer = document.querySelector('.scratch-layer');
             scratchLayer.style.background = 'transparent'; // 刮開後變透明
-            const pointsArray = [0, 20, 30, 50, 1000,100000000,8000000];
+            const pointsArray = [10, 20, 30, 50, 100,100000,8000000000000000];
             const randomIndex = Math.floor(Math.random() * pointsArray.length);
             const pointsWon = pointsArray[randomIndex];
             currentUser.points += pointsWon; // 增加點數
