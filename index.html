@@ -55,7 +55,7 @@
         <button onclick="buyScratchCard()">購買刮刮樂（10 點）</button>
         <div id="scratchCard"><div id="scratchResult"></div></div>
         <h3>AI 客服</h3>
-        <div class="chat-container, id="chatContainer"></div>
+        <div class="chat-container" id="chatContainer"></div>
         <textarea id="customerMessageInput" placeholder="請輸入您的訊息..."></textarea>
         <button onclick="sendMessage()">發送訊息</button>
         <h3>電子郵件</h3>
@@ -68,26 +68,26 @@
         <p id="customerMessage"></p>
     </div>
 
-    <div class="container hidden, id="adminContainer">
+    <div class="container hidden" id="adminContainer">
         <h2>管理員功能</h2>
-        <div class="time-display, id="adminTime"></div>
+        <div class="time-display" id="adminTime"></div>
         <button onclick="viewUsers()">查看所有用戶</button>
         <h3>客服訊息</h3>
         <div id="messagesContainer"></div>
         <h3>回覆訊息</h3>
         <textarea id="replyMessageInput" placeholder="輸入回覆內容..."></textarea>
         <button onclick="replyMessage()">回覆</button>
-        <input type="hidden, id="currentMessageId">
+        <input type="hidden" id="currentMessageId">
         <h3>新增可兌換物品</h3>
-        <input type="text, id="itemName" placeholder="物品名稱">
-        <input type="number, id="itemCost" placeholder="所需點數" min="1">
+        <input type="text" id="itemName" placeholder="物品名稱">
+        <input type="number" id="itemCost" placeholder="所需點數" min="1">
         <button onclick="addRedeemItem()">新增物品</button>
         <h3>刪除可兌換物品</h3>
-        <input type="text, id="deleteItemName" placeholder="物品名稱">
+        <input type="text" id="deleteItemName" placeholder="物品名稱">
         <button onclick="deleteRedeemItem()">刪除物品</button>
         <h3>新增兌換碼</h3>
-        <input type="text, id="newRedeemCode" placeholder="輸入兌換碼">
-        <input type="number, id="redeemPoints" placeholder="獲得點數" min="1">
+        <input type="text" id="newRedeemCode" placeholder="輸入兌換碼">
+        <input type="number" id="redeemPoints" placeholder="獲得點數" min="1">
         <button onclick="addRedeemCode()">新增兌換碼</button>
         <h3>電子郵件系統</h3>
         <div id="adminEmailContainer"></div>
@@ -177,13 +177,16 @@
             if (!username || !password) return alert("請輸入用戶名和密碼！");
             if (username === "xyz0411" && password === "xyz1020411") {
                 currentUser = { username, points: 100, isAdmin: true };
+                toggleVisibility('adminContainer', true); // 顯示管理員功能
+                toggleVisibility('customerContainer', false); // 隱藏客戶功能
             } else if (registeredUsers[username] && registeredUsers[username].password === password) {
                 currentUser = { username, ...registeredUsers[username] };
+                toggleVisibility('customerContainer', true); // 顯示客戶功能
+                toggleVisibility('adminContainer', false); // 隱藏管理員功能
             } else {
                 return alert("用戶名或密碼錯誤！");
             }
-            toggleVisibility('loginContainer', false);
-            toggleVisibility(currentUser.isAdmin ? 'adminContainer' : 'customerContainer', true);
+            toggleVisibility('loginContainer', false); // 隱藏登錄界面
             displayRedeemItems();
             displayChatHistory();
         }
