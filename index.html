@@ -124,37 +124,6 @@
             "12-25": "聖誕節"
         };
 
-        // 季節背景顏色
-        const seasonColors = {
-            spring: "#ffcccc", // 春天
-            summer: "#ccffcc", // 夏天
-            autumn: "#ffcc99", // 秋天
-            winter: "#ccccff"  // 冬天
-        };
-
-        // 設置季節背景顏色
-        function setSeasonalBackground() {
-            const month = new Date().getMonth() + 1; // 獲取當前月份（1-12）
-            let season;
-            if (month >= 3 && month <= 5) season = "spring"; // 春天
-            else if (month >= 6 && month <= 8) season = "summer"; // 夏天
-            else if (month >= 9 && month <= 11) season = "autumn"; // 秋天
-            else season = "winter"; // 冬天
-            document.body.style.backgroundColor = seasonColors[season]; // 設置背景顏色
-        }
-
-        // 檢查節慶並顯示公告
-        function checkHoliday() {
-            const today = new Date().toISOString().split('T')[0];
-            if (holidays[today]) {
-                const redeemCode = generateRedeemCode();
-                const announcement = document.getElementById('announcementContainer');
-                announcement.innerHTML = `🎉 今天是 ${holidays[today]}！系統贈送您兌換碼：${redeemCode}，可兌換 10000 點！`;
-                currentUser.points += 10000;
-                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            }
-        }
-
         // 自動更新時間
         function updateTime() {
             const now = new Date();
@@ -165,7 +134,6 @@
 
         // 初始化頁面
         window.onload = function() {
-            setSeasonalBackground();
             checkHoliday();
             setInterval(updateTime, 1000); // 每秒更新一次時間
         };
@@ -254,7 +222,7 @@
         // 結帳功能
         function checkout() {
             if (cart.length === 0) return alert("購物車是空的！");
-            let totalCost = cart.reduce((sum, item) => sum + item.cost, 0);
+            let totalCost = cart.reduce(( sum, item ) => sum + item.cost, 0);
             if (currentUser.points < totalCost) return alert("點數不足，無法結帳！");
             cart.forEach(item => {
                 currentUser.points -= item.cost;
