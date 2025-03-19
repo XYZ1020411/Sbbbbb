@@ -3,14 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兌換系統</title>
+    <title>VIP 兌換系統</title>
     <style>
-        body { font-family: Arial, sans-serif; color: #333; margin: 0; padding: 0; }
-        .container { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); margin: 20px auto; padding: 20px; max-width: 400px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            color: #333; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #FFD700; /* 金黃色背景 */
+        }
+        .container { 
+            background: rgba(255,255,255,0.9); 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+            margin: 20px auto; 
+            padding: 20px; 
+            max-width: 400px; 
+        }
         h2 { text-align: center; color: #b30000; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #FFD700; color: black; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; margin: 5px 0; transition: background-color 0.3s; }
-        button:hover { background-color: #FFC300; }
+        input, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+        }
+        button { 
+            background-color: #FFA500; 
+            color: black; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            width: 100%; 
+            margin: 5px 0; 
+            transition: background-color 0.3s; 
+        }
+        button:hover { background-color: #FF8C00; }
         .hidden { display: none; }
         .cart-item { background: #e6ffe6; padding: 10px; margin: 5px 0; border-radius: 4px; }
         .message-item { background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 4px; }
@@ -24,364 +53,272 @@
     </style>
 </head>
 <body>
-    <div class="container" id="loginContainer">
-        <h2>登錄</h2>
-        <input type="text" id="username" placeholder="用戶名">
-        <input type="password" id="password" placeholder="密碼">
-        <button onclick="login()">登錄</button>
-        <button onclick="toggleVisibility('registerContainer', true)">註冊</button>
+    <!-- VIP 登錄界面 -->
+    <div class="container" id="vipLoginContainer">
+        <h2>VIP 會員登錄</h2>
+        <input type="text" id="vipUsername" placeholder="VIP 帳號">
+        <input type="password" id="vipPassword" placeholder="VIP 密碼">
+        <button onclick="vipLogin()">VIP 登錄</button>
     </div>
 
+    <!-- 普通客戶登錄界面 -->
+    <div class="container hidden" id="normalLoginContainer">
+        <h2>普通客戶登錄</h2>
+        <input type="text" id="normalUsername" placeholder="用戶名">
+        <input type="password" id="normalPassword" placeholder="密碼">
+        <button onclick="normalLogin()">登錄</button>
+        <button onclick="toggleVisibility('registerContainer', true)">註冊新帳號</button>
+    </div>
+
+    <!-- 管理員登錄界面 -->
+    <div class="container hidden" id="adminLoginContainer">
+        <h2>管理員登錄</h2>
+        <input type="text" id="adminUsername" placeholder="管理員帳號">
+        <input type="password" id="adminPassword" placeholder="管理員密碼">
+        <button onclick="adminLogin()">管理員登錄</button>
+    </div>
+
+    <!-- 註冊界面 -->
     <div class="container hidden" id="registerContainer">
-        <h2>註冊</h2>
+        <h2>註冊新帳號</h2>
         <input type="text" id="newUsername" placeholder="用戶名">
         <input type="password" id="newPassword" placeholder="密碼">
         <button onclick="register()">註冊</button>
-        <button onclick="toggleVisibility('registerContainer', false)">返回登錄</button>
+        <button onclick="toggleVisibility('registerContainer', false)">返回</button>
     </div>
 
-    <div class="container hidden" id="customerContainer">
-        <h2>客戶功能</h2>
+    <!-- VIP 功能界面 -->
+    <div class="container hidden" id="vipContainer">
+        <h2>🛎️ 尊貴的 VIP 會員您好！</h2>
         <div class="time-display" id="currentTime"></div>
         <div id="announcementContainer" class="announcement"></div>
-        <button onclick="checkIn()">每日簽到</button>
+        <button onclick="vipCheckIn()">每日簽到 (10000 點)</button>
         <button onclick="viewPoints()">查看點數</button>
-        <h3>可兌換物品</h3>
+        
+        <h3>VIP 專屬商品</h3>
         <div id="redeemItemsContainer"></div>
+        
         <h3>購物車</h3>
         <div id="cartContainer"></div>
-        <button onclick="checkout()">結帳</button>
-        <h3>刮刮樂</h3>
-        <button onclick="buyScratchCard()">購買刮刮樂（10 點）</button>
+        <button onclick="vipCheckout()">VIP 結帳 (8折)</button>
+        
+        <h3>VIP 刮刮樂</h3>
+        <button onclick="vipBuyScratchCard()">購買刮刮樂（5 點）</button>
         <div id="scratchCard"><div id="scratchResult"></div></div>
+        
         <h3>AI 客服</h3>
         <div class="chat-container" id="chatContainer"></div>
         <textarea id="customerMessageInput" placeholder="請輸入您的訊息..."></textarea>
         <button onclick="sendMessage()">發送訊息</button>
+        
         <h3>電子郵件</h3>
         <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
         <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
         <button onclick="sendEmail()">發送電子郵件</button>
+        
         <h3>兌換碼</h3>
         <input type="text" id="redeemCode" placeholder="輸入兌換碼">
         <button onclick="redeemWithCode()">兌換碼兌換</button>
-        <p id="customerMessage"></p>
     </div>
 
+    <!-- 普通客戶功能界面 -->
+    <div class="container hidden" id="customerContainer">
+        <h2>客戶功能</h2>
+        <div class="time-display" id="currentTime"></div>
+        <div id="announcementContainer" class="announcement"></div>
+        <button onclick="checkIn()">每日簽到 (100 點)</button>
+        <button onclick="viewPoints()">查看點數</button>
+        
+        <h3>可兌換物品</h3>
+        <div id="redeemItemsContainer"></div>
+        
+        <h3>購物車</h3>
+        <div id="cartContainer"></div>
+        <button onclick="checkout()">結帳</button>
+        
+        <h3>刮刮樂</h3>
+        <button onclick="buyScratchCard()">購買刮刮樂（10 點）</button>
+        <div id="scratchCard"><div id="scratchResult"></div></div>
+        
+        <h3>AI 客服</h3>
+        <div class="chat-container" id="chatContainer"></div>
+        <textarea id="customerMessageInput" placeholder="請輸入您的訊息..."></textarea>
+        <button onclick="sendMessage()">發送訊息</button>
+        
+        <h3>電子郵件</h3>
+        <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
+        <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
+        <button onclick="sendEmail()">發送電子郵件</button>
+        
+        <h3>兌換碼</h3>
+        <input type="text" id="redeemCode" placeholder="輸入兌換碼">
+        <button onclick="redeemWithCode()">兌換碼兌換</button>
+    </div>
+
+    <!-- 管理員功能界面 -->
     <div class="container hidden" id="adminContainer">
         <h2>管理員功能</h2>
         <div class="time-display" id="adminTime"></div>
         <button onclick="viewUsers()">查看所有用戶</button>
+        
         <h3>客服訊息</h3>
         <div id="messagesContainer"></div>
+        
         <h3>回覆訊息</h3>
         <textarea id="replyMessageInput" placeholder="輸入回覆內容..."></textarea>
         <button onclick="replyMessage()">回覆</button>
         <input type="hidden" id="currentMessageId">
+        
         <h3>新增可兌換物品</h3>
         <input type="text" id="itemName" placeholder="物品名稱">
         <input type="number" id="itemCost" placeholder="所需點數" min="1">
         <button onclick="addRedeemItem()">新增物品</button>
+        
         <h3>刪除可兌換物品</h3>
         <input type="text" id="deleteItemName" placeholder="物品名稱">
         <button onclick="deleteRedeemItem()">刪除物品</button>
+        
         <h3>新增兌換碼</h3>
         <input type="text" id="newRedeemCode" placeholder="輸入兌換碼">
         <input type="number" id="redeemPoints" placeholder="獲得點數" min="1">
         <button onclick="addRedeemCode()">新增兌換碼</button>
+        
         <h3>電子郵件系統</h3>
         <div id="adminEmailContainer"></div>
         <textarea id="adminEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
         <button onclick="sendAdminEmail()">發送電子郵件</button>
     </div>
 
-    <script>
-        let currentUser = null;
-        let redeemItems = { "商品A": { cost: 20, used: false }, "商品B": { cost: 50, used: false }, "商品C": { cost: 30, used: false } };
-        let redeemCodes = [];
-        let cart = [];
-        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {};
-        let messages = JSON.parse(localStorage.getItem('messages')) || [];
-        let emails = JSON.parse(localStorage.getItem('emails')) || [];
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-        const today = new Date().toDateString();
+<script>
+// 初始化數據
+let currentUser = null;
+let redeemItems = { 
+    "VIP 商品A": { cost: 200, original: 250 }, 
+    "VIP 商品B": { cost: 400, original: 500 },
+    "普通商品A": { cost: 20, original: 20 },
+    "普通商品B": { cost: 50, original: 50 }
+};
+let redeemCodes = [{code: "vip6666", points: 10000}]; // 預設兌換碼
+let cart = [];
+let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
+    "vip8888": {  // 預先註冊 VIP 帳號
+        password: "vip8888",
+        email: "vip8888@vip.com",
+        points: 50000,
+        isVIP: true,
+        lastCheckIn: null
+    }
+};
 
-        // 台灣所有節日
-        const holidays = {
-            "01-01": "元旦",
-            "01-28": "農曆除夕",
-            "01-29": "春節",
-            "01-30": "春節",
-            "01-31": "春節",
-            "02-14": "情人節",
-            "04-04": "兒童節",
-            "04-05": "清明節",
-            "04-11": "特別節慶",
-            "05-01": "勞動節",
-            "06-08": "端午節",
-            "09-21": "中秋節",
-            "10-10": "國慶日",
-            "12-25": "聖誕節"
-        };
+// ================= VIP 專屬功能 =================
+function vipLogin() {
+    const username = document.getElementById('vipUsername').value.trim();
+    const password = document.getElementById('vipPassword').value.trim();
+    if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isVIP) {
+        currentUser = { username, ...registeredUsers[username] };
+        toggleVisibility('vipContainer', true);
+        document.getElementById('vipContainer').querySelector('h2').textContent = 
+            `🎉 尊貴的 ${username} 會員，歡迎登入 VIP 系統！`;
+        displayRedeemItems();
+    } else {
+        alert("VIP 帳號或密碼錯誤！");
+    }
+}
 
-        // 自動更新時間
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('currentTime').textContent = `當前時間: ${timeString}`;
-            document.getElementById('adminTime').textContent = `當前時間: ${timeString}`;
-        }
+function vipCheckIn() {
+    if(currentUser.lastCheckIn === new Date().toDateString()) {
+        return alert("今日已簽到！");
+    }
+    currentUser.points += 10000;
+    updateUserData();
+    alert("✅ VIP 簽到成功！獲得 10000 點！");
+}
 
-        // 初始化頁面
-        window.onload = function() {
-            checkHoliday();
-            setInterval(updateTime, 1000); // 每秒更新一次時間
-        };
+function vipCheckout() {
+    const total = cart.reduce((sum, item) => sum + (item.cost * 0.8), 0);
+    if(currentUser.points < total) return alert("點數不足！");
+    currentUser.points -= total;
+    cart = [];
+    updateUserData();
+    alert(`💎 VIP 結帳成功！節省 ${total * 0.2} 點！`);
+}
 
-        // 登錄功能
-        function login() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            if (!username || !password) return alert("請輸入用戶名和密碼！");
-            if (username === "xyz1020411" && password === "xyz1020411") {
-                currentUser = { username, points: 100, isAdmin: true };
-                toggleVisibility('adminContainer', true); // 顯示管理員功能
-                toggleVisibility('customerContainer', false); // 隱藏客戶功能
-            } else if (registeredUsers[username] && registeredUsers[username].password === password) {
-                currentUser = { username, ...registeredUsers[username] };
-                toggleVisibility('customerContainer', true); // 顯示客戶功能
-                toggleVisibility('adminContainer', false); // 隱藏管理員功能
-            } else {
-                return alert("用戶名或密碼錯誤！");
-            }
-            toggleVisibility('loginContainer', false); // 隱藏登錄界面
-            displayRedeemItems();
-            displayChatHistory();
-        }
+function vipBuyScratchCard() {
+    if(currentUser.points < 5) return alert("點數不足！");
+    currentUser.points -= 5;
+    const prizes = [500, 1000, 2000, 5000];
+    const prize = prizes[Math.floor(Math.random() * prizes.length)];
+    currentUser.points += prize;
+    document.getElementById('scratchResult').innerHTML = 
+        `🎰 VIP 刮刮樂中獎！獲得 ${prize} 點！`;
+    updateUserData();
+}
 
-        // 註冊功能
-        function register() {
-            const username = document.getElementById('newUsername').value.trim();
-            const password = document.getElementById('newPassword').value.trim();
-            if (!username || !password) return alert("請輸入用戶名和密碼！");
-            if (registeredUsers[username]) return alert("用戶名已存在！");
-            const email = username + "@example.com";
-            registeredUsers[username] = { password, email, points: 0, lastCheckIn: null };
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            alert("註冊成功！");
-            toggleVisibility('registerContainer', false);
-        }
+// ================= 普通客戶功能 =================
+function normalLogin() {
+    const username = document.getElementById('normalUsername').value.trim();
+    const password = document.getElementById('normalPassword').value.trim();
+    if(registeredUsers[username] && registeredUsers[username].password === password && !registeredUsers[username].isVIP) {
+        currentUser = { username, ...registeredUsers[username] };
+        toggleVisibility('customerContainer', true);
+        displayRedeemItems();
+    } else {
+        alert("帳號或密碼錯誤！");
+    }
+}
 
-        // 每日簽到功能
-        function checkIn() {
-            if (currentUser.lastCheckIn === today) return alert("您今天已經簽到過了！");
-            currentUser.points += 100;
-            currentUser.lastCheckIn = today;
-            registeredUsers[currentUser.username] = currentUser;
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            alert("簽到成功！您獲得了 100 點！");
-        }
+function checkIn() {
+    if(currentUser.lastCheckIn === new Date().toDateString()) {
+        return alert("今日已簽到！");
+    }
+    currentUser.points += 100;
+    updateUserData();
+    alert("✅ 簽到成功！獲得 100 點！");
+}
 
-        // 查看點數功能
-        function viewPoints() {
-            alert(`您的當前點數: ${currentUser.points}`);
-        }
+function buyScratchCard() {
+    if(currentUser.points < 10) return alert("點數不足！");
+    currentUser.points -= 10;
+    const prizes = [10, 20, 30, 50, 100];
+    const prize = prizes[Math.floor(Math.random() * prizes.length)];
+    currentUser.points += prize;
+    document.getElementById('scratchResult').innerHTML = 
+        `🎰 刮刮樂中獎！獲得 ${prize} 點！`;
+    updateUserData();
+}
 
-        // 顯示可兌換物品
-        function displayRedeemItems() {
-            const container = document.getElementById('redeemItemsContainer');
-            container.innerHTML = "";
-            for (const [itemName, itemData] of Object.entries(redeemItems) ) {
-                const itemDiv = document.createElement('div');
-                itemDiv.textContent = `${itemName} - ${itemData.cost} 點數`;
-                itemDiv.onclick = () => addToCart(itemName, itemData.cost);
-                container.appendChild(itemDiv);
-            }
-        }
+// ================= 管理員功能 =================
+function adminLogin() {
+    const username = document.getElementById('adminUsername').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+    if(username === "xyz1020411" && password === "xyz1020411") {
+        currentUser = { username, points: 100, isAdmin: true };
+        toggleVisibility('adminContainer', true);
+    } else {
+        alert("管理員帳號或密碼錯誤！");
+    }
+}
 
-        // 加入購物車功能
-        function addToCart(itemName, itemCost) {
-            if (currentUser.points < itemCost) return alert("點數不足！");
-            cart.push({ name: itemName, cost: itemCost });
-            displayCart();
-            alert(`${itemName} 已加入購物車！`);
-        }
+// ================= 通用功能 =================
+function register() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    if (!username || !password) return alert("請輸入用戶名和密碼！");
+    if (registeredUsers[username]) return alert("用戶名已存在！");
+    registeredUsers[username] = { password, email: username + "@example.com", points: 0, lastCheckIn: null };
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    alert("註冊成功！");
+    toggleVisibility('registerContainer', false);
+}
 
-        // 顯示購物車內容
-        function displayCart() {
-            const cartContainer = document.getElementById('cartContainer');
-            cartContainer.innerHTML = "";
-            cart.forEach(item => {
-                const cartItemDiv = document.createElement('div');
-                cartItemDiv.className = 'cart-item';
-                cartItemDiv.textContent = `${item.name} - ${item.cost} 點數`;
-                cartContainer.appendChild(cartItemDiv);
-            });
-        }
+function toggleVisibility(elementId, show) {
+    document.getElementById(elementId).classList.toggle('hidden', !show);
+}
 
-        // 結帳功能
-        function checkout() {
-            if (cart.length === 0) return alert("購物車是空的！");
-            let totalCost = cart.reduce(( sum, item ) => sum + item.cost, 0);
-            if (currentUser.points < totalCost) return alert("點數不足，無法結帳！");
-            cart.forEach(item => {
-                currentUser.points -= item.cost;
-                redeemItems[item.name].used = true;
-            });
-            alert("結帳成功！");
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            cart = [];
-            displayCart();
-            displayRedeemItems();
-        }
-
-        // 購買刮刮樂功能
-        function buyScratchCard() {
-            if (currentUser.points < 10) return alert("點數不足，無法購買刮刮樂！");
-            currentUser.points -= 10;
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            scratchCard();
-        }
-
-        // 刮刮樂功能
-        function scratchCard() {
-            const pointsArray = [10, 20, 30, 50, 100];
-            const randomIndex = Math.floor(Math.random() * pointsArray.length);
-            const pointsWon = pointsArray[randomIndex];
-            currentUser.points += pointsWon;
-            document.getElementById('scratchResult').innerText = `恭喜！您贏得了 ${pointsWon} 點數！`;
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-        }
-
-        // 發送訊息功能
-        function sendMessage() {
-            const messageContent = document.getElementById('customerMessageInput').value.trim();
-            if (!messageContent) return alert("請輸入訊息！");
-
-            let aiResponse;
-            if (messageContent.includes("系統壞掉") || messageContent.includes("系統問題")) {
-                const redeemCode = generateRedeemCode();
-                aiResponse = `很抱歉給您帶來不便！這是我們提供的一次性兌換碼：${redeemCode}，可兌換 1000 點。`;
-            } else if (messageContent.includes("點數") || messageContent.includes("積分")) {
-                aiResponse = `您的當前點數為 ${currentUser.points} 點。如果需要更多點數，可以通過簽到或兌換碼獲得。`;
-            } else if (messageContent.includes("簽到")) {
-                aiResponse = `每日簽到可以獲得 100 點數。請點擊「每日簽到」按鈕進行簽到。`;
-            } else if (messageContent.includes("刮刮樂")) {
-                aiResponse = `購買刮刮樂需要 10 點數，刮開後有機會獲得 10 到 100 點數。`;
-            } else if (messageContent.includes("購物車") || messageContent.includes("結帳")) {
-                aiResponse = `您的購物車中有 ${cart.length} 件商品。請點擊「結帳」按鈕完成購買。`;
-            } else {
-                aiResponse = `您好！您剛剛說：「${messageContent}」。請問您需要協助的具體問題是什麼？例如：點數查詢、簽到、刮刮樂等。`;
-            }
-
-            chatHistory.push({ user: currentUser.username, message: messageContent, type: 'user' });
-            chatHistory.push({ user: 'AI 客服', message: aiResponse, type: 'ai' });
-            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-
-            displayChatHistory();
-            document.getElementById('customerMessageInput').value = "";
-        }
-
-        // 生成兌換碼功能
-        function generateRedeemCode() {
-            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-            redeemCodes.push({ code, points: 1000 });
-            localStorage.setItem('redeemCodes', JSON.stringify(redeemCodes));
-            return code;
-        }
-
-        // 使用兌換碼功能
-        function redeemWithCode() {
-            const code = document.getElementById('redeemCode').value.trim();
-            if (!code) return alert("請輸入兌換碼！");
-            const redeemCode = redeemCodes.find(rc => rc.code === code);
-            if (!redeemCode) return alert("兌換碼無效！");
-            currentUser.points += redeemCode.points;
-            registeredUsers[currentUser.username] = currentUser;
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            alert(`兌換成功！您獲得了 ${redeemCode.points} 點！`);
-            document.getElementById('redeemCode').value = "";
-        }
-
-        // 顯示聊天記錄
-        function displayChatHistory() {
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.innerHTML = "";
-            chatHistory.forEach(chat => {
-                const chatMessageDiv = document.createElement('div');
-                chatMessageDiv.className = `chat-message ${chat.type}`;
-                chatMessageDiv.innerHTML = `<strong>${chat.user}:</strong> ${chat.message}`;
-                chatContainer.appendChild(chatMessageDiv);
-            });
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        // 發送電子郵件功能
-        function sendEmail() {
-            const emailContent = document.getElementById('customerEmailInput').value.trim();
-            const friendUsername = document.getElementById('friendUsername').value.trim();
-            if (!emailContent) return alert("請輸入電子郵件內容！");
-            if (!friendUsername) return alert("請輸入朋友的帳號！");
-            
-            const friend = registeredUsers[friendUsername];
-            if (!friend) return alert("朋友的帳號不存在！");
-
-            emails.push({ to: friend.email, from: currentUser.username, content: emailContent });
-            localStorage.setItem('emails', JSON.stringify(emails));
-            document.getElementById('customerEmailInput').value = "";
-            document.getElementById('friendUsername').value = "";
-            alert(`電子郵件已發送給 ${friendUsername}！`);
-        }
-
-        // 查看所有用戶功能（管理員）
-        function viewUsers() {
-            const userList = document.getElementById('messagesContainer');
-            userList.innerHTML = "";
-            for (const username in registeredUsers) {
-                const userItem = document.createElement('div');
-                userItem.textContent = `${username} - 點數: ${registeredUsers[username].points}`;
-                userList.appendChild(userItem);
-            }
-            toggleVisibility('messagesContainer', true);
-        }
-
-        // 新增可兌換物品功能（管理員）
-        function addRedeemItem() {
-            const itemName = document.getElementById('itemName').value.trim();
-            const itemCost = parseInt(document.getElementById('itemCost').value);
-            if (itemName && itemCost > 0) {
-                redeemItems[itemName] = { cost: itemCost, used: false };
-                alert(`新增可兌換物品 ${itemName}，所需點數: ${itemCost}`);
-                displayRedeemItems();
-            } else {
-                alert("請輸入有效的物品名稱和點數！");
-            }
-        }
-
-        // 刪除可兌換物品功能（管理員）
-        function deleteRedeemItem() {
-            const itemName = document.getElementById('deleteItemName').value.trim();
-            if (itemName in redeemItems) {
-                delete redeemItems[itemName];
-                alert(`刪除可兌換物品 ${itemName}`);
-                displayRedeemItems();
-            } else {
-                alert("物品不存在！");
-            }
-        }
-
-        // 新增兌換碼功能（管理員）
-        function addRedeemCode() {
-            const newCode = document.getElementById('newRedeemCode').value.trim();
-            const points = parseInt(document.getElementById('redeemPoints').value);
-            if (!newCode || !points) return alert("請輸入有效的兌換碼和點數！");
-            
-            redeemCodes.push({ code: newCode, points: points });
-            localStorage.setItem('redeemCodes', JSON.stringify(redeemCodes));
-            alert(`新增兌換碼 ${newCode} 成功，獲得 ${points} 點數！`);
-            document.getElementById('newRedeemCode').value = "";
-            document.getElementById('redeemPoints').value = "";
-        }
-    </script>
+function updateUserData() {
+    registeredUsers[currentUser.username] = currentUser;
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+}
+</script>
 </body>
 </html>
