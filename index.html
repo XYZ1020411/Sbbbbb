@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIP 兌換系統</title>
+    <title>多功能登錄系統</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -53,12 +53,21 @@
     </style>
 </head>
 <body>
+    <!-- 登錄選項選擇界面 -->
+    <div class="container" id="loginOptionContainer">
+        <h2>請選擇登錄類型</h2>
+        <button onclick="showLoginForm('vip')">VIP 會員登錄</button>
+        <button onclick="showLoginForm('normal')">普通客戶登錄</button>
+        <button onclick="showLoginForm('admin')">管理員登錄</button>
+    </div>
+
     <!-- VIP 登錄界面 -->
-    <div class="container" id="vipLoginContainer">
+    <div class="container hidden" id="vipLoginContainer">
         <h2>VIP 會員登錄</h2>
         <input type="text" id="vipUsername" placeholder="VIP 帳號">
         <input type="password" id="vipPassword" placeholder="VIP 密碼">
         <button onclick="vipLogin()">VIP 登錄</button>
+        <button onclick="backToLoginOptions()">返回</button>
     </div>
 
     <!-- 普通客戶登錄界面 -->
@@ -68,6 +77,7 @@
         <input type="password" id="normalPassword" placeholder="密碼">
         <button onclick="normalLogin()">登錄</button>
         <button onclick="toggleVisibility('registerContainer', true)">註冊新帳號</button>
+        <button onclick="backToLoginOptions()">返回</button>
     </div>
 
     <!-- 管理員登錄界面 -->
@@ -76,6 +86,7 @@
         <input type="text" id="adminUsername" placeholder="管理員帳號">
         <input type="password" id="adminPassword" placeholder="管理員密碼">
         <button onclick="adminLogin()">管理員登錄</button>
+        <button onclick="backToLoginOptions()">返回</button>
     </div>
 
     <!-- 註冊界面 -->
@@ -146,7 +157,7 @@
         <button onclick="sendMessage()">發送訊息</button>
         
         <h3>電子郵件</h3>
-        <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
+        <input type="text id="friendUsername" placeholder="請輸入朋友的帳號">
         <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
         <button onclick="sendEmail()">發送電子郵件</button>
         
@@ -291,7 +302,7 @@ function buyScratchCard() {
 function adminLogin() {
     const username = document.getElementById('adminUsername').value.trim();
     const password = document.getElementById('adminPassword').value.trim();
-    if(username === "xyz1020411" && password === "xyz1020411") {
+    if(username === "xyz0411" && password === "xyz1020411") {
         currentUser = { username, points: 100, isAdmin: true };
         toggleVisibility('adminContainer', true);
     } else {
