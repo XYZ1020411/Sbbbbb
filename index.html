@@ -157,7 +157,7 @@
         <button onclick="sendMessage()">發送訊息</button>
         
         <h3>電子郵件</h3>
-        <input type="text id="friendUsername" placeholder="請輸入朋友的帳號">
+        <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
         <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
         <button onclick="sendEmail()">發送電子郵件</button>
         
@@ -285,6 +285,7 @@ function checkIn() {
     currentUser.points += 100;
     updateUserData();
     alert("✅ 簽到成功！獲得 100 點！");
+    checkVIPUpgrade(); // 檢查是否升級為 VIP
 }
 
 function buyScratchCard() {
@@ -296,6 +297,17 @@ function buyScratchCard() {
     document.getElementById('scratchResult').innerHTML = 
         `🎰 刮刮樂中獎！獲得 ${prize} 點！`;
     updateUserData();
+    checkVIPUpgrade(); // 檢查是否升級為 VIP
+}
+
+// 檢查普通用戶是否升級為 VIP
+function checkVIPUpgrade() {
+    if (currentUser.points >= 10000 && !currentUser.isVIP) {
+        currentUser.isVIP = true;
+        registeredUsers[currentUser.username].isVIP = true;
+        updateUserData();
+        alert("🎉 恭喜！您的點數已達到 10000 點，自動升級為 VIP 會員！");
+    }
 }
 
 // ================= 管理員功能 =================
