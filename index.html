@@ -221,6 +221,25 @@ let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
     }
 };
 
+// ================= 登錄選項功能 =================
+function showLoginForm(type) {
+    toggleVisibility('loginOptionContainer', false);
+    if (type === 'vip') {
+        toggleVisibility('vipLoginContainer', true);
+    } else if (type === 'normal') {
+        toggleVisibility('normalLoginContainer', true);
+    } else if (type === 'admin') {
+        toggleVisibility('adminLoginContainer', true);
+    }
+}
+
+function backToLoginOptions() {
+    toggleVisibility('vipLoginContainer', false);
+    toggleVisibility('normalLoginContainer', false);
+    toggleVisibility('adminLoginContainer', false);
+    toggleVisibility('loginOptionContainer', true);
+}
+
 // ================= VIP 專屬功能 =================
 function vipLogin() {
     const username = document.getElementById('vipUsername').value.trim();
@@ -285,7 +304,6 @@ function checkIn() {
     currentUser.points += 100;
     updateUserData();
     alert("✅ 簽到成功！獲得 100 點！");
-    checkVIPUpgrade(); // 檢查是否升級為 VIP
 }
 
 function buyScratchCard() {
@@ -297,17 +315,6 @@ function buyScratchCard() {
     document.getElementById('scratchResult').innerHTML = 
         `🎰 刮刮樂中獎！獲得 ${prize} 點！`;
     updateUserData();
-    checkVIPUpgrade(); // 檢查是否升級為 VIP
-}
-
-// 檢查普通用戶是否升級為 VIP
-function checkVIPUpgrade() {
-    if (currentUser.points >= 10000 && !currentUser.isVIP) {
-        currentUser.isVIP = true;
-        registeredUsers[currentUser.username].isVIP = true;
-        updateUserData();
-        alert("🎉 恭喜！您的點數已達到 10000 點，自動升級為 VIP 會員！");
-    }
 }
 
 // ================= 管理員功能 =================
