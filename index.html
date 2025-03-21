@@ -50,6 +50,22 @@
         .chat-message.ai { text-align: left; }
         .announcement { background: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .time-display { text-align: center; font-size: 1.2em; margin-bottom: 10px; }
+        #videoContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #videoContainer video {
+            max-width: 90%;
+            max-height: 90%;
+        }
     </style>
 </head>
 <body>
@@ -167,7 +183,7 @@
     </div>
 
     <!-- 管理員功能界面 -->
-    <div class="container hidden" id="adminContainer">
+    <div class="container hidden" <div class="container hidden" id="adminContainer">
         <h2>管理員功能</h2>
         <div class="time-display" id="adminTime"></div>
         <button onclick="viewUsers()">查看所有用戶</button>
@@ -200,6 +216,14 @@
         <button onclick="sendAdminEmail()">發送電子郵件</button>
     </div>
 
+    <!-- 影片播放容器 -->
+    <div id="videoContainer" class="hidden">
+        <video id="welcomeVideo" controls autoplay>
+            <source src="歡迎vip使用者登錄簽到系統_20250321_212424_0001.mp4" type="video/mp4">
+            您的瀏覽器不支援影片播放。
+        </video>
+    </div>
+
 <script>
 // 初始化數據
 let currentUser = null;
@@ -218,6 +242,12 @@ let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
         points: 50000,
         isVIP: true,
         lastCheckIn: null
+    },
+    "xyz0411": {  // 預先註冊管理員帳號
+        password: "xyz0411",
+        email: "admin@example.com",
+        points: 0,
+        isAdmin: true
     }
 };
 
@@ -240,89 +270,12 @@ function backToLoginOptions() {
     toggleVisibility('loginOptionContainer', true);
 }
 
-// ================= VIP 專屬功能 =================
-function vipLogin() {
-    const username = document.getElementById('vipUsername').value.trim();
-    const password = document.getElementById('vipPassword').value.trim();
-    if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isVIP) {
-        currentUser = { username, ...registeredUsers[username] };
-        toggleVisibility('vipContainer', true);
-        document.getElementById('vipContainer').querySelector('h2').textContent = 
-            `🎉 尊貴的 ${username} 會員，歡迎登入 VIP 系統！`;
-        displayRedeemItems();
-    } else {
-        alert("VIP 帳號或密碼錯誤！");
-    }
-}
-
-function vipCheckIn() {
-    if(currentUser.lastCheckIn === new Date().toDateString()) {
-        return alert("今日已簽到！");
-    }
-    currentUser.points += 10000;
-    updateUserData();
-    alert("✅ VIP 簽到成功！獲得 10000 點！");
-}
-
-function vipCheckout() {
-    const total = cart.reduce((sum, item) => sum + (item.cost * 0.8), 0);
-    if(currentUser.points < total) return alert("點數不足！");
-    currentUser.points -= total;
-    cart = [];
-    updateUserData();
-    alert(`💎 VIP 結帳成功！節省 ${total * 0.2} 點！`);
-}
-
-function vipBuyScratchCard() {
-    if(currentUser.points < 5) return alert("點數不足！");
-    currentUser.points -= 5;
-    const prizes = [500, 1000, 2000, 5000];
-    const prize = prizes[Math.floor(Math.random() * prizes.length)];
-    currentUser.points += prize;
-    document.getElementById('scratchResult').innerHTML = 
-        `🎰 VIP 刮刮樂中獎！獲得 ${prize} 點！`;
-    updateUserData();
-}
-
-// ================= 普通客戶功能 =================
-function normalLogin() {
-    const username = document.getElementById('normalUsername').value.trim();
-    const password = document.getElementById('normalPassword').value.trim();
-    if(registeredUsers[username] && registeredUsers[username].password === password && !registeredUsers[username].isVIP) {
-        currentUser = { username, ...registeredUsers[username] };
-        toggleVisibility('customerContainer', true);
-        displayRedeemItems();
-    } else {
-        alert("帳號或密碼錯誤！");
-    }
-}
-
-function checkIn() {
-    if(currentUser.lastCheckIn === new Date().toDateString()) {
-        return alert("今日已簽到！");
-    }
-    currentUser.points += 100;
-    updateUserData();
-    alert("✅ 簽到成功！獲得 100 點！");
-}
-
-function buyScratchCard() {
-    if(currentUser.points < 10) return alert("點數不足！");
-    currentUser.points -= 10;
-    const prizes = [10, 20, 30, 50, 100];
-    const prize = prizes[Math.floor(Math.random() * prizes.length)];
-    currentUser.points += prize;
-    document.getElementById('scratchResult').innerHTML = 
-        `🎰 刮刮樂中獎！獲得 ${prize} 點！`;
-    updateUserData();
-}
-
-// ================= 管理員功能 =================
+// ================= 管理員登錄功能 =================
 function adminLogin() {
     const username = document.getElementById('adminUsername').value.trim();
     const password = document.getElementById('adminPassword').value.trim();
-    if(username === "xyz0411" && password === "xyz1020411") {
-        currentUser = { username, points: 100, isAdmin: true };
+    if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isAdmin) {
+        currentUser = { username, ...registeredUsers[username] };
         toggleVisibility('adminContainer', true);
     } else {
         alert("管理員帳號或密碼錯誤！");
@@ -330,17 +283,6 @@ function adminLogin() {
 }
 
 // ================= 通用功能 =================
-function register() {
-    const username = document.getElementById('newUsername').value.trim();
-    const password = document.getElementById('newPassword').value.trim();
-    if (!username || !password) return alert("請輸入用戶名和密碼！");
-    if (registeredUsers[username]) return alert("用戶名已存在！");
-    registeredUsers[username] = { password, email: username + "@example.com", points: 0, lastCheckIn: null };
-    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-    alert("註冊成功！");
-    toggleVisibility('registerContainer', false);
-}
-
 function toggleVisibility(elementId, show) {
     document.getElementById(elementId).classList.toggle('hidden', !show);
 }
