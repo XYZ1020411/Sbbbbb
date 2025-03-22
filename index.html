@@ -319,6 +319,22 @@ function updateUserData() {
     registeredUsers[currentUser.username] = currentUser;
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
 }
+
+// ================= VIP 登錄功能 =================
+function vipLogin() {
+    const username = document.getElementById('vipUsername').value.trim();
+    const password = document.getElementById('vipPassword').value.trim();
+    if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isVIP) {
+        currentUser = { username, ...registeredUsers[username] };
+        toggleVisibility('vipLoginContainer', false);
+        toggleVisibility('vipContainer', true);
+        document.getElementById('vipContainer').querySelector('h2').textContent = 
+            `🎉 尊貴的 ${currentUser.username} 會員，歡迎登入 VIP 系統！`;
+        displayRedeemItems();
+    } else {
+        alert("VIP 帳號或密碼錯誤！");
+    }
+}
 </script>
 </body>
 </html>
