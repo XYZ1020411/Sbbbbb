@@ -50,22 +50,20 @@
         .chat-message.ai { text-align: left; }
         .announcement { background: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .time-display { text-align: center; font-size: 1.2em; margin-bottom: 10px; }
-        #videoContainer {
+        #welcomePage {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-        }
-        #videoContainer video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            color: white;
+            font-size: 2em;
+            text-align: center;
         }
     </style>
 </head>
@@ -179,7 +177,7 @@
         <button onclick="sendEmail()">發送電子郵件</button>
         
         <h3>兌換碼</h3>
-        <input type="text" id="redeemCode" placeholder="輸入兌換碼">
+        <input type="text id="redeemCode" placeholder="輸入兌換碼">
         <button onclick="redeemWithCode()">兌換碼兌換</button>
     </div>
 
@@ -217,12 +215,12 @@
         <button onclick="sendAdminEmail()">發送電子郵件</button>
     </div>
 
-    <!-- 影片播放容器 -->
-    <div id="videoContainer" class="hidden">
-        <video id="welcomeVideo" controls autoplay>
-            <source src="歡迎vip使用者登錄簽到系統_20250321_212424_0001.mp4" type="video/mp4">
-            您的瀏覽器不支援影片播放。
-        </video>
+    <!-- 歡迎頁面 -->
+    <div id="welcomePage" class="hidden">
+        <div>
+            <h2>🎉 歡迎尊貴的 VIP 會員！</h2>
+            <p>您已成功登錄 VIP 系統，即將進入功能界面...</p>
+        </div>
     </div>
 
 <script>
@@ -277,24 +275,22 @@ function vipLogin() {
     const password = document.getElementById('vipPassword').value.trim();
     if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isVIP) {
         currentUser = { username, ...registeredUsers[username] };
-        playWelcomeVideo(); // 播放歡迎影片
+        showWelcomePage(); // 顯示歡迎頁面
     } else {
         alert("VIP 帳號或密碼錯誤！");
     }
 }
 
-function playWelcomeVideo() {
-    const videoContainer = document.getElementById('videoContainer');
-    const video = document.getElementById('welcomeVideo');
-    videoContainer.classList.remove('hidden');
-    video.play();
-    video.onended = () => {
-        videoContainer.classList.add('hidden');
+function showWelcomePage() {
+    const welcomePage = document.getElementById('welcomePage');
+    welcomePage.classList.remove('hidden');
+    setTimeout(() => {
+        welcomePage.classList.add('hidden');
         toggleVisibility('vipContainer', true);
         document.getElementById('vipContainer').querySelector('h2').textContent = 
             `🎉 尊貴的 ${currentUser.username} 會員，歡迎登入 VIP 系統！`;
         displayRedeemItems();
-    };
+    }, 3000); // 3 秒後跳轉到功能界面
 }
 
 function vipCheckIn() {
