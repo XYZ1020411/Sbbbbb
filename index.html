@@ -335,6 +335,208 @@ function vipLogin() {
         alert("VIP 帳號或密碼錯誤！");
     }
 }
+
+// ================= 普通客戶登錄功能 =================
+function normalLogin() {
+    const username = document.getElementById('normalUsername').value.trim();
+    const password = document.getElementById('normalPassword').value.trim();
+    if(registeredUsers[username] && registeredUsers[username].password === password) {
+        currentUser = { username, ...registeredUsers[username] };
+        toggleVisibility('normalLoginContainer', false);
+        toggleVisibility('customerContainer', true);
+        document.getElementById('customerContainer').querySelector('h2').textContent = 
+            `🎉 歡迎 ${currentUser.username} 登入普通客戶系統！`;
+        displayRedeemItems();
+    } else {
+        alert("帳號或密碼錯誤！");
+    }
+}
+
+// ================= 管理員登錄功能 =================
+function adminLogin() {
+    const username = document.getElementById('adminUsername').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+    if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isAdmin) {
+        currentUser = { username, ...registeredUsers[username] };
+        toggleVisibility('adminLoginContainer', false);
+        toggleVisibility('adminContainer', true);
+        document.getElementById('adminContainer').querySelector('h2').textContent = 
+            `🎉 歡迎管理員 ${currentUser.username} 登入系統！`;
+    } else {
+        alert("管理員帳號或密碼錯誤！");
+    }
+}
+
+// ================= 返回登錄選項 =================
+function backToLoginOptions() {
+    toggleVisibility('vipLoginContainer', false);
+    toggleVisibility('normalLoginContainer', false);
+    toggleVisibility('adminLoginContainer', false);
+    toggleVisibility('registerContainer', false);
+    toggleVisibility('loginOptionContainer', true);
+}
+
+// ================= 註冊功能 =================
+function register() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    if (!username || !password) return alert("請輸入有效的用戶名和密碼！");
+    if (registeredUsers[username]) return alert("用戶名已存在！");
+    registeredUsers[username] = { password, points: 0 };
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    alert("✅ 註冊成功！");
+    toggleVisibility('registerContainer', false);
+    toggleVisibility('normalLoginContainer', true);
+}
+
+// ================= 顯示可兌換物品 =================
+function displayRedeemItems() {
+    const container = document.getElementById('redeemItemsContainer');
+    container.innerHTML = '';
+    for (const item in redeemItems) {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cart-item';
+        itemDiv.innerHTML = `
+            <strong>${item}</strong> - ${redeemItems[item].cost} 點
+            <button onclick="addToCart('${item}')">加入購物車</button>
+        `;
+        container.appendChild(itemDiv);
+    }
+}
+
+// ================= 加入購物車 =================
+function addToCart(item) {
+    cart.push(item);
+    displayCart();
+}
+
+// ================= 顯示購物車 =================
+function displayCart() {
+    const container = document.getElementById('cartContainer');
+    container.innerHTML = '';
+    cart.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cart-item';
+        itemDiv.innerHTML = `
+            <strong>${item}</strong> - ${redeemItems[item].cost} 點
+            <button onclick="removeFromCart(${index})">移除</button>
+        `;
+        container.appendChild(itemDiv);
+    });
+}
+
+// ================= 移除購物車 =================
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    displayCart();
+}
+
+// ================= VIP 簽到功能 =================
+function vipCheckIn() {
+    if (currentUser.lastCheckIn === new Date().toLocaleDateString()) {
+        alert("今日已簽到！");
+    } else {
+        currentUser.points += 10000;
+        currentUser.lastCheckIn = new Date().toLocaleDateString();
+        updateUserData();
+        alert("✅ 簽到成功，獲得 10000 點！");
+    }
+}
+
+// ================= 查看點數 =================
+function viewPoints() {
+    alert(`您的當前點數為：${currentUser.points} 點`);
+}
+
+// ================= VIP 刮刮樂 =================
+function vipBuyScratchCard() {
+    if (currentUser.points < 5) return alert("點數不足！");
+    currentUser.points -= 5;
+    updateUserData();
+    const result = Math.random() < 0.5 ? "未中獎" : "中獎 100 點";
+    document.getElementById('scratchResult').textContent = `刮刮樂結果：${result}`;
+    if (result === "中獎 100 點") {
+        currentUser.points += 100;
+        updateUserData();
+    }
+}
+
+// ================= 普通客戶刮刮樂 =================
+function buyScratchCard() {
+    if (currentUser.points < 10) return alert("點數不足！");
+    currentUser.points -= 10;
+    updateUserData();
+    const result = Math.random() < 0.5 ? "未中獎" : "中獎 50 點";
+    document.getElementById('scratchResult').textContent = `刮刮樂結果：${result}`;
+    if (result === "中獎 50 點") {
+        currentUser.points += 50;
+        updateUserData();
+    }
+}
+
+// ================= AI 客服 =================
+function sendMessage() {
+    const message = document.getElementById('customerMessageInput').value.trim();
+    if (!message) return;
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message user';
+    messageDiv.textContent = `您：${message}`;
+    chatContainer.appendChild(messageDiv);
+    document.getElementById('customerMessageInput').value = '';
+    // 模擬 AI 回覆
+    setTimeout(() => {
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.className = 'chat-message ai';
+        aiMessageDiv.textContent = `AI 客服：感謝您的訊息，我們會盡快處理！`;
+        chatContainer.appendChild(aiMessageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 1000);
+}
+
+// ================= 電子郵件功能 =================
+function sendEmail() {
+    const friendUsername = document.getElementById('friendUsername').value.trim();
+    const emailContent = document.getElementById('customerEmailInput').value.trim();
+    if (!friendUsername || !emailContent) return alert("請輸入朋友的帳號和郵件內容！");
+    if (!registeredUsers[friendUsername]) return alert("朋友帳號不存在！");
+    alert("✅ 郵件已發送！");
+}
+
+// ================= 兌換碼功能 =================
+function redeemWithCode() {
+    const code = document.getElementById('redeemCode').value.trim();
+    const redeemCode = redeemCodes.find(rc => rc.code === code);
+    if (!redeemCode) return alert("無效的兌換碼！");
+    currentUser.points += redeemCode.points;
+    updateUserData();
+    alert(`✅ 兌換成功，獲得 ${redeemCode.points} 點！`);
+}
+
+// ================= 查看所有用戶 =================
+function viewUsers() {
+    let userList = "所有用戶：\n";
+    for (const username in registeredUsers) {
+        userList += `${username}\n`;
+    }
+    alert(userList);
+}
+
+// ================= 回覆訊息 =================
+function replyMessage() {
+    const replyContent = document.getElementById('replyMessageInput').value.trim();
+    if (!replyContent) return alert("請輸入回覆內容！");
+    const messageId = document.getElementById('currentMessageId').value;
+    // 模擬回覆邏輯
+    alert("✅ 回覆已發送！");
+}
+
+// ================= 發送管理員郵件 =================
+function sendAdminEmail() {
+    const emailContent = document.getElementById('adminEmailInput').value.trim();
+    if (!emailContent) return alert("請輸入郵件內容！");
+    alert("✅ 郵件已發送給所有用戶！");
+}
 </script>
 </body>
 </html>
