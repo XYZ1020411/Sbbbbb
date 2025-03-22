@@ -171,7 +171,7 @@
         <button onclick="sendMessage()">發送訊息</button>
         
         <h3>電子郵件</h3>
-        <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
+        <input type="text id="friendUsername" placeholder="請輸入朋友的帳號">
         <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
         <button onclick="sendEmail()">發送電子郵件</button>
         
@@ -239,8 +239,14 @@ let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
         isVIP: true,
         lastCheckIn: null
     },
-    "xyz0411": {  // 新增管理員帳號
-        password: "xyz0411",
+    "001": {  // 新增普通用戶
+        password: "001",
+        email: "001@example.com",
+        points: 100000000,
+        lastCheckIn: null
+    },
+    "001": {  // 新增管理員帳號
+        password: "001",
         email: "admin@example.com",
         points: 0,
         isAdmin: true
@@ -273,6 +279,8 @@ function generateHouseworkBarcode() {
     const housework = document.getElementById('houseworkInput').value.trim();
     if (!housework) return alert("請輸入家務內容！");
     generateBarcode(`HOUSEWORK:${housework}`, 'barcodeContainer');
+    document.getElementById('houseworkInput').value = ''; // 清空輸入框
+    alert("✅ 家務卷條碼已生成，此家務卷已作廢！");
 }
 
 // ================= 管理員功能 =================
@@ -294,7 +302,7 @@ function deleteRedeemItem() {
 }
 
 function addRedeemCode() {
-    const code = document.getElementById('newRedeemCode').value.trim();
+    const code = document.getElementById('newRedeemCode'). value.trim();
     const points = parseInt(document.getElementById('redeemPoints').value.trim());
     if (!code || isNaN(points)) return alert("請輸入有效的兌換碼和點數！");
     redeemCodes.push({ code, points });
@@ -473,16 +481,18 @@ function vipBuyScratchCard() {
     if (currentUser.points < 5) return alert("點數不足！");
     currentUser.points -= 5;
     updateUserData();
-    const result = Math.random() < 0.5 ? "恭喜中獎！" : "很遺憾，未中獎。";
-    document.getElementById('scratchResult').textContent = result;
+    const reward = Math.floor(Math.random() * 1000000000000000000000000000000000009990);
+    currentUser.points += reward;
+    document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward} 點！`;
 }
 
 function buyScratchCard() {
     if (currentUser.points < 10) return alert("點數不足！");
     currentUser.points -= 10;
     updateUserData();
-    const result = Math.random() < 0.5 ? "恭喜中獎！" : "很遺憾，未中獎。";
-    document.getElementById('scratchResult').textContent = result;
+    const reward = Math.floor(Math.random() * 1000000000000000000000000000000000009990);
+    currentUser.points += reward;
+    document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward} 點！`;
 }
 
 // ================= AI 客服功能 =================
