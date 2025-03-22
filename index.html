@@ -50,22 +50,16 @@
         .chat-message.ai { text-align: left; }
         .announcement { background: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
         .time-display { text-align: center; font-size: 1.2em; margin-bottom: 10px; }
-        #welcomePage {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            color: white;
-            font-size: 2em;
+        #barcodeContainer {
             text-align: center;
+            margin: 20px 0;
+        }
+        #barcodeContainer img {
+            max-width: 100%;
+            height: auto;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
 <body>
     <!-- 登錄選項選擇界面 -->
@@ -145,6 +139,11 @@
         <h3>兌換碼</h3>
         <input type="text" id="redeemCode" placeholder="輸入兌換碼">
         <button onclick="redeemWithCode()">兌換碼兌換</button>
+        
+        <h3>家務卷</h3>
+        <textarea id="houseworkInput" placeholder="請輸入家務內容..."></textarea>
+        <button onclick="generateHouseworkBarcode()">生成家務卷條碼</button>
+        <div id="barcodeContainer"></div>
     </div>
 
     <!-- 普通客戶功能界面 -->
@@ -177,7 +176,7 @@
         <button onclick="sendEmail()">發送電子郵件</button>
         
         <h3>兌換碼</h3>
-        <input type="text id="redeemCode" placeholder="輸入兌換碼">
+        <input type="text" id="redeemCode" placeholder="輸入兌換碼">
         <button onclick="redeemWithCode()">兌換碼兌換</button>
     </div>
 
@@ -213,14 +212,11 @@
         <div id="adminEmailContainer"></div>
         <textarea id="adminEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
         <button onclick="sendAdminEmail()">發送電子郵件</button>
-    </div>
-
-    <!-- 歡迎頁面 -->
-    <div id="welcomePage" class="hidden">
-        <div>
-            <h2>🎉 歡迎尊貴的 VIP 會員！</h2>
-            <p>您已成功登錄 VIP 系統，即將進入功能界面...</p>
-        </div>
+        
+        <h3>掃描條碼</h3>
+        <input type="text" id="barcodeInput" placeholder="請掃描條碼">
+        <button onclick="scanBarcode()">掃描</button>
+        <div id="barcodeResult"></div>
     </div>
 
 <script>
@@ -229,6 +225,7 @@ let currentUser = null;
 let redeemItems = { 
     "VIP 商品A": { cost: 200, original: 250 }, 
     "VIP 商品B": { cost: 400, original: 500 },
+    "家務卷": { cost: 100, original: 100, isVIP: true }, // 新增家務卷
     "普通商品A": { cost: 20, original: 20 },
     "普通商品B": { cost: 50, original: 50 }
 };
@@ -250,94 +247,67 @@ let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
     }
 };
 
-// ================= 登錄選項功能 =================
-function showLoginForm(type) {
-    toggleVisibility('loginOptionContainer', false);
-    if (type === 'vip') {
-        toggleVisibility('vipLoginContainer', true);
-    } else if (type === 'normal') {
-        toggleVisibility('normalLoginContainer', true);
-    } else if (type === 'admin') {
-        toggleVisibility('adminLoginContainer', true);
-    }
+// ================= 條碼功能 =================
+function generateBarcode(data, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = `<svg id="barcode"></svg>`;
+    JsBarcode("#barcode", data, {
+        format: "CODE128",
+        displayValue: true,
+        fontSize: 16,
+        lineColor: "#000",
+        width: 2,
+        height: 50
+    });
 }
 
-function backToLoginOptions() {
-    toggleVisibility('vipLoginContainer', false);
-    toggleVisibility('normalLoginContainer', false);
-    toggleVisibility('adminLoginContainer', false);
-    toggleVisibility('loginOptionContainer', true);
+function scanBarcode() {
+    const barcode = document.getElementById('barcodeInput').value.trim();
+    if (!barcode) return alert("請輸入條碼！");
+    document.getElementById('barcodeResult').textContent = `掃描結果：${barcode}`;
+    // 條碼作廢邏輯
+    document.getElementById('barcodeInput').value = '';
 }
 
-// ================= VIP 專屬功能 =================
-function vipLogin() {
-    const username = document.getElementById('vipUsername').value.trim();
-    const password = document.getElementById('vipPassword').value.trim();
-    if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isVIP) {
-        currentUser = { username, ...registeredUsers[username] };
-        showWelcomePage(); // 顯示歡迎頁面
-    } else {
-        alert("VIP 帳號或密碼錯誤！");
-    }
-}
-
-function showWelcomePage() {
-    const welcomePage = document.getElementById('welcomePage');
-    welcomePage.classList.remove('hidden');
-    setTimeout(() => {
-        welcomePage.classList.add('hidden');
-        toggleVisibility('vipContainer', true);
-        document.getElementById('vipContainer').querySelector('h2').textContent = 
-            `🎉 尊貴的 ${currentUser.username} 會員，歡迎登入 VIP 系統！`;
-        displayRedeemItems();
-    }, 3000); // 3 秒後跳轉到功能界面
-}
-
-function vipCheckIn() {
-    if(currentUser.lastCheckIn === new Date().toDateString()) {
-        return alert("今日已簽到！");
-    }
-    currentUser.points += 10000;
-    currentUser.lastCheckIn = new Date().toDateString();
-    updateUserData();
-    alert("✅ VIP 簽到成功！獲得 10000 點！");
-}
-
-function viewPoints() {
-    alert(`您目前的點數為：${currentUser.points} 點`);
-}
-
-function sendMessage() {
-    const message = document.getElementById('customerMessageInput').value.trim();
-    if (!message) return alert("請輸入訊息！");
-    const chatContainer = document.getElementById('chatContainer');
-    const messageElement = document.createElement('div');
-    messageElement.className = 'chat-message user';
-    messageElement.textContent = `您：${message}`;
-    chatContainer.appendChild(messageElement);
-    document.getElementById('customerMessageInput').value = '';
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function redeemWithCode() {
-    const code = document.getElementById('redeemCode').value.trim();
-    const redeemCode = redeemCodes.find(c => c.code === code);
-    if (!redeemCode) return alert("無效的兌換碼！");
-    currentUser.points += redeemCode.points;
-    updateUserData();
-    alert(`✅ 兌換成功！獲得 ${redeemCode.points} 點！`);
+function generateHouseworkBarcode() {
+    const housework = document.getElementById('houseworkInput').value.trim();
+    if (!housework) return alert("請輸入家務內容！");
+    generateBarcode(`HOUSEWORK:${housework}`, 'barcodeContainer');
 }
 
 // ================= 管理員功能 =================
-function adminLogin() {
-    const username = document.getElementById('adminUsername').value.trim();
-    const password = document.getElementById('adminPassword').value.trim();
-    if(username === "xyz0411" && password === "xyz0411") {
-        currentUser = { username, points: 0, isAdmin: true };
-        toggleVisibility('adminContainer', true);
-    } else {
-        alert("管理員帳號或密碼錯誤！");
-    }
+function addRedeemItem() {
+    const itemName = document.getElementById('itemName').value.trim();
+    const itemCost = parseInt(document.getElementById('itemCost').value.trim());
+    if (!itemName || isNaN(itemCost)) return alert("請輸入有效的物品名稱和點數！");
+    redeemItems[itemName] = { cost: itemCost, original: itemCost };
+    generateBarcode(`ADD_ITEM:${itemName}:${itemCost}`, 'barcodeContainer');
+    alert("✅ 物品新增成功！");
+}
+
+function deleteRedeemItem() {
+    const itemName = document.getElementById('deleteItemName').value.trim();
+    if (!redeemItems[itemName]) return alert("物品不存在！");
+    delete redeemItems[itemName];
+    generateBarcode(`DELETE_ITEM:${itemName}`, 'barcodeContainer');
+    alert("✅ 物品刪除成功！");
+}
+
+function addRedeemCode() {
+    const code = document.getElementById('newRedeemCode').value.trim();
+    const points = parseInt(document.getElementById('redeemPoints').value.trim());
+    if (!code || isNaN(points)) return alert("請輸入有效的兌換碼和點數！");
+    redeemCodes.push({ code, points });
+    generateBarcode(`ADD_CODE:${code}:${points}`, 'barcodeContainer');
+    alert("✅ 兌換碼新增成功！");
+}
+
+// ================= 其他功能 =================
+function vipCheckout() {
+    if (cart.length === 0) return alert("購物車為空！");
+    generateBarcode(`CHECKOUT:${currentUser.username}:${JSON.stringify(cart)}`, 'barcodeContainer');
+    cart = [];
+    alert("✅ 結帳成功！請出示條碼供管理員掃描。");
 }
 
 // ================= 通用功能 =================
