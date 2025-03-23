@@ -153,6 +153,7 @@
         <div id="announcementContainer" class="announcement"></div>
         <button onclick="checkIn()">每日簽到 (100 點)</button>
         <button onclick="viewPoints()">查看點數</button>
+        <button onclick="toggleVisibility('changePasswordContainer', true)">更改密碼</button>
         
         <h3>可兌換物品</h3>
         <div id="redeemItemsContainer"></div>
@@ -171,13 +172,22 @@
         <button onclick="sendMessage()">發送訊息</button>
         
         <h3>電子郵件</h3>
-        <input type="text id="friendUsername" placeholder="請輸入朋友的帳號">
+        <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
         <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
         <button onclick="sendEmail()">發送電子郵件</button>
         
         <h3>兌換碼</h3>
         <input type="text" id="redeemCode" placeholder="輸入兌換碼">
         <button onclick="redeemWithCode()">兌換碼兌換</button>
+    </div>
+
+    <!-- 更改密碼界面 -->
+    <div class="container hidden" id="changePasswordContainer">
+        <h2>更改密碼</h2>
+        <input type="password" id="oldPassword" placeholder="舊密碼">
+        <input type="password" id="newPassword" placeholder="新密碼">
+        <button onclick="changePassword()">更改密碼</button>
+        <button onclick="toggleVisibility('changePasswordContainer', false)">返回</button>
     </div>
 
     <!-- 管理員功能界面 -->
@@ -242,11 +252,11 @@ let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
     "001": {  // 新增普通用戶
         password: "001",
         email: "001@example.com",
-        points: 100000000,
+        points: 1000000009000090,
         lastCheckIn: null
     },
-    "001": {  // 新增管理員帳號
-        password: "001",
+    "002": {  // 新增管理員帳號
+        password: "002",
         email: "admin@example.com",
         points: 0,
         isAdmin: true
@@ -302,7 +312,7 @@ function deleteRedeemItem() {
 }
 
 function addRedeemCode() {
-    const code = document.getElementById('newRedeemCode'). value.trim();
+    const code = document.getElementById('newRedeemCode').value.trim();
     const points = parseInt(document.getElementById('redeemPoints').value.trim());
     if (!code || isNaN(points)) return alert("請輸入有效的兌換碼和點數！");
     redeemCodes.push({ code, points });
@@ -408,6 +418,18 @@ function register() {
     toggleVisibility('loginOptionContainer', true);
 }
 
+// ================= 更改密碼功能 =================
+function changePassword() {
+    const oldPassword = document.getElementById('oldPassword').value.trim();
+    const newPassword = document.getElementById('newPassword').value.trim();
+    if (!oldPassword || !newPassword) return alert("請輸入舊密碼和新密碼！");
+    if (currentUser.password !== oldPassword) return alert("舊密碼錯誤！");
+    currentUser.password = newPassword;
+    updateUserData();
+    alert("✅ 密碼更改成功！");
+    toggleVisibility('changePasswordContainer', false);
+}
+
 // ================= 顯示可兌換物品 =================
 function displayRedeemItems() {
     const container = document.getElementById('redeemItemsContainer');
@@ -481,7 +503,7 @@ function vipBuyScratchCard() {
     if (currentUser.points < 5) return alert("點數不足！");
     currentUser.points -= 5;
     updateUserData();
-    const reward = Math.floor(Math.random() * 1000000000000000000000000000000000009990);
+    const reward = Math.floor(Math.random() * 1000000000000000000000000000000);
     currentUser.points += reward;
     document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward} 點！`;
 }
@@ -490,7 +512,7 @@ function buyScratchCard() {
     if (currentUser.points < 10) return alert("點數不足！");
     currentUser.points -= 10;
     updateUserData();
-    const reward = Math.floor(Math.random() * 1000000000000000000000000000000000009990);
+    const reward = Math.floor(Math.random() * 1000000000000000000000000000000);
     currentUser.points += reward;
     document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward} 點！`;
 }
