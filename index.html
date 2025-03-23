@@ -68,6 +68,10 @@
         <button onclick="showLoginForm('vip')">VIP 會員登錄</button>
         <button onclick="showLoginForm('normal')">普通客戶登錄</button>
         <button onclick="showLoginForm('admin')">管理員登錄</button>
+        <button onclick="socialLogin('google')">使用 Google 登錄</button>
+        <button onclick="socialLogin('facebook')">使用 Facebook 登錄</button>
+        <button onclick="socialLogin('instagram')">使用 Instagram 登錄</button>
+        <button onclick="socialLogin('apple')">使用 Apple 登錄</button>
     </div>
 
     <!-- VIP 登錄界面 -->
@@ -421,7 +425,7 @@ function register() {
 // ================= 更改密碼功能 =================
 function changePassword() {
     const oldPassword = document.getElementById('oldPassword').value.trim();
-    const newPassword = document.getElementById('newPassword').value.trim();
+    const newPassword = document.getElementById('newPassword'). value.trim();
     if (!oldPassword || !newPassword) return alert("請輸入舊密碼和新密碼！");
     if (currentUser.password !== oldPassword) return alert("舊密碼錯誤！");
     currentUser.password = newPassword;
@@ -584,6 +588,11 @@ function replyMessage() {
     replyDiv.textContent = `管理員回覆：${replyContent}`;
     messagesContainer.appendChild(replyDiv);
     document.getElementById('replyMessageInput').value = '';
+}
+
+// ================= 社交登錄功能 =================
+function socialLogin(provider) {
+    alert(`使用 ${provider} 登錄功能正在開發中，敬請期待！`);
 }
 </script>
 </body>
