@@ -11,6 +11,7 @@
             margin: 0; 
             padding: 0; 
             background-color: #FFD700; /* 金黃色背景 */
+            font-size: 18px; /* 放大字體 */
         }
         .container { 
             background: rgba(255,255,255,0.9); 
@@ -20,13 +21,15 @@
             padding: 20px; 
             max-width: 400px; 
         }
-        h2 { text-align: center; color: #b30000; }
+        h2 { text-align: center; color: #b30000; font-size: 24px; }
+        h3 { font-size: 20px; }
         input, textarea { 
             width: 100%; 
             padding: 10px; 
             margin: 10px 0; 
             border: 1px solid #ccc; 
             border-radius: 4px; 
+            font-size: 16px;
         }
         button { 
             background-color: #FFA500; 
@@ -38,6 +41,7 @@
             width: 100%; 
             margin: 5px 0; 
             transition: background-color 0.3s; 
+            font-size: 16px;
         }
         button:hover { background-color: #FF8C00; }
         .hidden { display: none; }
@@ -45,10 +49,10 @@
         .message-item { background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 4px; }
         .reply-item { background: #e6f7ff; padding: 10px; margin: 5px 0; border-radius: 4px; border-left: 4px solid #007bff; }
         .chat-container { max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 10px; margin-bottom: 10px; }
-        .chat-message { margin-bottom: 10px; }
+        .chat-message { margin-bottom: 10px; font-size: 16px; }
         .chat-message.user { text-align: right; }
         .chat-message.ai { text-align: left; }
-        .announcement { background: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+        .announcement { background: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px; }
         .time-display { text-align: center; font-size: 1.2em; margin-bottom: 10px; }
         #barcodeContainer {
             text-align: center;
@@ -57,6 +61,35 @@
         #barcodeContainer img {
             max-width: 100%;
             height: auto;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            transition: width 0.3s;
+        }
+        .vip-level {
+            font-weight: bold;
+            color: #b30000;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 18px;
+        }
+        .vip-benefits {
+            background-color: #fff3e0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 16px;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
@@ -68,10 +101,6 @@
         <button onclick="showLoginForm('vip')">VIP 會員登錄</button>
         <button onclick="showLoginForm('normal')">普通客戶登錄</button>
         <button onclick="showLoginForm('admin')">管理員登錄</button>
-        <button onclick="socialLogin('google')">使用 Google 登錄</button>
-        <button onclick="socialLogin('facebook')">使用 Facebook 登錄</button>
-        <button onclick="socialLogin('instagram')">使用 Instagram 登錄</button>
-        <button onclick="socialLogin('apple')">使用 Apple 登錄</button>
     </div>
 
     <!-- VIP 登錄界面 -->
@@ -113,10 +142,18 @@
 
     <!-- VIP 功能界面 -->
     <div class="container hidden" id="vipContainer">
-        <h2>🛎️ 尊貴的 VIP 會員您好！</h2>
+        <h2 id="vipTitle">🛎️ 尊貴的 VIP 會員您好！</h2>
+        <div class="vip-level" id="vipLevelDisplay"></div>
         <div class="time-display" id="currentTime"></div>
         <div id="announcementContainer" class="announcement"></div>
-        <button onclick="vipCheckIn()">每日簽到 (10000 點)</button>
+        
+        <div class="progress-container">
+            <div id="pointsProgress" class="progress-bar"></div>
+        </div>
+        
+        <div class="vip-benefits" id="vipBenefits"></div>
+        
+        <button onclick="vipCheckIn()" id="checkInButton">每日簽到</button>
         <button onclick="viewPoints()">查看點數</button>
         
         <h3>VIP 專屬商品</h3>
@@ -130,16 +167,6 @@
         <button onclick="vipBuyScratchCard()">購買刮刮樂（5 點）</button>
         <div id="scratchCard"><div id="scratchResult"></div></div>
         
-        <h3>AI 客服</h3>
-        <div class="chat-container" id="chatContainer"></div>
-        <textarea id="customerMessageInput" placeholder="請輸入您的訊息..."></textarea>
-        <button onclick="sendMessage()">發送訊息</button>
-        
-        <h3>電子郵件</h3>
-        <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
-        <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
-        <button onclick="sendEmail()">發送電子郵件</button>
-        
         <h3>兌換碼</h3>
         <input type="text" id="redeemCode" placeholder="輸入兌換碼">
         <button onclick="redeemWithCode()">兌換碼兌換</button>
@@ -152,10 +179,16 @@
 
     <!-- 普通客戶功能界面 -->
     <div class="container hidden" id="customerContainer">
-        <h2>客戶功能</h2>
+        <h2 id="customerTitle">客戶功能</h2>
+        <div class="vip-level" id="customerLevelDisplay"></div>
         <div class="time-display" id="currentTime"></div>
         <div id="announcementContainer" class="announcement"></div>
-        <button onclick="checkIn()">每日簽到 (100 點)</button>
+        
+        <div class="progress-container">
+            <div id="customerPointsProgress" class="progress-bar"></div>
+        </div>
+        
+        <button onclick="checkIn()" id="customerCheckInButton">每日簽到</button>
         <button onclick="viewPoints()">查看點數</button>
         <button onclick="toggleVisibility('changePasswordContainer', true)">更改密碼</button>
         
@@ -169,16 +202,6 @@
         <h3>刮刮樂</h3>
         <button onclick="buyScratchCard()">購買刮刮樂（10 點）</button>
         <div id="scratchCard"><div id="scratchResult"></div></div>
-        
-        <h3>AI 客服</h3>
-        <div class="chat-container" id="chatContainer"></div>
-        <textarea id="customerMessageInput" placeholder="請輸入您的訊息..."></textarea>
-        <button onclick="sendMessage()">發送訊息</button>
-        
-        <h3>電子郵件</h3>
-        <input type="text" id="friendUsername" placeholder="請輸入朋友的帳號">
-        <textarea id="customerEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
-        <button onclick="sendEmail()">發送電子郵件</button>
         
         <h3>兌換碼</h3>
         <input type="text" id="redeemCode" placeholder="輸入兌換碼">
@@ -200,14 +223,6 @@
         <div class="time-display" id="adminTime"></div>
         <button onclick="viewUsers()">查看所有用戶</button>
         
-        <h3>客服訊息</h3>
-        <div id="messagesContainer"></div>
-        
-        <h3>回覆訊息</h3>
-        <textarea id="replyMessageInput" placeholder="輸入回覆內容..."></textarea>
-        <button onclick="replyMessage()">回覆</button>
-        <input type="hidden" id="currentMessageId">
-        
         <h3>新增可兌換物品</h3>
         <input type="text" id="itemName" placeholder="物品名稱">
         <input type="number" id="itemCost" placeholder="所需點數" min="1">
@@ -222,11 +237,6 @@
         <input type="number" id="redeemPoints" placeholder="獲得點數" min="1">
         <button onclick="addRedeemCode()">新增兌換碼</button>
         
-        <h3>電子郵件系統</h3>
-        <div id="adminEmailContainer"></div>
-        <textarea id="adminEmailInput" placeholder="請輸入電子郵件內容..."></textarea>
-        <button onclick="sendAdminEmail()">發送電子郵件</button>
-        
         <h3>掃描條碼</h3>
         <input type="text" id="barcodeInput" placeholder="請掃描條碼">
         <button onclick="scanBarcode()">掃描</button>
@@ -239,33 +249,157 @@ let currentUser = null;
 let redeemItems = { 
     "VIP 商品A": { cost: 200, original: 250 }, 
     "VIP 商品B": { cost: 400, original: 500 },
-    "家務卷": { cost: 100, original: 100, isVIP: true }, // 新增家務卷
+    "家務卷": { cost: 100, original: 100, isVIP: true },
     "普通商品A": { cost: 20, original: 20 },
     "普通商品B": { cost: 50, original: 50 }
 };
-let redeemCodes = [{code: "vip6666", points: 10000}]; // 預設兌換碼
+let redeemCodes = [{code: "vip6666", points: 10000}];
 let cart = [];
 let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {
-    "vip8888": {  // 預先註冊 VIP 帳號
+    "vip8888": {
         password: "vip8888",
         email: "vip8888@vip.com",
         points: 50000,
-        isVIP: true,
+        vipLevel: 1,
         lastCheckIn: null
     },
-    "001": {  // 新增普通用戶
+    "001": {
         password: "001",
         email: "001@example.com",
         points: 10000000000000000000,
+        vipLevel: 0,
         lastCheckIn: null
     },
-    "002": {  // 新增管理員帳號
+    "002": {
         password: "002",
         email: "admin@example.com",
         points: 0,
         isAdmin: true
     }
 };
+
+// VIP等級系統
+const VIP_LEVELS = {
+    0: { name: "普通用戶", nextLevelPoints: 10000, checkInPoints: 100 },
+    1: { name: "普通VIP", nextLevelPoints: 100000, checkInPoints: 1000 },
+    2: { name: "青銅VIP", nextLevelPoints: 500000, checkInPoints: 5000 },
+    3: { name: "白銀VIP", nextLevelPoints: 1000000, checkInPoints: 10000 },
+    4: { name: "黃金VIP", nextLevelPoints: 5000000, checkInPoints: 50000 },
+    5: { name: "白金VIP", nextLevelPoints: 10000000, checkInPoints: 100000 },
+    6: { name: "鑽石VIP", nextLevelPoints: 50000000, checkInPoints: 500000 },
+    7: { name: "至尊VIP", nextLevelPoints: 100000000, checkInPoints: 1000000 },
+    8: { name: "超級尊貴VIP", nextLevelPoints: Infinity, checkInPoints: 5000000 }
+};
+
+// 計算VIP等級
+function calculateVipLevel(points) {
+    let level = 0;
+    for (let i = 1; i <= 8; i++) {
+        if (points >= VIP_LEVELS[i-1].nextLevelPoints) {
+            level = i;
+        } else {
+            break;
+        }
+    }
+    return level;
+}
+
+// 更新VIP等級顯示
+function updateVipDisplay() {
+    if (!currentUser) return;
+    
+    const level = currentUser.vipLevel || 0;
+    const levelInfo = VIP_LEVELS[level];
+    const nextLevelInfo = VIP_LEVELS[level + 1] || { nextLevelPoints: "已達最高等級" };
+    
+    const progressPercentage = level === 8 ? 100 : 
+        Math.min(100, (currentUser.points / levelInfo.nextLevelPoints) * 100);
+    
+    const progressBar = document.getElementById(currentUser.isAdmin ? 'customerPointsProgress' : 'pointsProgress');
+    if (progressBar) {
+        progressBar.style.width = `${progressPercentage}%`;
+        progressBar.textContent = `${Math.floor(progressPercentage)}%`;
+    }
+    
+    const levelDisplay = document.getElementById(currentUser.isAdmin ? 'customerLevelDisplay' : 'vipLevelDisplay');
+    if (levelDisplay) {
+        levelDisplay.innerHTML = `
+            <span style="color: ${getLevelColor(level)}">${levelInfo.name} (等級 ${level})</span><br>
+            當前點數: ${currentUser.points.toLocaleString()}<br>
+            ${level < 8 ? `下一等級需要: ${levelInfo.nextLevelPoints.toLocaleString()} 點` : '已達最高等級'}
+        `;
+    }
+    
+    const checkInButton = document.getElementById(currentUser.isAdmin ? 'customerCheckInButton' : 'checkInButton');
+    if (checkInButton) {
+        checkInButton.textContent = `每日簽到 (${levelInfo.checkInPoints.toLocaleString()} 點)`;
+    }
+    
+    const benefitsContainer = document.getElementById('vipBenefits');
+    if (benefitsContainer) {
+        benefitsContainer.innerHTML = `
+            <strong>VIP 專屬優惠:</strong><br>
+            • 簽到獎勵: ${levelInfo.checkInPoints.toLocaleString()} 點<br>
+            • 購物折扣: ${getDiscountForLevel(level)}折<br>
+            • 刮刮樂價格: ${getScratchCardPrice(level)} 點
+        `;
+    }
+    
+    const titleElement = document.getElementById(currentUser.isAdmin ? 'customerTitle' : 'vipTitle');
+    if (titleElement) {
+        const emoji = level >= 5 ? "👑" : level >= 3 ? "💎" : "🛎️";
+        titleElement.textContent = `${emoji} ${levelInfo.name} ${currentUser.username} 您好！`;
+    }
+}
+
+// 獲取等級對應的顏色
+function getLevelColor(level) {
+    const colors = [
+        "#000000", // 普通
+        "#2ecc71", // 普通VIP
+        "#3498db", // 青銅
+        "#95a5a6", // 白銀
+        "#f1c40f", // 黃金
+        "#e67e22", // 白金
+        "#e74c3c", // 鑽石
+        "#9b59b6", // 至尊
+        "#ff0000"  // 超級尊貴
+    ];
+    return colors[level] || "#000000";
+}
+
+// 獲取等級對應的折扣
+function getDiscountForLevel(level) {
+    const discounts = [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6];
+    return discounts[level] || 10;
+}
+
+// 獲取等級對應的刮刮樂價格
+function getScratchCardPrice(level) {
+    const prices = [10, 9, 8, 7, 6, 5, 4, 3, 2];
+    return prices[level] || 10;
+}
+
+// 檢查並升級VIP等級
+function checkAndUpgradeVipLevel() {
+    if (!currentUser) return;
+    
+    const newLevel = calculateVipLevel(currentUser.points);
+    if (newLevel > (currentUser.vipLevel || 0)) {
+        currentUser.vipLevel = newLevel;
+        updateUserData();
+        
+        const levelInfo = VIP_LEVELS[newLevel];
+        alert(`🎉 恭喜您升級為 ${levelInfo.name}！\n您現在可以享受更多專屬優惠！`);
+        
+        // 升級獎勵
+        const upgradeBonus = levelInfo.checkInPoints * 10;
+        currentUser.points += upgradeBonus;
+        alert(`🎁 獲得升級獎勵 ${upgradeBonus.toLocaleString()} 點！`);
+    }
+    
+    updateVipDisplay();
+}
 
 // ================= 條碼功能 =================
 function generateBarcode(data, containerId) {
@@ -285,7 +419,6 @@ function scanBarcode() {
     const barcode = document.getElementById('barcodeInput').value.trim();
     if (!barcode) return alert("請輸入條碼！");
     document.getElementById('barcodeResult').textContent = `掃描結果：${barcode}`;
-    // 條碼作廢邏輯
     document.getElementById('barcodeInput').value = '';
 }
 
@@ -293,7 +426,7 @@ function generateHouseworkBarcode() {
     const housework = document.getElementById('houseworkInput').value.trim();
     if (!housework) return alert("請輸入家務內容！");
     generateBarcode(`HOUSEWORK:${housework}`, 'barcodeContainer');
-    document.getElementById('houseworkInput').value = ''; // 清空輸入框
+    document.getElementById('houseworkInput').value = '';
     alert("✅ 家務卷條碼已生成，此家務卷已作廢！");
 }
 
@@ -366,12 +499,11 @@ function backToLoginOptions() {
 function vipLogin() {
     const username = document.getElementById('vipUsername').value.trim();
     const password = document.getElementById('vipPassword').value.trim();
-    if(registeredUsers[username] && registeredUsers[username].password === password && registeredUsers[username].isVIP) {
+    if(registeredUsers[username] && registeredUsers[username].password === password && (registeredUsers[username].vipLevel > 0 || registeredUsers[username].isAdmin)) {
         currentUser = { username, ...registeredUsers[username] };
         toggleVisibility('vipLoginContainer', false);
         toggleVisibility('vipContainer', true);
-        document.getElementById('vipContainer').querySelector('h2').textContent = 
-            `🎉 尊貴的 ${currentUser.username} 會員，歡迎登入 VIP 系統！`;
+        updateVipDisplay();
         displayRedeemItems();
     } else {
         alert("VIP 帳號或密碼錯誤！");
@@ -386,8 +518,7 @@ function normalLogin() {
         currentUser = { username, ...registeredUsers[username] };
         toggleVisibility('normalLoginContainer', false);
         toggleVisibility('customerContainer', true);
-        document.getElementById('customerContainer').querySelector('h2').textContent = 
-            `🎉 歡迎 ${currentUser.username} 登入！`;
+        checkAndUpgradeVipLevel();
         displayRedeemItems();
     } else {
         alert("帳號或密碼錯誤！");
@@ -415,9 +546,9 @@ function register() {
     const password = document.getElementById('newPassword').value.trim();
     if (!username || !password) return alert("請輸入有效的用戶名和密碼！");
     if (registeredUsers[username]) return alert("用戶名已存在！");
-    registeredUsers[username] = { password, points: 0 };
+    registeredUsers[username] = { password, points: 0, vipLevel: 0 };
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-    alert("✅ 註冊成功！");
+    alert="✅ 註冊成功！";
     toggleVisibility('registerContainer', false);
     toggleVisibility('loginOptionContainer', true);
 }
@@ -430,7 +561,7 @@ function changePassword() {
     if (currentUser.password !== oldPassword) return alert("舊密碼錯誤！");
     currentUser.password = newPassword;
     updateUserData();
-    alert("✅ 密碼更改成功！");
+    alert="✅ 密碼更改成功！";
     toggleVisibility('changePasswordContainer', false);
 }
 
@@ -439,7 +570,7 @@ function displayRedeemItems() {
     const container = document.getElementById('redeemItemsContainer');
     container.innerHTML = '';
     for (const [item, details] of Object.entries(redeemItems)) {
-        if (currentUser.isVIP || !details.isVIP) {
+        if (currentUser.vipLevel > 0 || !details.isVIP) {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'cart-item';
             itemDiv.innerHTML = `
@@ -483,79 +614,61 @@ function removeFromCart(item) {
 // ================= 簽到功能 =================
 function vipCheckIn() {
     if (currentUser.lastCheckIn === new Date().toDateString()) return alert("今日已簽到！");
-    currentUser.points += 10000;
+    const level = currentUser.vipLevel || 0;
+    const pointsToAdd = VIP_LEVELS[level].checkInPoints;
+    currentUser.points += pointsToAdd;
     currentUser.lastCheckIn = new Date().toDateString();
     updateUserData();
-    alert("✅ 簽到成功，獲得 10000 點！");
+    checkAndUpgradeVipLevel();
+    alert="✅ 簽到成功，獲得 ${pointsToAdd.toLocaleString()} 點！";
 }
 
 function checkIn() {
     if (currentUser.lastCheckIn === new Date().toDateString()) return alert("今日已簽到！");
-    currentUser.points += 100;
+    const level = currentUser.vipLevel || 0;
+    const pointsToAdd = VIP_LEVELS[level].checkInPoints;
+    currentUser.points += pointsToAdd;
     currentUser.lastCheckIn = new Date().toDateString();
     updateUserData();
-    alert("✅ 簽到成功，獲得 100 點！");
+    checkAndUpgradeVipLevel();
+    alert="✅ 簽到成功，獲得 ${pointsToAdd.toLocaleString()} 點！";
 }
 
 // ================= 查看點數 =================
 function viewPoints() {
-    alert(`您目前的點數為：${currentUser.points} 點`);
+    const level = currentUser.vipLevel || 0;
+    const levelInfo = VIP_LEVELS[level];
+    const nextLevelInfo = VIP_LEVELS[level + 1] || { nextLevelPoints: "已達最高等級" };
+    
+    alert="您目前的點數為：${currentUser.points.toLocaleString()} 點\n
+VIP 等級: ${levelInfo.name} (等級 ${level})\n
+${level < 8 ? `下一等級需要: ${levelInfo.nextLevelPoints.toLocaleString()} 點` : '已達最高等級'}\n
+還差 ${(levelInfo.nextLevelPoints - currentUser.points).toLocaleString()} 點";
 }
 
 // ================= 刮刮樂功能 =================
 function vipBuyScratchCard() {
-    if (currentUser.points < 5) return alert("點數不足！");
-    currentUser.points -= 5;
+    const level = currentUser.vipLevel || 0;
+    const price = getScratchCardPrice(level);
+    if (currentUser.points < price) return alert("點數不足！");
+    currentUser.points -= price;
     updateUserData();
-    const reward = Math.floor(Math.random() * 1000000000000000000000000000000);
+    const reward = Math.floor(Math.random() * (VIP_LEVELS[level].checkInPoints * 10));
     currentUser.points += reward;
-    document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward} 點！`;
+    document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward.toLocaleString()} 點！`;
+    checkAndUpgradeVipLevel();
 }
 
 function buyScratchCard() {
-    if (currentUser.points < 10) return alert("點數不足！");
-    currentUser.points -= 10;
+    const level = currentUser.vipLevel || 0;
+    const price = getScratchCardPrice(level);
+    if (currentUser.points < price) return alert("點數不足！");
+    currentUser.points -= price;
     updateUserData();
-    const reward = Math.floor(Math.random() * 1000000000000000000000000000000);
+    const reward = Math.floor(Math.random() * (VIP_LEVELS[level].checkInPoints * 10));
     currentUser.points += reward;
-    document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward} 點！`;
-}
-
-// ================= AI 客服功能 =================
-function sendMessage() {
-    const message = document.getElementById('customerMessageInput').value.trim();
-    if (!message) return alert("請輸入訊息！");
-    const chatContainer = document.getElementById('chatContainer');
-    const userMessage = document.createElement('div');
-    userMessage.className = 'chat-message user';
-    userMessage.textContent = `您：${message}`;
-    chatContainer.appendChild(userMessage);
-    document.getElementById('customerMessageInput').value = '';
-    setTimeout(() => {
-        const aiMessage = document.createElement('div');
-        aiMessage.className = 'chat-message ai';
-        aiMessage.textContent = `AI 客服：我們已收到您的訊息，將盡快回覆！`;
-        chatContainer.appendChild(aiMessage);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }, 1000);
-}
-
-// ================= 電子郵件功能 =================
-function sendEmail() {
-    const friendUsername = document.getElementById('friendUsername').value.trim();
-    const emailContent = document.getElementById('customerEmailInput').value.trim();
-    if (!friendUsername || !emailContent) return alert("請輸入朋友的帳號和郵件內容！");
-    if (!registeredUsers[friendUsername]) return alert("朋友帳號不存在！");
-    alert("✅ 郵件已發送！");
-    document.getElementById('friendUsername').value = '';
-    document.getElementById('customerEmailInput').value = '';
-}
-
-function sendAdminEmail() {
-    const emailContent = document.getElementById('adminEmailInput').value.trim();
-    if (!emailContent) return alert("請輸入郵件內容！");
-    alert("✅ 郵件已發送給所有用戶！");
-    document.getElementById('adminEmailInput').value = '';
+    document.getElementById('scratchResult').textContent = `恭喜中獎！獲得 ${reward.toLocaleString()} 點！`;
+    checkAndUpgradeVipLevel();
 }
 
 // ================= 兌換碼功能 =================
@@ -565,7 +678,8 @@ function redeemWithCode() {
     if (!redeem) return alert("無效的兌換碼！");
     currentUser.points += redeem.points;
     updateUserData();
-    alert(`✅ 兌換成功，獲得 ${redeem.points} 點！`);
+    checkAndUpgradeVipLevel();
+    alert="✅ 兌換成功，獲得 ${redeem.points} 點！";
     document.getElementById('redeemCode').value = '';
 }
 
@@ -573,27 +687,26 @@ function redeemWithCode() {
 function viewUsers() {
     let userList = "所有用戶：\n";
     for (const [username, details] of Object.entries(registeredUsers)) {
-        userList += `${username} - 點數：${details.points}\n`;
+        const level = details.vipLevel || 0;
+        userList += `${username} - 點數：${details.points.toLocaleString()} - 等級: ${VIP_LEVELS[level].name}\n`;
     }
-    alert(userList);
+    alert=userList;
 }
 
-// ================= 回覆訊息功能 =================
-function replyMessage() {
-    const replyContent = document.getElementById('replyMessageInput').value.trim();
-    if (!replyContent) return alert("請輸入回覆內容！");
-    const messagesContainer = document.getElementById('messagesContainer');
-    const replyDiv = document.createElement('div');
-    replyDiv.className = 'reply-item';
-    replyDiv.textContent = `管理員回覆：${replyContent}`;
-    messagesContainer.appendChild(replyDiv);
-    document.getElementById('replyMessageInput').value = '';
+// 初始化時間顯示
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleString('zh-TW');
+    document.querySelectorAll('#currentTime, #adminTime').forEach(el => {
+        el.textContent = timeString;
+    });
+    setTimeout(updateTime, 1000);
 }
 
-// ================= 社交登錄功能 =================
-function socialLogin(provider) {
-    alert(`使用 ${provider} 登錄功能正在開發中，敬請期待！`);
-}
+// 頁面載入時初始化
+window.onload = function() {
+    updateTime();
+};
 </script>
 </body>
 </html>
