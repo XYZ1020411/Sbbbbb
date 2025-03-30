@@ -151,6 +151,11 @@
             padding-top: 10px;
             border-top: 1px solid #eee;
         }
+        #loginError {
+            color: red;
+            text-align: center;
+            margin: 10px 0;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
@@ -169,7 +174,7 @@
         <input type="text" id="vipUsername" placeholder="VIP 帳號">
         <input type="password" id="vipPassword" placeholder="VIP 密碼">
         <button id="vipLoginSubmit">VIP 登錄</button>
-        <button class="backBtn">返回</button>
+        <button id="vipBackBtn">返回</button>
     </div>
 
     <!-- 普通客戶登錄界面 -->
@@ -177,9 +182,10 @@
         <h2>普通客戶登錄</h2>
         <input type="text" id="normalUsername" placeholder="用戶名">
         <input type="password" id="normalPassword" placeholder="密碼">
+        <div id="loginError"></div>
         <button id="normalLoginSubmit">登錄</button>
-        <button id="showRegisterBtn">註冊新帳號</button>
-        <button class="backBtn">返回</button>
+        <button id="normalRegisterBtn">註冊新帳號</button>
+        <button id="normalBackBtn">返回</button>
     </div>
 
     <!-- 管理員登錄界面 -->
@@ -188,7 +194,7 @@
         <input type="text" id="adminUsername" placeholder="管理員帳號">
         <input type="password" id="adminPassword" placeholder="管理員密碼">
         <button id="adminLoginSubmit">管理員登錄</button>
-        <button class="backBtn">返回</button>
+        <button id="adminBackBtn">返回</button>
     </div>
 
     <!-- 註冊界面 -->
@@ -198,7 +204,7 @@
         <input type="password" id="newPassword" placeholder="密碼">
         <input type="email" id="newEmail" placeholder="電子郵件">
         <button id="registerSubmit">註冊</button>
-        <button class="backBtn">返回</button>
+        <button id="registerBackBtn">返回</button>
     </div>
 
     <!-- VIP 功能界面 -->
@@ -219,11 +225,11 @@
         
         <button id="checkInBtn">每日簽到</button>
         <button id="viewLevelsBtn">查看VIP等級</button>
-        <button id="showRedeemBtn">兌換商品</button>
-        <button id="showScratchCardBtn">VIP刮刮樂</button>
-        <button id="showChangePasswordBtn">更改密碼</button>
-        <button id="showRedeemCodeBtn">輸入兌換碼</button>
-        <button id="showAiChatBtn">AI客服</button>
+        <button id="redeemItemsBtn">兌換商品</button>
+        <button id="scratchCardBtn">VIP刮刮樂</button>
+        <button id="changePasswordBtn">更改密碼</button>
+        <button id="redeemCodeBtn">輸入兌換碼</button>
+        <button id="aiChatBtn">AI客服</button>
         <button id="checkUpdatesBtn">檢查更新</button>
         <div id="updateStatus"></div>
         <button id="logoutBtn">登出</button>
@@ -236,7 +242,7 @@
         <h3>我的購物車</h3>
         <div id="cartItems"></div>
         <button id="checkoutBtn">結帳</button>
-        <button class="backBtn">返回</button>
+        <button id="redeemBackBtn">返回</button>
     </div>
 
     <!-- 刮刮樂界面 -->
@@ -244,10 +250,10 @@
         <h2>VIP刮刮樂</h2>
         <div id="scratchCard">
             <p>刮刮樂遊戲，有機會贏得大獎！</p>
-            <button id="playScratchCardBtn">購買刮刮樂 (<span id="scratchCardPrice">10</span> 點)</button>
+            <button id="playScratchBtn">購買刮刮樂 (<span id="scratchCardPrice">10</span> 點)</button>
             <div id="scratchResult"></div>
         </div>
-        <button class="backBtn">返回</button>
+        <button id="scratchBackBtn">返回</button>
     </div>
 
     <!-- 更改密碼界面 -->
@@ -257,14 +263,14 @@
         <input type="password" id="newPassword" placeholder="新密碼">
         <input type="password" id="confirmPassword" placeholder="確認新密碼">
         <button id="changePasswordSubmit">更改密碼</button>
-        <button class="backBtn">返回</button>
+        <button id="changePasswordBackBtn">返回</button>
     </div>
 
     <!-- 所有VIP等級顯示 -->
     <div class="container hidden" id="allLevelsContainer">
         <h2>VIP等級系統</h2>
         <div id="levelsList"></div>
-        <button class="backBtn">返回</button>
+        <button id="levelsBackBtn">返回</button>
     </div>
 
     <!-- 公告管理界面 (僅管理員可見) -->
@@ -274,7 +280,7 @@
         <h3>新增公告</h3>
         <textarea id="newAnnouncementContent" placeholder="輸入公告內容" rows="3"></textarea>
         <button id="addAnnouncementBtn">發布公告</button>
-        <button class="backBtn">返回</button>
+        <button id="announcementBackBtn">返回</button>
     </div>
 
     <!-- 兌換碼界面 -->
@@ -283,7 +289,7 @@
         <input type="text" id="redeemCodeInput" placeholder="輸入兌換碼">
         <button id="redeemCodeSubmit">兌換</button>
         <div id="redeemCodeResult"></div>
-        <button class="backBtn">返回</button>
+        <button id="redeemCodeBackBtn">返回</button>
     </div>
 
     <!-- AI客服界面 -->
@@ -294,7 +300,7 @@
         </div>
         <input type="text" id="aiUserInput" placeholder="輸入您的問題">
         <button id="sendAiMessageBtn">發送</button>
-        <button class="backBtn">返回</button>
+        <button id="aiChatBackBtn">返回</button>
     </div>
 
     <!-- 管理員商品管理界面 -->
@@ -309,7 +315,7 @@
             <option value="true">僅限VIP</option>
         </select>
         <button id="addItemBtn">新增商品</button>
-        <button class="backBtn">返回</button>
+        <button id="itemBackBtn">返回</button>
     </div>
 
     <!-- 管理員兌換碼管理界面 -->
@@ -320,7 +326,7 @@
         <input type="text" id="newCodeValue" placeholder="兌換碼">
         <input type="number" id="newCodePoints" placeholder="點數">
         <button id="addCodeBtn">新增兌換碼</button>
-        <button class="backBtn">返回</button>
+        <button id="codeBackBtn">返回</button>
     </div>
 
 <script>
@@ -338,8 +344,7 @@ const TAIWAN_HOLIDAYS = [
     { name: "元旦", date: new Date(new Date().getFullYear(), 0, 1) },
     { name: "春節", date: new Date(new Date().getFullYear(), 1, 10) }, // 示例日期
     { name: "清明節", date: new Date(new Date().getFullYear(), 3, 4) },
-    { name: "兒童節", date: new Date(new Date().getFullYear(), 3, 4) },
-    { name: "特別節日", date: new Date(new Date().getFullYear(), 3, 11) }, // 4月11日
+    { name: "4/11節慶", date: new Date(new Date().getFullYear(), 3, 11) }, // 新增4/11節慶
     { name: "端午節", date: new Date(new Date().getFullYear(), 5, 14) }, // 示例日期
     { name: "中秋節", date: new Date(new Date().getFullYear(), 8, 29) }, // 示例日期
     { name: "雙十節", date: new Date(new Date().getFullYear(), 9, 10) }
@@ -347,14 +352,11 @@ const TAIWAN_HOLIDAYS = [
 
 // VIP等級系統 (初始數據)
 let VIP_LEVELS = [
-    // 普通客戶
     { level: 0, name: "普通客戶", points: 0, color: "#000000", emoji: "👤", discount: 1.0, scratchPrice: 20 },
     { level: 1, name: "活躍客戶", points: 10000, color: "#2ecc71", emoji: "👍", discount: 0.98, scratchPrice: 18 },
     { level: 2, name: "忠實客戶", points: 25000, color: "#27ae60", emoji: "🤝", discount: 0.96, scratchPrice: 16 },
     { level: 3, name: "優質客戶", points: 50000, color: "#3498db", emoji: "⭐", discount: 0.94, scratchPrice: 14 },
     { level: 4, name: "精英客戶", points: 80000, color: "#2980b9", emoji: "🌟", discount: 0.92, scratchPrice: 12 },
-    
-    // 金屬系VIP
     { level: 5, name: "VIP 銅級", points: 100000, color: "#cd7f32", emoji: "🥉", discount: 0.90, scratchPrice: 10 },
     { level: 6, name: "VIP 銀級", points: 120000, color: "#c0c0c0", emoji: "🥈", discount: 0.88, scratchPrice: 9 },
     { level: 7, name: "VIP 金級", points: 170000, color: "#ffd700", emoji: "🥇", discount: 0.85, scratchPrice: 8 },
@@ -380,26 +382,9 @@ let REDEEM_CODES = [
 
 // 用戶數據
 let users = JSON.parse(localStorage.getItem('vipSystemUsers')) || {
-    "vip8888": {
-        password: "vip8888",
-        email: "vip8888@vip.com",
-        points: 50000,
-        vipLevel: 1,
-        lastCheckIn: null
-    },
-    "001": {
-        password: "001",
-        email: "001@example.com",
-        points: 10000000000000000000,
-        vipLevel: 0,
-        lastCheckIn: null
-    },
-    "002": {
-        password: "002",
-        email: "admin@example.com",
-        points: 0,
-        isAdmin: true
-    },
+    "vip8888": { password: "vip8888", email: "vip8888@vip.com", points: 50000, vipLevel: 1, lastCheckIn: null },
+    "001": { password: "001", email: "001@example.com", points: 10000000000000000000, vipLevel: 0, lastCheckIn: null },
+    "002": { password: "002", email: "admin@example.com", points: 0, isAdmin: true },
     "test1": { password: "123", email: "test1@example.com", points: 5000, vipLevel: 0, lastCheckIn: null },
     "test2": { password: "123", email: "test2@example.com", points: 15000, vipLevel: 1, lastCheckIn: null },
     "test3": { password: "123", email: "test3@example.com", points: 50000, vipLevel: 3, lastCheckIn: null },
@@ -454,8 +439,8 @@ function checkHolidayCodes() {
                 // 發布公告
                 addAnnouncementFromSystem(`節慶活動：${holiday.name}期間，輸入兌換碼 ${holidayCode} 可獲得 ${points} 點！`);
                 
-                // 同步到伺服器
-                syncDataToServer();
+                // 同步到本地存儲
+                localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
             }
         }
     }
@@ -511,16 +496,9 @@ function loadAnnouncementManagement() {
         announcementDiv.innerHTML = `
             <div class="announcement-content">${announcement.content}</div>
             <div class="announcement-date">${formattedDate}</div>
-            <button class="deleteAnnouncementBtn" data-id="${announcement.id}">刪除</button>
+            <button onclick="deleteAnnouncement(${announcement.id})">刪除</button>
         `;
         container.appendChild(announcementDiv);
-    });
-    
-    // 為刪除按鈕添加事件監聽器
-    document.querySelectorAll('.deleteAnnouncementBtn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            deleteAnnouncement(parseInt(this.getAttribute('data-id')));
-        });
     });
 }
 
@@ -544,9 +522,6 @@ function addAnnouncement() {
     document.getElementById('newAnnouncementContent').value = '';
     loadAnnouncementManagement();
     updateAnnouncements();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 function addAnnouncementFromSystem(content) {
@@ -561,9 +536,6 @@ function addAnnouncementFromSystem(content) {
     announcements.unshift(newAnnouncement);
     localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
     updateAnnouncements();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 function deleteAnnouncement(id) {
@@ -574,9 +546,6 @@ function deleteAnnouncement(id) {
     
     loadAnnouncementManagement();
     updateAnnouncements();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 // ================= 兌換碼功能 =================
@@ -618,9 +587,6 @@ function redeemCode() {
     document.getElementById('redeemCodeInput').value = '';
     
     updateVipDisplay();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 function loadCodeManagement() {
@@ -637,16 +603,9 @@ function loadCodeManagement() {
         codeDiv.innerHTML = `
             <strong>${code.code}</strong> - ${code.points} 點${isHoliday}<br>
             已使用: ${usedCount} 次
-            <button class="deleteCodeBtn" data-code="${code.code}">刪除</button>
+            <button onclick="deleteCode('${code.code}')">刪除</button>
         `;
         container.appendChild(codeDiv);
-    });
-    
-    // 為刪除按鈕添加事件監聽器
-    document.querySelectorAll('.deleteCodeBtn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            deleteCode(this.getAttribute('data-code'));
-        });
     });
 }
 
@@ -675,9 +634,6 @@ function addCode() {
     document.getElementById('newCodeValue').value = '';
     document.getElementById('newCodePoints').value = '';
     loadCodeManagement();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 function deleteCode(code) {
@@ -686,9 +642,6 @@ function deleteCode(code) {
     REDEEM_CODES = REDEEM_CODES.filter(c => c.code !== code);
     localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
     loadCodeManagement();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 // ================= AI客服功能 =================
@@ -714,9 +667,6 @@ function sendAiMessage() {
                 users[currentUser.username] = currentUser;
                 localStorage.setItem('vipSystemUsers', JSON.stringify(users));
                 updateVipDisplay();
-                
-                // 同步到伺服器
-                syncDataToServer();
             }
         } 
         else if (userInput.includes("謝謝") || userInput.includes("感謝")) {
@@ -761,16 +711,9 @@ function loadItemManagement() {
         itemDiv.innerHTML = `
             <strong>${item.name}</strong> - ${item.cost} 點
             ${item.vipOnly ? '(僅限VIP)' : ''}
-            <button class="deleteItemBtn" data-id="${item.id}">刪除</button>
+            <button onclick="deleteItem(${item.id})">刪除</button>
         `;
         container.appendChild(itemDiv);
-    });
-    
-    // 為刪除按鈕添加事件監聽器
-    document.querySelectorAll('.deleteItemBtn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            deleteItem(parseInt(this.getAttribute('data-id')));
-        });
     });
 }
 
@@ -798,9 +741,6 @@ function addItem() {
     document.getElementById('newItemName').value = '';
     document.getElementById('newItemCost').value = '';
     loadItemManagement();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 function deleteItem(id) {
@@ -809,9 +749,6 @@ function deleteItem(id) {
     REDEEM_ITEMS = REDEEM_ITEMS.filter(i => i.id !== id);
     localStorage.setItem('vipSystemItems', JSON.stringify(REDEEM_ITEMS));
     loadItemManagement();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 // ================= 數據同步功能 =================
@@ -911,7 +848,6 @@ function checkForUpdates() {
             const mockData = {
                 levels: [
                     ...VIP_LEVELS,
-                    // 新增更高級別
                     { level: 11, name: "VIP 鈦金級", points: 520000, color: "#878681", emoji: "🔘", discount: 0.75, scratchPrice: 4 },
                     { level: 12, name: "VIP 鉑金級", points: 650000, color: "#e5e4e2", emoji: "🔳", discount: 0.72, scratchPrice: 3 }
                 ],
@@ -973,7 +909,6 @@ function loadUpdatesFromStorage() {
     const savedData = localStorage.getItem('vipSystemData');
     const savedAnnouncements = localStorage.getItem('vipSystemAnnouncements');
     const savedCodes = localStorage.getItem('vipSystemCodes');
-    const savedItems = localStorage.getItem('vipSystemItems');
     
     if (savedConfig) {
         const config = JSON.parse(savedConfig);
@@ -996,10 +931,6 @@ function loadUpdatesFromStorage() {
     if (savedCodes) {
         REDEEM_CODES = JSON.parse(savedCodes);
     }
-    
-    if (savedItems) {
-        REDEEM_ITEMS = JSON.parse(savedItems);
-    }
 }
 
 // ================= 用戶界面功能 =================
@@ -1017,15 +948,22 @@ function updateTime() {
 }
 
 // ================= 用戶功能 =================
-function login(username, password) {
+function login(username, password, isVip = false, isAdmin = false) {
     if (!username || !password) {
         document.getElementById('loginError').textContent = "請輸入帳號和密碼！";
         return false;
     }
     
     if (users[username] && users[username].password === password) {
+        // 檢查VIP和管理員權限
+        if ((isVip && users[username].vipLevel <= 0 && !users[username].isAdmin) || 
+            (isAdmin && !users[username].isAdmin)) {
+            document.getElementById('loginError').textContent = "權限不足！";
+            return false;
+        }
+        
         currentUser = { username, ...users[username] };
-        document.getElementById('loginContainer').classList.add('hidden');
+        document.getElementById('loginOptionContainer').classList.add('hidden');
         document.getElementById('vipContainer').classList.remove('hidden');
         updateVipDisplay();
         updateAnnouncements();
@@ -1034,24 +972,37 @@ function login(username, password) {
         if (currentUser.isAdmin) {
             const levelDescription = document.getElementById('levelDescription');
             
+            // 清除現有按鈕
+            levelDescription.querySelectorAll('button').forEach(btn => btn.remove());
+            
             // 公告管理按鈕
             const announcementButton = document.createElement('button');
-            announcementButton.id = "announcementManagementBtn";
             announcementButton.textContent = "公告管理";
+            announcementButton.onclick = function() {
+                toggleVisibility('announcementManagementContainer', true);
+                loadAnnouncementManagement();
+            };
             levelDescription.appendChild(announcementButton);
             
             // 商品管理按鈕
             const itemButton = document.createElement('button');
-            itemButton.id = "itemManagementBtn";
             itemButton.textContent = "商品管理";
+            itemButton.onclick = function() {
+                toggleVisibility('itemManagementContainer', true);
+                loadItemManagement();
+            };
             levelDescription.appendChild(itemButton);
             
             // 兌換碼管理按鈕
             const codeButton = document.createElement('button');
-            codeButton.id = "codeManagementBtn";
             codeButton.textContent = "兌換碼管理";
+            codeButton.onclick = function() {
+                toggleVisibility('codeManagementContainer', true);
+                loadCodeManagement();
+            };
             levelDescription.appendChild(codeButton);
         }
+        
         return true;
     } else {
         document.getElementById('loginError').textContent = "帳號或密碼錯誤！";
@@ -1085,17 +1036,14 @@ function register() {
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     alert("註冊成功！");
     toggleVisibility('registerContainer', false);
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 function logout() {
     currentUser = null;
     document.getElementById('vipContainer').classList.add('hidden');
-    document.getElementById('loginContainer').classList.remove('hidden');
-    document.getElementById('username').value = "";
-    document.getElementById('password').value = "";
+    document.getElementById('loginOptionContainer').classList.remove('hidden');
+    document.getElementById('normalUsername').value = "";
+    document.getElementById('normalPassword').value = "";
     document.getElementById('loginError').textContent = "";
 }
 
@@ -1124,9 +1072,6 @@ function changePassword() {
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     alert("密碼更改成功！");
     toggleVisibility('changePasswordContainer', false);
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 // ================= VIP功能 =================
@@ -1210,9 +1155,6 @@ function vipCheckIn() {
     
     updateVipDisplay();
     alert(`簽到成功！獲得 ${pointsToAdd.toLocaleString()} 點！`);
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 // ================= 兌換商品功能 =================
@@ -1232,7 +1174,7 @@ function showRedeemItems() {
         }
     });
     
-    // 為加入購物車按鈕添加事件監聽器
+    // 為所有加入購物車按鈕添加事件監聽
     document.querySelectorAll('.addToCartBtn').forEach(btn => {
         btn.addEventListener('click', function() {
             addToCart(parseInt(this.getAttribute('data-id')));
@@ -1281,7 +1223,7 @@ function updateCartDisplay() {
         total += discountedPrice;
     });
     
-    // 為移除按鈕添加事件監聽器
+    // 為所有移除按鈕添加事件監聽
     document.querySelectorAll('.removeFromCartBtn').forEach(btn => {
         btn.addEventListener('click', function() {
             removeFromCart(parseInt(this.getAttribute('data-index')));
@@ -1323,9 +1265,6 @@ function checkout() {
     cart = [];
     updateCartDisplay();
     updateVipDisplay();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 function generateBarcode(data, containerId) {
@@ -1370,9 +1309,6 @@ function playScratchCard() {
     `;
     
     updateVipDisplay();
-    
-    // 同步到伺服器
-    syncDataToServer();
 }
 
 // ================= VIP等級查看 =================
@@ -1407,126 +1343,93 @@ function backToVipPage() {
     document.getElementById('vipContainer').classList.remove('hidden');
 }
 
-// ================= 初始化事件監聽器 =================
+// ================= 初始化事件監聽 =================
 function initEventListeners() {
     // 登錄選項按鈕
     document.getElementById('vipLoginBtn').addEventListener('click', () => {
         toggleVisibility('loginOptionContainer', false);
         toggleVisibility('vipLoginContainer', true);
     });
-    
     document.getElementById('normalLoginBtn').addEventListener('click', () => {
         toggleVisibility('loginOptionContainer', false);
         toggleVisibility('normalLoginContainer', true);
     });
-    
     document.getElementById('adminLoginBtn').addEventListener('click', () => {
         toggleVisibility('loginOptionContainer', false);
         toggleVisibility('adminLoginContainer', true);
     });
     
     // 返回按鈕
-    document.querySelectorAll('.backBtn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.container').forEach(c => {
-                if (!c.id.includes('Option') && !c.id.includes('loginContainer')) {
-                    c.classList.add('hidden');
-                }
-            });
-            document.getElementById('loginOptionContainer').classList.remove('hidden');
-        });
+    document.getElementById('vipBackBtn').addEventListener('click', () => backToLoginOptions());
+    document.getElementById('normalBackBtn').addEventListener('click', () => backToLoginOptions());
+    document.getElementById('adminBackBtn').addEventListener('click', () => backToLoginOptions());
+    document.getElementById('registerBackBtn').addEventListener('click', () => {
+        toggleVisibility('registerContainer', false);
+        toggleVisibility('normalLoginContainer', true);
     });
+    document.getElementById('redeemBackBtn').addEventListener('click', () => toggleVisibility('redeemContainer', false));
+    document.getElementById('scratchBackBtn').addEventListener('click', () => toggleVisibility('scratchCardContainer', false));
+    document.getElementById('changePasswordBackBtn').addEventListener('click', () => toggleVisibility('changePasswordContainer', false));
+    document.getElementById('levelsBackBtn').addEventListener('click', () => backToVipPage());
+    document.getElementById('announcementBackBtn').addEventListener('click', () => toggleVisibility('announcementManagementContainer', false));
+    document.getElementById('redeemCodeBackBtn').addEventListener('click', () => toggleVisibility('redeemCodeContainer', false));
+    document.getElementById('aiChatBackBtn').addEventListener('click', () => toggleVisibility('aiChatContainer', false));
+    document.getElementById('itemBackBtn').addEventListener('click', () => toggleVisibility('itemManagementContainer', false));
+    document.getElementById('codeBackBtn').addEventListener('click', () => toggleVisibility('codeManagementContainer', false));
     
-    // 登錄提交按鈕
+    // 登錄/註冊按鈕
     document.getElementById('vipLoginSubmit').addEventListener('click', () => {
         const username = document.getElementById('vipUsername').value.trim();
         const password = document.getElementById('vipPassword').value.trim();
-        
-        if (users[username] && users[username].password === password && 
-            (users[username].vipLevel > 0 || users[username].isAdmin)) {
-            login(username, password);
-        } else {
-            alert("VIP 帳號或密碼錯誤！");
-        }
+        login(username, password, true);
     });
-    
     document.getElementById('normalLoginSubmit').addEventListener('click', () => {
         const username = document.getElementById('normalUsername').value.trim();
         const password = document.getElementById('normalPassword').value.trim();
         login(username, password);
     });
-    
     document.getElementById('adminLoginSubmit').addEventListener('click', () => {
         const username = document.getElementById('adminUsername').value.trim();
         const password = document.getElementById('adminPassword').value.trim();
-        
-        if (users[username] && users[username].password === password && users[username].isAdmin) {
-            login(username, password);
-        } else {
-            alert("管理員帳號或密碼錯誤！");
-        }
+        login(username, password, false, true);
     });
-    
-    // 註冊相關按鈕
-    document.getElementById('showRegisterBtn').addEventListener('click', () => {
+    document.getElementById('normalRegisterBtn').addEventListener('click', () => {
         toggleVisibility('normalLoginContainer', false);
         toggleVisibility('registerContainer', true);
     });
-    
     document.getElementById('registerSubmit').addEventListener('click', register);
     
     // VIP功能按鈕
     document.getElementById('checkInBtn').addEventListener('click', vipCheckIn);
     document.getElementById('viewLevelsBtn').addEventListener('click', viewAllLevels);
-    document.getElementById('showRedeemBtn').addEventListener('click', () => {
-        toggleVisibility('vipContainer', false);
+    document.getElementById('redeemItemsBtn').addEventListener('click', () => {
         toggleVisibility('redeemContainer', true);
         showRedeemItems();
     });
-    document.getElementById('showScratchCardBtn').addEventListener('click', () => {
-        toggleVisibility('vipContainer', false);
-        toggleVisibility('scratchCardContainer', true);
-    });
-    document.getElementById('showChangePasswordBtn').addEventListener('click', () => {
-        toggleVisibility('vipContainer', false);
-        toggleVisibility('changePasswordContainer', true);
-    });
-    document.getElementById('showRedeemCodeBtn').addEventListener('click', () => {
-        toggleVisibility('vipContainer', false);
-        toggleVisibility('redeemCodeContainer', true);
-    });
-    document.getElementById('showAiChatBtn').addEventListener('click', () => {
-        toggleVisibility('vipContainer', false);
-        toggleVisibility('aiChatContainer', true);
-    });
+    document.getElementById('scratchCardBtn').addEventListener('click', () => toggleVisibility('scratchCardContainer', true));
+    document.getElementById('changePasswordBtn').addEventListener('click', () => toggleVisibility('changePasswordContainer', true));
+    document.getElementById('redeemCodeBtn').addEventListener('click', () => toggleVisibility('redeemCodeContainer', true));
+    document.getElementById('aiChatBtn').addEventListener('click', () => toggleVisibility('aiChatContainer', true));
     document.getElementById('checkUpdatesBtn').addEventListener('click', checkForUpdates);
     document.getElementById('logoutBtn').addEventListener('click', logout);
     
-    // 兌換商品界面按鈕
+    // 其他功能按鈕
     document.getElementById('checkoutBtn').addEventListener('click', checkout);
-    
-    // 刮刮樂界面按鈕
-    document.getElementById('playScratchCardBtn').addEventListener('click', playScratchCard);
-    
-    // 更改密碼界面按鈕
+    document.getElementById('playScratchBtn').addEventListener('click', playScratchCard);
     document.getElementById('changePasswordSubmit').addEventListener('click', changePassword);
-    
-    // 公告管理按鈕
     document.getElementById('addAnnouncementBtn').addEventListener('click', addAnnouncement);
-    
-    // 兌換碼界面按鈕
     document.getElementById('redeemCodeSubmit').addEventListener('click', redeemCode);
-    
-    // AI客服界面按鈕
     document.getElementById('sendAiMessageBtn').addEventListener('click', sendAiMessage);
-    
-    // 商品管理按鈕
     document.getElementById('addItemBtn').addEventListener('click', addItem);
-    
-    // 兌換碼管理按鈕
     document.getElementById('addCodeBtn').addEventListener('click', addCode);
     
-    // 管理員功能按鈕 (動態添加的按鈕需要在登錄後再綁定)
+    // 輸入框回車事件
+    document.getElementById('aiUserInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendAiMessage();
+    });
+    document.getElementById('redeemCodeInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') redeemCode();
+    });
 }
 
 // ================= 初始化 =================
