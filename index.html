@@ -156,8 +156,45 @@
             text-align: center;
             margin: 10px 0;
         }
+        /* 新增樣式 */
+        #scannerArea {
+            margin: 10px 0;
+            border: 2px dashed #ccc;
+            position: relative;
+            min-height: 300px;
+        }
+        #scanResult {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            text-align: center;
+        }
+        #receiptList {
+            margin-top: 20px;
+        }
+        #receiptList .cart-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        #scannerCanvas {
+            display: none;
+        }
+        .invoice-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff3e0;
+            border-radius: 4px;
+        }
+        .invoice-prize {
+            color: #e53935;
+            font-weight: bold;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
     <!-- 登錄選項選擇界面 -->
@@ -231,6 +268,8 @@
         <button id="redeemCodeBtn">輸入兌換碼</button>
         <button id="aiChatBtn">AI客服</button>
         <button id="checkUpdatesBtn">檢查更新</button>
+        <button id="viewReceiptsBtn">查看收件</button>
+        <button id="viewInvoicesBtn">查看發票</button>
         <div id="updateStatus"></div>
         <button id="logoutBtn">登出</button>
     </div>
@@ -329,14 +368,43 @@
         <button id="codeBackBtn">返回</button>
     </div>
 
+    <!-- 收件界面 -->
+    <div class="container hidden" id="receiptContainer">
+        <h2>我的收件</h2>
+        <div id="receiptList"></div>
+        <button id="receiptBackBtn">返回</button>
+    </div>
+
+    <!-- 發票界面 -->
+    <div class="container hidden" id="invoiceContainer">
+        <h2>我的發票</h2>
+        <div id="invoiceList"></div>
+        <button id="invoiceBackBtn">返回</button>
+    </div>
+
+    <!-- 管理員掃描界面 -->
+    <div class="container hidden" id="barcodeScannerContainer">
+        <h2>條碼掃描</h2>
+        <div id="scannerArea">
+            <video id="scannerVideo" width="100%" playsinline></video>
+            <canvas id="scannerCanvas" class="hidden"></canvas>
+        </div>
+        <div id="scanResult">
+            <p>請將條碼對準相機</p>
+        </div>
+        <button id="startScannerBtn">開始掃描</button>
+        <button id="stopScannerBtn" class="hidden">停止掃描</button>
+        <button id="scannerBackBtn">返回</button>
+    </div>
+
 <script>
 // ================= 系統配置 =================
 const SYSTEM_CONFIG = {
-    version: "1.5.1",
-    lastUpdate: "2023-11-24",
-    configUrl: "https://example.com/vip_system_config.json",
-    dataUrl: "https://example.com/vip_system_data.json",
-    syncUrl: "https://example.com/vip_system_sync.php"
+    version: "1.7.0",
+    lastUpdate: "2023-11-25",
+    configUrl: "http://192.168.50.1/vip_system_config.json",
+    dataUrl: "http://192.168.50.1/vip_system_data.json",
+    syncUrl: "http://192.168.50.1/vip_system_sync.php"
 };
 
 // 台灣節慶日期 (月份是0-11)
@@ -350,20 +418,244 @@ const TAIWAN_HOLIDAYS = [
     { name: "雙十節", date: new Date(new Date().getFullYear(), 9, 10) }
 ];
 
-// VIP等級系統 (初始數據)
-let VIP_LEVELS = [
-    { level: 0, name: "普通客戶", points: 0, color: "#000000", emoji: "👤", discount: 1.0, scratchPrice: 20 },
-    { level: 1, name: "活躍客戶", points: 10000, color: "#2ecc71", emoji: "👍", discount: 0.98, scratchPrice: 18 },
-    { level: 2, name: "忠實客戶", points: 25000, color: "#27ae60", emoji: "🤝", discount: 0.96, scratchPrice: 16 },
-    { level: 3, name: "優質客戶", points: 50000, color: "#3498db", emoji: "⭐", discount: 0.94, scratchPrice: 14 },
-    { level: 4, name: "精英客戶", points: 80000, color: "#2980b9", emoji: "🌟", discount: 0.92, scratchPrice: 12 },
-    { level: 5, name: "VIP 銅級", points: 100000, color: "#cd7f32", emoji: "🥉", discount: 0.90, scratchPrice: 10 },
-    { level: 6, name: "VIP 銀級", points: 120000, color: "#c0c0c0", emoji: "🥈", discount: 0.88, scratchPrice: 9 },
-    { level: 7, name: "VIP 金級", points: 170000, color: "#ffd700", emoji: "🥇", discount: 0.85, scratchPrice: 8 },
-    { level: 8, name: "VIP 白金級", points: 230000, color: "#e5e4e2", emoji: "💠", discount: 0.82, scratchPrice: 7 },
-    { level: 9, name: "VIP 鑽石級", points: 300000, color: "#b9f2ff", emoji: "💎", discount: 0.80, scratchPrice: 6 },
-    { level: 10, name: "VIP 黑金級", points: 400000, color: "#000000", emoji: "♠️", discount: 0.77, scratchPrice: 5 }
-];
+// 發票獎項配置
+const INVOICE_PRIZES = {
+    "特別獎": { amount: 10000000, probability: 0.000001 },
+    "特獎": { amount: 2000000, probability: 0.000005 },
+    "頭獎": { amount: 200000, probability: 0.00001 },
+    "二獎": { amount: 40000, probability: 0.00005 },
+    "三獎": { amount: 10000, probability: 0.0001 },
+    "四獎": { amount: 4000, probability: 0.001 },
+    "五獎": { amount: 1000, probability: 0.01 },
+    "六獎": { amount: 200, probability: 0.1 }
+};
+
+// ================= VIP等級系統 =================
+// 普通用戶等級 (0-99,999點) 共500級，每級200點
+const NORMAL_LEVELS = [];
+for (let i = 0; i < 500; i++) {
+    const points = i * 200;
+    let name = "";
+    
+    // 特殊名稱等級
+    switch(i) {
+        case 0: name = "戰場菜鳥"; break;
+        case 1: name = "繃帶實習生"; break;
+        case 2: name = "手槍新手"; break;
+        case 3: name = "彈殼收集者"; break;
+        case 4: name = "戰術蹲伏者"; break;
+        case 5: name = "能量飲料試喝員"; break;
+        case 6: name = "防彈背心學徒"; break;
+        case 7: name = "紅點鏡體驗者"; break;
+        case 8: name = "急救包實習生"; break;
+        case 9: name = "煙霧彈投擲手"; break;
+        case 495: name = "戰術大師候選人"; break;
+        case 496: name = "空投追蹤者"; break;
+        case 497: name = "決賽圈觀察員"; break;
+        case 498: name = "戰場生存專家"; break;
+        case 499: name = "準VIP挑戰者"; break;
+        default: name = `等級 ${i+1}`;
+    }
+    
+    NORMAL_LEVELS.push({
+        level: i,
+        name: name,
+        points: points,
+        color: i < 100 ? "#000000" : 
+               i < 200 ? "#2ecc71" : 
+               i < 300 ? "#3498db" : 
+               i < 400 ? "#9b59b6" : "#e67e22",
+        emoji: i < 100 ? "👤" : 
+               i < 200 ? "👍" : 
+               i < 300 ? "⭐" : 
+               i < 400 ? "🌟" : "💎",
+        discount: 1 - (i * 0.0002),
+        scratchPrice: 20 - Math.floor(i / 25)
+    });
+}
+
+// VIP等級 (100,000點起) 共100級，每級100,000點
+const VIP_LEVELS = [];
+for (let i = 0; i < 100; i++) {
+    const points = 100000 + (i * 100000);
+    let name = "";
+    let group = "";
+    
+    // 分組和命名
+    if (i < 10) {
+        group = "基礎特種兵";
+        switch(i) {
+            case 0: name = "防彈衣新兵"; break;
+            case 1: name = "空投追蹤者"; break;
+            case 2: name = "止血帶醫護兵"; break;
+            case 3: name = "戰術頭盔偵察兵"; break;
+            case 4: name = "能量飲料補給官"; break;
+            case 5: name = "八倍鏡狙擊學徒"; break;
+            case 6: name = "破片手榴彈專家"; break;
+            case 7: name = "平底鍋近戰士"; break;
+            case 8: name = "戰術背包運輸官"; break;
+            case 9: name = "消音器潛行兵"; break;
+        }
+    } else if (i < 20) {
+        group = "進階突擊手";
+        switch(i) {
+            case 10: name = "快速彈匣突擊兵"; break;
+            case 11: name = "燃燒瓶火焰兵"; break;
+            case 12: name = "醫療箱急救官"; break;
+            case 13: name = "紅點瞄準突擊手"; break;
+            case 14: name = "戰術槍托工程師"; break;
+            case 15: name = "垂直握把穩定兵"; break;
+            case 16: name = "擴容彈匣火力手"; break;
+            case 17: name = "戰術靴疾行兵"; break;
+            case 18: name = "戰術手套攀爬者"; break;
+            case 19: name = "戰術護膝潛伏者"; break;
+        }
+    } else if (i < 30) {
+        group = "精英狙擊手";
+        switch(i) {
+            case 20: name = "六倍鏡狙擊手"; break;
+            case 21: name = "栓狙大師"; break;
+            case 22: name = "消焰器隱蔽者"; break;
+            case 23: name = "戰術掩體建造者"; break;
+            case 24: name = "高倍鏡觀察員"; break;
+            case 25: name = "戰術趴射專家"; break;
+            case 26: name = "戰術換彈達人"; break;
+            case 27: name = "戰術腰射王者"; break;
+            case 28: name = "戰術閃身槍高手"; break;
+            case 29: name = "戰術預瞄宗師"; break;
+        }
+    } else if (i < 40) {
+        group = "特種戰術專家";
+        switch(i) {
+            case 30: name = "戰術煙霧掩護官"; break;
+            case 31: name = "戰術閃光突襲者"; break;
+            case 32: name = "戰術震爆彈專家"; break;
+            case 33: name = "戰術燃燒瓶指揮官"; break;
+            case 34: name = "戰術破片手雷大師"; break;
+            case 35: name = "戰術投擲物宗師"; break;
+            case 36: name = "戰術近戰格鬥家"; break;
+            case 37: name = "戰術載具駕駛員"; break;
+            case 38: name = "戰術摩托車特技手"; break;
+            case 39: name = "戰術吉普車指揮官"; break;
+        }
+    } else if (i < 50) {
+        group = "戰場指揮官";
+        switch(i) {
+            case 40: name = "戰術空投召喚師"; break;
+            case 41: name = "戰術信號槍專家"; break;
+            case 42: name = "戰術轟炸區預判者"; break;
+            case 43: name = "戰術毒圈計算師"; break;
+            case 44: name = "戰術決賽圈主宰"; break;
+            case 45: name = "戰術四人小隊隊長"; break;
+            case 46: name = "戰術救援專家"; break;
+            case 47: name = "戰術火力壓制者"; break;
+            case 48: name = "戰術戰地工程師"; break;
+            case 49: name = "戰術戰場元帥"; break;
+        }
+    } else if (i < 60) {
+        group = "傳奇特戰兵";
+        switch(i) {
+            case 50: name = "戰術吉利服獵人"; break;
+            case 51: name = "戰術潛行暗殺者"; break;
+            case 52: name = "戰術夜視儀特工"; break;
+            case 53: name = "戰術全自動掃射手"; break;
+            case 54: name = "戰術單發狙擊王者"; break;
+            case 55: name = "戰術霰彈槍近戰神"; break;
+            case 56: name = "戰術衝鋒槍速射王"; break;
+            case 57: name = "戰術輕機槍火力王"; break;
+            case 58: name = "戰術十字弩暗殺者"; break;
+            case 59: name = "戰術全能武器大師"; break;
+        }
+    } else if (i < 70) {
+        group = "戰場傳奇";
+        switch(i) {
+            case 60: name = "戰術絕地求生者"; break;
+            case 61: name = "戰術吃雞王者"; break;
+            case 62: name = "戰術不死戰神"; break;
+            case 63: name = "戰術零傷通關者"; break;
+            case 64: name = "戰術單人四排冠軍"; break;
+            case 65: name = "戰術全圖追殺者"; break;
+            case 66: name = "戰術無傷滅隊王"; break;
+            case 67: name = "戰術終極生存者"; break;
+            case 68: name = "戰術不敗傳說"; break;
+            case 69: name = "戰術絕地之神"; break;
+        }
+    } else if (i < 80) {
+        group = "至尊戰神";
+        switch(i) {
+            case 70: name = "戰術戰場主宰者"; break;
+            case 71: name = "戰術殺戮機器"; break;
+            case 72: name = "戰術無敵兵王"; break;
+            case 73: name = "戰術終極獵手"; break;
+            case 74: name = "戰術戰爭領主"; break;
+            case 75: name = "戰術毀滅者"; break;
+            case 76: name = "戰術死神"; break;
+            case 77: name = "戰術修羅"; break;
+            case 78: name = "戰術滅世者"; break;
+            case 79: name = "戰術終極戰神"; break;
+        }
+    } else if (i < 90) {
+        group = "神話級特種兵";
+        switch(i) {
+            case 80: name = "戰術天選之人"; break;
+            case 81: name = "戰術天命之子"; break;
+            case 82: name = "戰術不滅戰魂"; break;
+            case 83: name = "戰術傳奇兵王"; break;
+            case 84: name = "戰術神級指揮官"; break;
+            case 85: name = "戰術不朽戰神"; break;
+            case 86: name = "戰術終極兵皇"; break;
+            case 87: name = "戰術弒神者"; break;
+            case 88: name = "戰術滅世戰神"; break;
+            case 89: name = "戰術絕地至尊"; break;
+        }
+    } else {
+        group = "終極神話";
+        switch(i) {
+            case 90: name = "戰術萬人敵"; break;
+            case 91: name = "戰術不敗神話"; break;
+            case 92: name = "戰術弒天戰神"; break;
+            case 93: name = "戰術滅世之神"; break;
+            case 94: name = "戰術終極殺戮者"; break;
+            case 95: name = "戰術無上兵主"; break;
+            case 96: name = "戰術絕地帝王"; break;
+            case 97: name = "戰術修羅戰神"; break;
+            case 98: name = "戰術滅界主宰"; break;
+            case 99: name = "戰術終極至尊神"; break;
+        }
+    }
+    
+    VIP_LEVELS.push({
+        level: i + 500, // 從500開始
+        name: `VIP ${i+1} ${name}`,
+        points: points,
+        color: i < 10 ? "#cd7f32" : // 銅
+               i < 20 ? "#c0c0c0" : // 銀
+               i < 30 ? "#ffd700" : // 金
+               i < 40 ? "#e5e4e2" : // 白金
+               i < 50 ? "#b9f2ff" : // 鑽石
+               i < 60 ? "#000000" : // 黑金
+               i < 70 ? "#ff0000" : // 紅
+               i < 80 ? "#0000ff" : // 藍
+               i < 90 ? "#800080" : // 紫
+                        "#000000", // 黑
+        emoji: i < 10 ? "🥉" : 
+               i < 20 ? "🥈" : 
+               i < 30 ? "🥇" : 
+               i < 40 ? "💠" : 
+               i < 50 ? "💎" : 
+               i < 60 ? "♠️" : 
+               i < 70 ? "❤️" : 
+               i < 80 ? "🔵" : 
+               i < 90 ? "🟣" : 
+                        "⚫",
+        discount: 0.8 - (i * 0.002),
+        scratchPrice: 10 - Math.floor(i / 10),
+        group: group
+    });
+}
+
+// 合併所有等級
+const ALL_LEVELS = [...NORMAL_LEVELS, ...VIP_LEVELS];
 
 // 可兌換商品 (初始數據)
 let REDEEM_ITEMS = [
@@ -371,7 +663,8 @@ let REDEEM_ITEMS = [
     { id: 2, name: "午餐券", cost: 100, vipOnly: false },
     { id: 3, name: "電影票", cost: 200, vipOnly: false },
     { id: 4, name: "VIP專屬禮盒", cost: 500, vipOnly: true },
-    { id: 5, name: "高級餐廳券", cost: 1000, vipOnly: true }
+    { id: 5, name: "高級餐廳券", cost: 1000, vipOnly: true },
+    { id: 6, name: "VIP家務券", cost: 800, vipOnly: true }
 ];
 
 // 兌換碼 (初始數據)
@@ -401,6 +694,317 @@ let announcements = JSON.parse(localStorage.getItem('vipSystemAnnouncements')) |
 let currentUser = null;
 let cart = [];
 let aiChatHistory = [];
+let lastCompensationTime = null;
+let scannerInterval = null;
+
+// ================= 發票功能 =================
+function generateInvoiceNumber() {
+    // 產生隨機發票號碼 (格式: 2位英文字母 + 8位數字)
+    const letters = 'ABCDEFGHJKLMNPQRSTUVXYWZ';
+    const letter1 = letters[Math.floor(Math.random() * letters.length)];
+    const letter2 = letters[Math.floor(Math.random() * letters.length)];
+    const numbers = Math.floor(10000000 + Math.random() * 90000000);
+    return `${letter1}${letter2}${numbers}`;
+}
+
+function checkInvoicePrize(invoiceNumber) {
+    // 檢查是否為中獎發票 (模擬)
+    const random = Math.random();
+    let prize = null;
+    
+    for (const [name, config] of Object.entries(INVOICE_PRIZES)) {
+        if (random < config.probability) {
+            prize = { name, amount: config.amount };
+            break;
+        }
+    }
+    
+    return prize;
+}
+
+function checkAllInvoices() {
+    // 檢查今天是否是奇數月的25號
+    const today = new Date();
+    const month = today.getMonth() + 1; // 月份是0-11
+    const date = today.getDate();
+    
+    if (month % 2 === 1 && date === 25) {
+        // 是奇數月的25號，執行自動兌獎
+        if (currentUser && currentUser.invoices) {
+            let totalPrize = 0;
+            
+            currentUser.invoices.forEach(invoice => {
+                if (!invoice.checked) {
+                    const prize = checkInvoicePrize(invoice.number);
+                    if (prize) {
+                        invoice.prize = prize;
+                        totalPrize += prize.amount;
+                    }
+                    invoice.checked = true;
+                    invoice.checkDate = new Date().toISOString();
+                }
+            });
+            
+            if (totalPrize > 0) {
+                currentUser.points += totalPrize;
+                users[currentUser.username] = currentUser;
+                localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+                
+                addAnnouncementFromSystem(`發票兌獎結果：恭喜您獲得 ${totalPrize} 點獎勵！`);
+                
+                // 同步到伺服器
+                syncToServer();
+            }
+        }
+    }
+}
+
+function showInvoices() {
+    document.getElementById('vipContainer').classList.add('hidden');
+    document.getElementById('invoiceContainer').classList.remove('hidden');
+    
+    const container = document.getElementById('invoiceList');
+    container.innerHTML = '';
+    
+    if (!currentUser.invoices || currentUser.invoices.length === 0) {
+        container.innerHTML = "<p>沒有發票記錄</p>";
+        return;
+    }
+    
+    currentUser.invoices.forEach((invoice, index) => {
+        const invoiceDiv = document.createElement('div');
+        invoiceDiv.className = 'invoice-container';
+        
+        const date = new Date(invoice.date);
+        const formattedDate = date.toLocaleString('zh-TW');
+        
+        let prizeInfo = '';
+        if (invoice.prize) {
+            prizeInfo = `<p class="invoice-prize">中獎: ${invoice.prize.name} ${invoice.prize.amount} 點</p>`;
+        } else if (invoice.checked) {
+            prizeInfo = `<p>未中獎</p>`;
+        } else {
+            prizeInfo = `<p>等待兌獎 (奇數月25號自動兌獎)</p>`;
+        }
+        
+        invoiceDiv.innerHTML = `
+            <h3>發票 #${index + 1}</h3>
+            <p>發票號碼: ${invoice.number}</p>
+            <p>日期: ${formattedDate}</p>
+            <p>消費金額: ${invoice.amount} 點</p>
+            ${prizeInfo}
+        `;
+        
+        container.appendChild(invoiceDiv);
+    });
+}
+
+// ================= 條碼掃描功能 =================
+function initBarcodeScanner() {
+    document.getElementById('startScannerBtn').addEventListener('click', startScanner);
+    document.getElementById('stopScannerBtn').addEventListener('click', stopScanner);
+    document.getElementById('scannerBackBtn').addEventListener('click', () => {
+        stopScanner();
+        backToVipPage();
+    });
+}
+
+function startScanner() {
+    const video = document.getElementById('scannerVideo');
+    const canvas = document.getElementById('scannerCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+            
+            document.getElementById('startScannerBtn').classList.add('hidden');
+            document.getElementById('stopScannerBtn').classList.remove('hidden');
+            
+            scannerInterval = setInterval(() => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                try {
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    if (code) {
+                        processScannedBarcode(code.data);
+                    }
+                } catch (e) {
+                    console.error("掃描錯誤:", e);
+                }
+            }, 500);
+        })
+        .catch(function(err) {
+            console.error("無法訪問相機:", err);
+            alert("無法訪問相機，請確保已授予相機權限");
+        });
+}
+
+function stopScanner() {
+    const video = document.getElementById('scannerVideo');
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+    }
+    clearInterval(scannerInterval);
+    document.getElementById('startScannerBtn').classList.remove('hidden');
+    document.getElementById('stopScannerBtn').classList.add('hidden');
+}
+
+function processScannedBarcode(barcodeData) {
+    // 驗證條碼格式
+    if (!barcodeData.startsWith("VIPCHECKOUT:")) {
+        document.getElementById('scanResult').innerHTML = "<p style='color:red'>無效條碼</p>";
+        return;
+    }
+    
+    // 解析條碼數據
+    const parts = barcodeData.split(':');
+    const username = parts[1];
+    const timestamp = parseInt(parts[2]);
+    const points = parseInt(parts[3]);
+    
+    // 檢查條碼是否已使用
+    if (users[username].usedBarcodes && users[username].usedBarcodes.includes(barcodeData)) {
+        document.getElementById('scanResult').innerHTML = "<p style='color:red'>此條碼已使用</p>";
+        return;
+    }
+    
+    // 標記條碼為已使用
+    if (!users[username].usedBarcodes) {
+        users[username].usedBarcodes = [];
+    }
+    users[username].usedBarcodes.push(barcodeData);
+    
+    // 更新收據狀態
+    if (users[username].receipts) {
+        const receipt = users[username].receipts.find(r => r.id === barcodeData);
+        if (receipt) {
+            receipt.used = true;
+        }
+    }
+    
+    // 同步到本地存儲
+    localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+    
+    // 同步到伺服器
+    syncToServer();
+    
+    document.getElementById('scanResult').innerHTML = `
+        <p style='color:green'>掃描成功！</p>
+        <p>用戶: ${username}</p>
+        <p>時間: ${new Date(timestamp).toLocaleString()}</p>
+        <p>點數: ${points}</p>
+    `;
+    
+    // 3秒後重置掃描結果
+    setTimeout(() => {
+        document.getElementById('scanResult').innerHTML = "<p>請將條碼對準相機</p>";
+    }, 3000);
+}
+
+// ================= 收件功能 =================
+function showReceipts() {
+    document.getElementById('vipContainer').classList.add('hidden');
+    document.getElementById('receiptContainer').classList.remove('hidden');
+    
+    const container = document.getElementById('receiptList');
+    container.innerHTML = '';
+    
+    if (!currentUser.receipts || currentUser.receipts.length === 0) {
+        container.innerHTML = "<p>沒有收件記錄</p>";
+        return;
+    }
+    
+    currentUser.receipts.forEach((receipt, index) => {
+        const receiptDiv = document.createElement('div');
+        receiptDiv.className = 'cart-item';
+        
+        const date = new Date(receipt.date);
+        const formattedDate = date.toLocaleString('zh-TW');
+        
+        receiptDiv.innerHTML = `
+            <h3>收據 #${index + 1}</h3>
+            <p>日期: ${formattedDate}</p>
+            <p>狀態: ${receipt.used ? '<span style="color:red">已使用</span>' : '<span style="color:green">未使用</span>'}</p>
+            <p>總點數: ${receipt.total}</p>
+            <div id="barcode-${receipt.id}"></div>
+            ${receipt.used ? '' : '<p>請出示此條碼給管理員掃描</p>'}
+        `;
+        
+        container.appendChild(receiptDiv);
+        
+        // 生成條碼
+        JsBarcode(`#barcode-${receipt.id}`, receipt.id, {
+            format: "CODE128",
+            displayValue: true,
+            fontSize: 16,
+            lineColor: "#000",
+            width: 2,
+            height: 50
+        });
+    });
+}
+
+// ================= 同步功能 =================
+function syncToServer() {
+    fetch('http://192.168.50.1/sync', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            users: users,
+            items: REDEEM_ITEMS,
+            codes: REDEEM_CODES,
+            announcements: announcements,
+            version: SYSTEM_CONFIG.version
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("同步成功:", data);
+    })
+    .catch(error => {
+        console.error("同步錯誤:", error);
+    });
+}
+
+function syncFromServer() {
+    fetch('http://192.168.50.1/sync')
+    .then(response => response.json())
+    .then(data => {
+        if (data.version > SYSTEM_CONFIG.version) {
+            // 更新本地數據
+            users = data.users || users;
+            REDEEM_ITEMS = data.items || REDEEM_ITEMS;
+            REDEEM_CODES = data.codes || REDEEM_CODES;
+            announcements = data.announcements || announcements;
+            
+            // 保存到本地存儲
+            localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+            localStorage.setItem('vipSystemItems', JSON.stringify(REDEEM_ITEMS));
+            localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
+            localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
+            
+            // 更新界面
+            if (currentUser) {
+                currentUser = users[currentUser.username] || currentUser;
+                updateVipDisplay();
+                updateAnnouncements();
+            }
+            
+            console.log("數據同步完成");
+        }
+    })
+    .catch(error => {
+        console.error("同步錯誤:", error);
+    });
+}
 
 // ================= 節慶兌換碼功能 =================
 function checkHolidayCodes() {
@@ -441,6 +1045,9 @@ function checkHolidayCodes() {
                 
                 // 同步到本地存儲
                 localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
+                
+                // 同步到伺服器
+                syncToServer();
             }
         }
     }
@@ -522,6 +1129,9 @@ function addAnnouncement() {
     document.getElementById('newAnnouncementContent').value = '';
     loadAnnouncementManagement();
     updateAnnouncements();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 function addAnnouncementFromSystem(content) {
@@ -536,6 +1146,9 @@ function addAnnouncementFromSystem(content) {
     announcements.unshift(newAnnouncement);
     localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
     updateAnnouncements();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 function deleteAnnouncement(id) {
@@ -546,6 +1159,9 @@ function deleteAnnouncement(id) {
     
     loadAnnouncementManagement();
     updateAnnouncements();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 // ================= 兌換碼功能 =================
@@ -587,6 +1203,9 @@ function redeemCode() {
     document.getElementById('redeemCodeInput').value = '';
     
     updateVipDisplay();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 function loadCodeManagement() {
@@ -634,6 +1253,9 @@ function addCode() {
     document.getElementById('newCodeValue').value = '';
     document.getElementById('newCodePoints').value = '';
     loadCodeManagement();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 function deleteCode(code) {
@@ -642,6 +1264,9 @@ function deleteCode(code) {
     REDEEM_CODES = REDEEM_CODES.filter(c => c.code !== code);
     localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
     loadCodeManagement();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 // ================= AI客服功能 =================
@@ -656,30 +1281,60 @@ function sendAiMessage() {
     // 模擬AI回應
     setTimeout(() => {
         let response = "";
+        let giveCompensation = false;
+        
+        // 檢查是否已經獲得過今天的賠償
+        const today = new Date().toDateString();
+        const lastCompDay = lastCompensationTime ? new Date(lastCompensationTime).toDateString() : null;
+        const alreadyCompensated = lastCompDay === today;
         
         // 簡單的關鍵詞匹配
-        if (userInput.includes("問題") || userInput.includes("錯誤")) {
+        if ((userInput.includes("問題") || userInput.includes("錯誤") || userInput.includes("bug") || 
+             userInput.includes("故障") || userInput.includes("補償")) && !alreadyCompensated) {
             response = "很抱歉給您帶來不便。我們已記錄您的問題，並將贈送您 500 點作為補償。";
+            giveCompensation = true;
             
-            // 補償點數
-            if (currentUser) {
-                currentUser.points += 500;
-                users[currentUser.username] = currentUser;
-                localStorage.setItem('vipSystemUsers', JSON.stringify(users));
-                updateVipDisplay();
-            }
+            // 記錄賠償時間
+            lastCompensationTime = new Date().toISOString();
         } 
+        else if (alreadyCompensated && (userInput.includes("問題") || userInput.includes("錯誤") || 
+                userInput.includes("bug") || userInput.includes("故障") || userInput.includes("補償"))) {
+            response = "我們今天已經為您提供過補償了。如有其他問題，請聯繫客服人員。";
+        }
         else if (userInput.includes("謝謝") || userInput.includes("感謝")) {
             response = "感謝您的支持！如果有任何問題，請隨時聯繫我們。";
         }
         else if (userInput.includes("兌換碼")) {
             response = "您可以在VIP功能界面點擊「輸入兌換碼」來使用兌換碼。節慶期間會有特別兌換碼發放，請關注公告！";
         }
+        else if (userInput.includes("刮刮樂")) {
+            response = "刮刮樂遊戲可以讓您有機會贏得點數獎勵！獎勵點數為購買價格的0.5-5倍。";
+        }
+        else if (userInput.includes("等級") || userInput.includes("VIP")) {
+            response = "VIP等級系統根據您的累積點數決定。點數越高，等級越高，享受的折扣和優惠也越多！";
+        }
+        else if (userInput.includes("條碼") || userInput.includes("收件")) {
+            response = "購買商品後會生成專屬條碼，請在「查看收件」中查看您的條碼，並出示給管理員掃描。每個條碼只能使用一次。";
+        }
+        else if (userInput.includes("發票")) {
+            response = "每次購買商品都會自動獲取一張發票，奇數月的25號系統會自動進行兌獎，中獎獎金會直接轉為點數存入您的帳戶。";
+        }
         else {
             response = "感謝您的詢問。我們已收到您的消息，將盡快為您處理。";
         }
         
         addAiMessage(response, false);
+        
+        // 補償點數
+        if (giveCompensation && currentUser) {
+            currentUser.points += 500;
+            users[currentUser.username] = currentUser;
+            localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+            updateVipDisplay();
+            
+            // 同步到伺服器
+            syncToServer();
+        }
     }, 1000);
 }
 
@@ -741,6 +1396,9 @@ function addItem() {
     document.getElementById('newItemName').value = '';
     document.getElementById('newItemCost').value = '';
     loadItemManagement();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 function deleteItem(id) {
@@ -749,84 +1407,9 @@ function deleteItem(id) {
     REDEEM_ITEMS = REDEEM_ITEMS.filter(i => i.id !== id);
     localStorage.setItem('vipSystemItems', JSON.stringify(REDEEM_ITEMS));
     loadItemManagement();
-}
-
-// ================= 數據同步功能 =================
-function syncDataToServer() {
-    // 這裡應該是實際的API調用，以下是模擬實現
-    console.log("同步數據到伺服器...");
     
-    const dataToSync = {
-        users: users,
-        items: REDEEM_ITEMS,
-        codes: REDEEM_CODES,
-        announcements: announcements,
-        version: SYSTEM_CONFIG.version
-    };
-    
-    // 實際應用中應該使用fetch發送數據
-    /*
-    fetch(SYSTEM_CONFIG.syncUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSync)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("同步成功:", data);
-    })
-    .catch(error => {
-        console.error("同步錯誤:", error);
-    });
-    */
-}
-
-function syncDataFromServer() {
-    // 這裡應該是實際的API調用，以下是模擬實現
-    console.log("從伺服器同步數據...");
-    
-    // 模擬從伺服器獲取的數據
-    const mockServerData = {
-        users: users,
-        items: REDEEM_ITEMS,
-        codes: REDEEM_CODES,
-        announcements: announcements,
-        version: SYSTEM_CONFIG.version
-    };
-    
-    // 實際應用中應該使用fetch獲取數據
-    /*
-    fetch(SYSTEM_CONFIG.syncUrl)
-    .then(response => response.json())
-    .then(data => {
-        if (data.version > SYSTEM_CONFIG.version) {
-            // 更新本地數據
-            users = data.users || users;
-            REDEEM_ITEMS = data.items || REDEEM_ITEMS;
-            REDEEM_CODES = data.codes || REDEEM_CODES;
-            announcements = data.announcements || announcements;
-            
-            // 保存到本地存儲
-            localStorage.setItem('vipSystemUsers', JSON.stringify(users));
-            localStorage.setItem('vipSystemItems', JSON.stringify(REDEEM_ITEMS));
-            localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
-            localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
-            
-            // 更新界面
-            if (currentUser) {
-                updateVipDisplay();
-                updateAnnouncements();
-            }
-            
-            console.log("數據同步完成");
-        }
-    })
-    .catch(error => {
-        console.error("同步錯誤:", error);
-    });
-    */
+    // 同步到伺服器
+    syncToServer();
 }
 
 // ================= 網路更新功能 =================
@@ -840,21 +1423,16 @@ function checkForUpdates() {
             // 這裡實際應該使用fetch從SYSTEM_CONFIG.configUrl獲取數據
             // 以下是模擬數據
             const mockConfig = {
-                version: "1.5.1",
-                lastUpdate: "2023-11-24",
-                announcements: ["新功能上線：AI客服系統", "新增節慶兌換碼功能"]
+                version: "1.7.0",
+                lastUpdate: "2023-11-25",
+                announcements: ["新功能上線：發票兌獎系統", "新增自動兌獎功能"]
             };
             
             const mockData = {
-                levels: [
-                    ...VIP_LEVELS,
-                    { level: 11, name: "VIP 鈦金級", points: 520000, color: "#878681", emoji: "🔘", discount: 0.75, scratchPrice: 4 },
-                    { level: 12, name: "VIP 鉑金級", points: 650000, color: "#e5e4e2", emoji: "🔳", discount: 0.72, scratchPrice: 3 }
-                ],
                 items: [
                     ...REDEEM_ITEMS,
-                    { id: 6, name: "豪華SPA券", cost: 800, vipOnly: true },
-                    { id: 7, name: "高爾夫體驗", cost: 1500, vipOnly: true }
+                    { id: 7, name: "豪華SPA券", cost: 800, vipOnly: true },
+                    { id: 8, name: "高爾夫體驗", cost: 1500, vipOnly: true }
                 ],
                 codes: [
                     ...REDEEM_CODES,
@@ -867,7 +1445,6 @@ function checkForUpdates() {
             SYSTEM_CONFIG.lastUpdate = mockConfig.lastUpdate;
             
             // 更新數據
-            VIP_LEVELS = mockData.levels;
             REDEEM_ITEMS = mockData.items;
             REDEEM_CODES = mockData.codes;
             
@@ -888,13 +1465,12 @@ function checkForUpdates() {
             // 保存更新後的數據到本地存儲
             localStorage.setItem('vipSystemConfig', JSON.stringify(SYSTEM_CONFIG));
             localStorage.setItem('vipSystemData', JSON.stringify({
-                levels: VIP_LEVELS,
                 items: REDEEM_ITEMS,
                 codes: REDEEM_CODES
             }));
             
             // 同步到伺服器
-            syncDataToServer();
+            syncToServer();
             
         } catch (error) {
             document.getElementById('updateStatus').textContent = "更新失敗: " + error.message;
@@ -919,7 +1495,6 @@ function loadUpdatesFromStorage() {
     
     if (savedData) {
         const data = JSON.parse(savedData);
-        VIP_LEVELS = data.levels || VIP_LEVELS;
         REDEEM_ITEMS = data.items || REDEEM_ITEMS;
         REDEEM_CODES = data.codes || REDEEM_CODES;
     }
@@ -968,6 +1543,9 @@ function login(username, password, isVip = false, isAdmin = false) {
         updateVipDisplay();
         updateAnnouncements();
         
+        // 檢查發票兌獎
+        checkAllInvoices();
+        
         // 如果是管理員，添加管理按鈕
         if (currentUser.isAdmin) {
             const levelDescription = document.getElementById('levelDescription');
@@ -979,7 +1557,8 @@ function login(username, password, isVip = false, isAdmin = false) {
             const announcementButton = document.createElement('button');
             announcementButton.textContent = "公告管理";
             announcementButton.onclick = function() {
-                toggleVisibility('announcementManagementContainer', true);
+                document.getElementById('vipContainer').classList.add('hidden');
+                document.getElementById('announcementManagementContainer').classList.remove('hidden');
                 loadAnnouncementManagement();
             };
             levelDescription.appendChild(announcementButton);
@@ -988,7 +1567,8 @@ function login(username, password, isVip = false, isAdmin = false) {
             const itemButton = document.createElement('button');
             itemButton.textContent = "商品管理";
             itemButton.onclick = function() {
-                toggleVisibility('itemManagementContainer', true);
+                document.getElementById('vipContainer').classList.add('hidden');
+                document.getElementById('itemManagementContainer').classList.remove('hidden');
                 loadItemManagement();
             };
             levelDescription.appendChild(itemButton);
@@ -997,10 +1577,21 @@ function login(username, password, isVip = false, isAdmin = false) {
             const codeButton = document.createElement('button');
             codeButton.textContent = "兌換碼管理";
             codeButton.onclick = function() {
-                toggleVisibility('codeManagementContainer', true);
+                document.getElementById('vipContainer').classList.add('hidden');
+                document.getElementById('codeManagementContainer').classList.remove('hidden');
                 loadCodeManagement();
             };
             levelDescription.appendChild(codeButton);
+            
+            // 條碼掃描按鈕
+            const scanButton = document.createElement('button');
+            scanButton.textContent = "條碼掃描";
+            scanButton.onclick = function() {
+                document.getElementById('vipContainer').classList.add('hidden');
+                document.getElementById('barcodeScannerContainer').classList.remove('hidden');
+                initBarcodeScanner();
+            };
+            levelDescription.appendChild(scanButton);
         }
         
         return true;
@@ -1036,6 +1627,10 @@ function register() {
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     alert("註冊成功！");
     toggleVisibility('registerContainer', false);
+    toggleVisibility('normalLoginContainer', true);
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 function logout() {
@@ -1072,6 +1667,9 @@ function changePassword() {
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     alert("密碼更改成功！");
     toggleVisibility('changePasswordContainer', false);
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 // ================= VIP功能 =================
@@ -1079,7 +1677,7 @@ function updateVipDisplay() {
     if (!currentUser) return;
     
     const userLevel = getUserLevel(currentUser.points);
-    const nextLevel = VIP_LEVELS.find(level => level.level === userLevel.level + 1);
+    const nextLevel = ALL_LEVELS.find(level => level.level === userLevel.level + 1);
     
     document.getElementById('vipTitle').textContent = 
         `${userLevel.emoji} ${userLevel.name} ${currentUser.username} 您好！`;
@@ -1122,12 +1720,12 @@ function updateVipDisplay() {
 }
 
 function getUserLevel(points) {
-    for (let i = VIP_LEVELS.length - 1; i >= 0; i--) {
-        if (points >= VIP_LEVELS[i].points) {
-            return VIP_LEVELS[i];
+    for (let i = ALL_LEVELS.length - 1; i >= 0; i--) {
+        if (points >= ALL_LEVELS[i].points) {
+            return ALL_LEVELS[i];
         }
     }
-    return VIP_LEVELS[0];
+    return ALL_LEVELS[0];
 }
 
 function isCheckedInToday() {
@@ -1155,6 +1753,9 @@ function vipCheckIn() {
     
     updateVipDisplay();
     alert(`簽到成功！獲得 ${pointsToAdd.toLocaleString()} 點！`);
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 // ================= 兌換商品功能 =================
@@ -1254,23 +1855,51 @@ function checkout() {
     }
     
     currentUser.points -= total;
+    
+    // 生成條碼數據 (包含用戶名、時間戳和總點數)
+    const barcodeData = `VIPCHECKOUT:${currentUser.username}:${new Date().getTime()}:${total}`;
+    
+    // 保存收件記錄
+    if (!currentUser.receipts) {
+        currentUser.receipts = [];
+    }
+    currentUser.receipts.push({
+        id: barcodeData,
+        items: [...cart],
+        total: total,
+        date: new Date().toISOString(),
+        used: false
+    });
+    
+    // 生成發票
+    if (!currentUser.invoices) {
+        currentUser.invoices = [];
+    }
+    currentUser.invoices.push({
+        number: generateInvoiceNumber(),
+        amount: total,
+        date: new Date().toISOString(),
+        checked: false
+    });
+    
     users[currentUser.username] = currentUser;
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     
-    // 生成條碼收據
-    const barcodeData = `VIPCHECKOUT:${currentUser.username}:${new Date().getTime()}:${total}`;
-    generateBarcode(barcodeData, 'cartItems');
+    // 顯示條碼
+    const receiptContainer = document.getElementById('cartItems');
+    const receiptDiv = document.createElement('div');
+    receiptDiv.className = 'cart-item';
+    receiptDiv.innerHTML = `
+        <h3>收據 #${currentUser.receipts.length}</h3>
+        <p>日期: ${new Date().toLocaleString()}</p>
+        <p>總點數: ${total}</p>
+        <div id="barcode-${barcodeData}"></div>
+        <p>請出示此條碼給管理員掃描</p>
+    `;
+    receiptContainer.appendChild(receiptDiv);
     
-    alert(`購買成功！扣除 ${total} 點\n條碼已生成，請出示給工作人員掃描。`);
-    cart = [];
-    updateCartDisplay();
-    updateVipDisplay();
-}
-
-function generateBarcode(data, containerId) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = `<svg id="barcode"></svg>`;
-    JsBarcode("#barcode", data, {
+    // 生成條碼
+    JsBarcode(`#barcode-${barcodeData}`, barcodeData, {
         format: "CODE128",
         displayValue: true,
         fontSize: 16,
@@ -1278,6 +1907,14 @@ function generateBarcode(data, containerId) {
         width: 2,
         height: 50
     });
+    
+    alert(`購買成功！扣除 ${total} 點\n條碼已生成，請出示給工作人員掃描。`);
+    cart = [];
+    updateCartDisplay();
+    updateVipDisplay();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 // ================= 刮刮樂功能 =================
@@ -1290,15 +1927,17 @@ function playScratchCard() {
         return;
     }
     
+    // 扣除點數
     currentUser.points -= price;
-    users[currentUser.username] = currentUser;
-    localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     
     // 隨機獎勵 (0.5x-5x價格)
     const rewardMultiplier = 0.5 + Math.random() * 4.5;
     const reward = Math.floor(price * rewardMultiplier);
+    
+    // 增加獎勵點數
     currentUser.points += reward;
     
+    // 保存用戶數據
     users[currentUser.username] = currentUser;
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     
@@ -1309,6 +1948,9 @@ function playScratchCard() {
     `;
     
     updateVipDisplay();
+    
+    // 同步到伺服器
+    syncToServer();
 }
 
 // ================= VIP等級查看 =================
@@ -1319,18 +1961,53 @@ function viewAllLevels() {
     const container = document.getElementById('levelsList');
     container.innerHTML = "";
     
-    VIP_LEVELS.forEach(level => {
+    // 顯示普通等級
+    const normalLevelsDiv = document.createElement('div');
+    normalLevelsDiv.innerHTML = `<h3>普通用戶（0 - 99,999點）｜500級</h3>`;
+    container.appendChild(normalLevelsDiv);
+    
+    // 顯示特殊普通等級
+    const specialNormalLevels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 495, 496, 497, 498, 499];
+    specialNormalLevels.forEach(i => {
+        const level = NORMAL_LEVELS[i];
         const levelDiv = document.createElement('div');
         levelDiv.className = "level-description";
         levelDiv.style.borderLeft = `5px solid ${level.color}`;
         
         const isCurrentLevel = currentUser && getUserLevel(currentUser.points).level === level.level;
-        const isNextLevel = currentUser && getUserLevel(currentUser.points).level + 1 === level.level;
         
         levelDiv.innerHTML = `
             <strong style="color: ${level.color}">${level.emoji} ${level.name}</strong>
-            ${isCurrentLevel ? '<span style="color:red"> (當前等級)</span>' : ''}
-            ${isNextLevel ? '<span style="color:blue"> (下一等級)</span>' : ''}<br>
+            ${isCurrentLevel ? '<span style="color:red"> (當前等級)</span>' : ''}<br>
+            等級: ${level.level} | 需求點數: ${level.points.toLocaleString()}<br>
+            折扣: ${Math.floor(level.discount * 100)}折 | 刮刮樂: ${level.scratchPrice} 點
+        `;
+        container.appendChild(levelDiv);
+    });
+    
+    // 顯示VIP等級
+    const vipLevelsDiv = document.createElement('div');
+    vipLevelsDiv.innerHTML = `<h3 style="margin-top:20px;">VIP用戶（100,000點起）｜100級</h3>`;
+    container.appendChild(vipLevelsDiv);
+    
+    // 顯示所有VIP等級
+    VIP_LEVELS.forEach((level, i) => {
+        const levelDiv = document.createElement('div');
+        levelDiv.className = "level-description";
+        levelDiv.style.borderLeft = `5px solid ${level.color}`;
+        
+        const isCurrentLevel = currentUser && getUserLevel(currentUser.points).level === level.level;
+        
+        // 每10級顯示分組標題
+        if (i % 10 === 0) {
+            const groupDiv = document.createElement('div');
+            groupDiv.innerHTML = `<h4>${level.group}</h4>`;
+            container.appendChild(groupDiv);
+        }
+        
+        levelDiv.innerHTML = `
+            <strong style="color: ${level.color}">${level.emoji} ${level.name}</strong>
+            ${isCurrentLevel ? '<span style="color:red"> (當前等級)</span>' : ''}<br>
             等級: ${level.level} | 需求點數: ${level.points.toLocaleString()}<br>
             折扣: ${Math.floor(level.discount * 100)}折 | 刮刮樂: ${level.scratchPrice} 點
         `;
@@ -1339,8 +2016,25 @@ function viewAllLevels() {
 }
 
 function backToVipPage() {
-    document.getElementById('allLevelsContainer').classList.add('hidden');
+    // 隱藏所有功能區
+    document.querySelectorAll('.container').forEach(container => {
+        if (container.id !== 'vipContainer' && container.id !== 'loginOptionContainer') {
+            container.classList.add('hidden');
+        }
+    });
+    
+    // 顯示VIP主界面
     document.getElementById('vipContainer').classList.remove('hidden');
+}
+
+function backToLoginOptions() {
+    // 隱藏所有容器
+    document.querySelectorAll('.container').forEach(container => {
+        container.classList.add('hidden');
+    });
+    
+    // 顯示登錄選項
+    document.getElementById('loginOptionContainer').classList.remove('hidden');
 }
 
 // ================= 初始化事件監聽 =================
@@ -1360,22 +2054,25 @@ function initEventListeners() {
     });
     
     // 返回按鈕
-    document.getElementById('vipBackBtn').addEventListener('click', () => backToLoginOptions());
-    document.getElementById('normalBackBtn').addEventListener('click', () => backToLoginOptions());
-    document.getElementById('adminBackBtn').addEventListener('click', () => backToLoginOptions());
+    document.getElementById('vipBackBtn').addEventListener('click', backToLoginOptions);
+    document.getElementById('normalBackBtn').addEventListener('click', backToLoginOptions);
+    document.getElementById('adminBackBtn').addEventListener('click', backToLoginOptions);
     document.getElementById('registerBackBtn').addEventListener('click', () => {
         toggleVisibility('registerContainer', false);
         toggleVisibility('normalLoginContainer', true);
     });
-    document.getElementById('redeemBackBtn').addEventListener('click', () => toggleVisibility('redeemContainer', false));
-    document.getElementById('scratchBackBtn').addEventListener('click', () => toggleVisibility('scratchCardContainer', false));
-    document.getElementById('changePasswordBackBtn').addEventListener('click', () => toggleVisibility('changePasswordContainer', false));
-    document.getElementById('levelsBackBtn').addEventListener('click', () => backToVipPage());
-    document.getElementById('announcementBackBtn').addEventListener('click', () => toggleVisibility('announcementManagementContainer', false));
-    document.getElementById('redeemCodeBackBtn').addEventListener('click', () => toggleVisibility('redeemCodeContainer', false));
-    document.getElementById('aiChatBackBtn').addEventListener('click', () => toggleVisibility('aiChatContainer', false));
-    document.getElementById('itemBackBtn').addEventListener('click', () => toggleVisibility('itemManagementContainer', false));
-    document.getElementById('codeBackBtn').addEventListener('click', () => toggleVisibility('codeManagementContainer', false));
+    document.getElementById('redeemBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('scratchBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('changePasswordBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('levelsBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('announcementBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('redeemCodeBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('aiChatBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('itemBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('codeBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('receiptBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('invoiceBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('scannerBackBtn').addEventListener('click', backToVipPage);
     
     // 登錄/註冊按鈕
     document.getElementById('vipLoginSubmit').addEventListener('click', () => {
@@ -1403,14 +2100,29 @@ function initEventListeners() {
     document.getElementById('checkInBtn').addEventListener('click', vipCheckIn);
     document.getElementById('viewLevelsBtn').addEventListener('click', viewAllLevels);
     document.getElementById('redeemItemsBtn').addEventListener('click', () => {
-        toggleVisibility('redeemContainer', true);
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('redeemContainer').classList.remove('hidden');
         showRedeemItems();
     });
-    document.getElementById('scratchCardBtn').addEventListener('click', () => toggleVisibility('scratchCardContainer', true));
-    document.getElementById('changePasswordBtn').addEventListener('click', () => toggleVisibility('changePasswordContainer', true));
-    document.getElementById('redeemCodeBtn').addEventListener('click', () => toggleVisibility('redeemCodeContainer', true));
-    document.getElementById('aiChatBtn').addEventListener('click', () => toggleVisibility('aiChatContainer', true));
+    document.getElementById('scratchCardBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('scratchCardContainer').classList.remove('hidden');
+    });
+    document.getElementById('changePasswordBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('changePasswordContainer').classList.remove('hidden');
+    });
+    document.getElementById('redeemCodeBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('redeemCodeContainer').classList.remove('hidden');
+    });
+    document.getElementById('aiChatBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('aiChatContainer').classList.remove('hidden');
+    });
     document.getElementById('checkUpdatesBtn').addEventListener('click', checkForUpdates);
+    document.getElementById('viewReceiptsBtn').addEventListener('click', showReceipts);
+    document.getElementById('viewInvoicesBtn').addEventListener('click', showInvoices);
     document.getElementById('logoutBtn').addEventListener('click', logout);
     
     // 其他功能按鈕
@@ -1441,7 +2153,7 @@ function init() {
     initEventListeners();
     
     // 從伺服器同步數據
-    syncDataFromServer();
+    syncFromServer();
 }
 
 window.onload = init;
