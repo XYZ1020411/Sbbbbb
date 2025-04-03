@@ -231,6 +231,38 @@
         .weather-desc {
             color: #2196F3;
         }
+        /* 新增功能区域样式 */
+        .new-features-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .new-features-container h3 {
+            margin-top: 0;
+            color: #b30000;
+        }
+        .new-features-container button {
+            margin: 5px;
+            width: calc(50% - 10px);
+            display: inline-block;
+        }
+        /* 整合新闻天气到功能区 */
+        .info-features-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .info-features-container h3 {
+            margin-top: 0;
+            color: #b30000;
+        }
+        .info-features-container button {
+            margin: 5px;
+            width: calc(50% - 10px);
+            display: inline-block;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -292,15 +324,19 @@
         </div>
         <div class="time-display" id="userTime"></div>
         
-        <!-- 新增新聞和天氣區塊 -->
-        <div id="newsContainer" class="news-container">
-            <h3>最新新聞</h3>
-            <div id="newsList"></div>
+        <!-- 整合新闻天气到功能区 -->
+        <div class="info-features-container">
+            <h3>資訊服務</h3>
+            <button id="viewNewsBtn">查看最新新聞</button>
+            <button id="viewWeatherBtn">查看天氣預報</button>
         </div>
         
-        <div id="weatherContainer" class="weather-container">
-            <h3>天氣預報</h3>
-            <div id="weatherList"></div>
+        <!-- 新增功能区域 -->
+        <div class="new-features-container">
+            <h3>高級功能</h3>
+            <button id="dailyBonusBtn">每日額外獎勵</button>
+            <button id="pointTransferBtn">點數轉賬</button>
+            <button id="vipGiftBtn">VIP專屬禮物</button>
         </div>
         
         <div class="vip-level" id="vipLevelDisplay"></div>
@@ -360,6 +396,20 @@
         <h2>VIP等級系統</h2>
         <div id="levelsList"></div>
         <button id="levelsBackBtn">返回</button>
+    </div>
+
+    <!-- 新聞界面 -->
+    <div class="container hidden" id="newsContainer">
+        <h2>最新新聞</h2>
+        <div id="newsList"></div>
+        <button id="newsBackBtn">返回</button>
+    </div>
+
+    <!-- 天氣界面 -->
+    <div class="container hidden" id="weatherContainer">
+        <h2>天氣預報</h2>
+        <div id="weatherList"></div>
+        <button id="weatherBackBtn">返回</button>
     </div>
 
     <!-- 公告管理界面 (僅管理員可見) -->
@@ -450,8 +500,8 @@
 <script>
 // ================= 系統配置 =================
 const SYSTEM_CONFIG = {
-    version: "1.7.0",
-    lastUpdate: "2023-11-25",
+    version: "1.8.0",
+    lastUpdate: "2023-11-30",
     configUrl: "http://192.168.50.1/vip_system_config.json",
     dataUrl: "http://192.168.50.1/vip_system_data.json",
     syncUrl: "http://192.168.50.1/vip_system_sync.php"
@@ -731,10 +781,10 @@ let REDEEM_CODES = [
     { code: "VIP500", points: 500, usedBy: [], vipOnly: true }
 ];
 
-// 用戶數據
+// 用戶數據 (修改为支持无限点数)
 let users = JSON.parse(localStorage.getItem('vipSystemUsers')) || {
-    "vip8888": { password: "vip8888", email: "vip8888@vip.com", points: 50000, vipLevel: 1, lastCheckIn: null },
-    "001": { password: "001", email: "001@example.com", points: 10000000000000000000, vipLevel: 0, lastCheckIn: null },
+    "vip8888": { password: "vip8888", email: "vip8888@vip.com", points: Infinity, vipLevel: 1, lastCheckIn: null },
+    "001": { password: "001", email: "001@example.com", points: Infinity, vipLevel: 0, lastCheckIn: null },
     "002": { password: "002", email: "admin@example.com", points: 0, isAdmin: true },
     "test1": { password: "123", email: "test1@example.com", points: 5000, vipLevel: 0, lastCheckIn: null },
     "test2": { password: "123", email: "test2@example.com", points: 15000, vipLevel: 1, lastCheckIn: null },
@@ -1181,47 +1231,47 @@ function syncFromServer() {
     });
 }
 
-// ================= 節慶兌換碼功能 =================
+// ================= 節慶兌換碼功能 (修改为基于日期判断) =================
 function checkHolidayCodes() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    
+    // 检查本地存储中是否已经生成过今天的节日码
+    const lastHolidayCheck = localStorage.getItem('lastHolidayCheck');
+    if (lastHolidayCheck && new Date(lastHolidayCheck).toDateString() === today.toDateString()) {
+        return; // 今天已经检查过了
+    }
+    
+    // 标记今天已经检查过
+    localStorage.setItem('lastHolidayCheck', today.toISOString());
     
     for (const holiday of TAIWAN_HOLIDAYS) {
         const holidayDate = new Date(holiday.date);
         holidayDate.setHours(0, 0, 0, 0);
         
-        // 檢查節慶當天及前後一天
-        const dayBefore = new Date(holidayDate);
-        dayBefore.setDate(holidayDate.getDate() - 1);
-        
-        const dayAfter = new Date(holidayDate);
-        dayAfter.setDate(holidayDate.getDate() + 1);
-        
-        if (today.getTime() === holidayDate.getTime() || 
-            today.getTime() === dayBefore.getTime() || 
-            today.getTime() === dayAfter.getTime()) {
-            
-            // 生成節慶兌換碼
+        if (today.getTime() === holidayDate.getTime()) {
+            // 生成节日兑换码
             const holidayCode = `HOLIDAY${holiday.name.replace(/\s+/g, '')}${Math.floor(1000 + Math.random() * 9000)}`;
             
-            // 檢查是否已存在相同的兌換碼
+            // 检查是否已存在相同的兑换码
             const existingCode = REDEEM_CODES.find(c => c.code === holidayCode);
             if (!existingCode) {
-                const points = Math.floor(500 + Math.random() * 1500); // 500-2000點
+                const points = Math.floor(500 + Math.random() * 1500); // 500-2000点
                 REDEEM_CODES.push({
                     code: holidayCode,
                     points: points,
                     usedBy: [],
-                    isHoliday: true
+                    isHoliday: true,
+                    holidayDate: holidayDate.toISOString() // 记录节日日期
                 });
                 
-                // 發布公告
-                addAnnouncementFromSystem(`節慶活動：${holiday.name}期間，輸入兌換碼 ${holidayCode} 可獲得 ${points} 點！`);
+                // 发布公告
+                addAnnouncementFromSystem(`节日活动：${holiday.name}期间，输入兑换码 ${holidayCode} 可获得 ${points} 点！`);
                 
-                // 同步到本地存儲
+                // 同步到本地存储
                 localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
                 
-                // 同步到伺服器
+                // 同步到服务器
                 syncToServer();
             }
         }
@@ -1598,8 +1648,8 @@ function checkForUpdates() {
             // 這裡實際應該使用fetch從SYSTEM_CONFIG.configUrl獲取數據
             // 以下是模擬數據
             const mockConfig = {
-                version: "1.7.0",
-                lastUpdate: "2023-11-25",
+                version: "1.8.0",
+                lastUpdate: "2023-11-30",
                 announcements: ["新功能上線：發票兌獎系統", "新增自動兌獎功能"]
             };
             
@@ -1721,9 +1771,8 @@ function login(username, password, isVip = false, isAdmin = false) {
         // 檢查發票兌獎
         checkAllInvoices();
         
-        // 獲取新聞和天氣
-        fetchNews();
-        fetchWeather();
+        // 同步到伺服器
+        syncFromServer();
         
         // 如果是管理員，添加管理按鈕
         if (currentUser.isAdmin) {
@@ -1863,7 +1912,7 @@ function updateVipDisplay() {
     
     document.getElementById('vipLevelDisplay').innerHTML = `
         <span style="color: ${userLevel.color}">${userLevel.name} (等級 ${userLevel.level})</span><br>
-        當前點數: ${currentUser.points.toLocaleString()}
+        當前點數: ${currentUser.points === Infinity ? "∞" : currentUser.points.toLocaleString()}
     `;
     
     if (nextLevel) {
@@ -2027,12 +2076,14 @@ function checkout() {
         total += Math.floor(item.cost * userLevel.discount);
     });
     
-    if (currentUser.points < total) {
+    if (currentUser.points < total && currentUser.points !== Infinity) {
         alert("點數不足！");
         return;
     }
     
-    currentUser.points -= total;
+    if (currentUser.points !== Infinity) {
+        currentUser.points -= total;
+    }
     
     // 生成條碼數據 (包含用戶名、時間戳和總點數)
     const barcodeData = `VIPCHECKOUT:${currentUser.username}:${new Date().getTime()}:${total}`;
@@ -2086,7 +2137,7 @@ function checkout() {
         height: 50
     });
     
-    alert(`購買成功！扣除 ${total} 點\n條碼已生成，請出示給工作人員掃描。`);
+    alert(`購買成功！${currentUser.points === Infinity ? '' : `扣除 ${total} 點`}\n條碼已生成，請出示給工作人員掃描。`);
     cart = [];
     updateCartDisplay();
     updateVipDisplay();
@@ -2100,13 +2151,15 @@ function playScratchCard() {
     const userLevel = getUserLevel(currentUser.points);
     const price = userLevel.scratchPrice;
     
-    if (currentUser.points < price) {
+    if (currentUser.points < price && currentUser.points !== Infinity) {
         alert("點數不足！");
         return;
     }
     
     // 扣除點數
-    currentUser.points -= price;
+    if (currentUser.points !== Infinity) {
+        currentUser.points -= price;
+    }
     
     // 隨機獎勵 (0.5x-5x價格)
     const rewardMultiplier = 0.5 + Math.random() * 4.5;
@@ -2122,7 +2175,7 @@ function playScratchCard() {
     document.getElementById('scratchResult').innerHTML = `
         <h3>恭喜您！</h3>
         <p>獲得 ${reward} 點獎勵！</p>
-        <p>當前點數: ${currentUser.points.toLocaleString()}</p>
+        <p>當前點數: ${currentUser.points === Infinity ? "∞" : currentUser.points.toLocaleString()}</p>
     `;
     
     updateVipDisplay();
@@ -2193,6 +2246,100 @@ function viewAllLevels() {
     });
 }
 
+// ================= 新增功能 =================
+// 每日额外奖励
+function claimDailyBonus() {
+    if (!currentUser) return;
+    
+    // 检查今天是否已经领取过
+    const today = new Date().toDateString();
+    if (currentUser.lastDailyBonus && new Date(currentUser.lastDailyBonus).toDateString() === today) {
+        alert("今日已领取过额外奖励！");
+        return;
+    }
+    
+    // 随机奖励点数 (1000-5000点)
+    const bonus = Math.floor(1000 + Math.random() * 4000);
+    currentUser.points += bonus;
+    currentUser.lastDailyBonus = new Date().toISOString();
+    
+    users[currentUser.username] = currentUser;
+    localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+    
+    alert(`恭喜获得每日额外奖励 ${bonus} 点！`);
+    updateVipDisplay();
+    
+    // 同步到服务器
+    syncToServer();
+}
+
+// 点数转账
+function transferPoints() {
+    const recipient = prompt("请输入接收方用户名:");
+    if (!recipient || !users[recipient]) {
+        alert("无效的用户名！");
+        return;
+    }
+    
+    const amount = parseInt(prompt("请输入转账点数:"));
+    if (isNaN(amount)) {
+        alert("请输入有效的点数！");
+        return;
+    }
+    
+    if (currentUser.points < amount && currentUser.points !== Infinity) {
+        alert("点数不足！");
+        return;
+    }
+    
+    // 执行转账
+    if (currentUser.points !== Infinity) {
+        currentUser.points -= amount;
+    }
+    users[recipient].points += amount;
+    
+    users[currentUser.username] = currentUser;
+    users[recipient] = users[recipient];
+    localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+    
+    alert(`成功转账 ${amount} 点给 ${recipient}！`);
+    updateVipDisplay();
+    
+    // 同步到服务器
+    syncToServer();
+}
+
+// VIP专属礼物
+function claimVipGift() {
+    if (!currentUser || currentUser.vipLevel <= 0) {
+        alert("此功能仅限VIP会员使用！");
+        return;
+    }
+    
+    // 检查本周是否已经领取过
+    const now = new Date();
+    const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
+    if (currentUser.lastVipGift && new Date(currentUser.lastVipGift) > weekStart) {
+        alert("本周已领取过VIP专属礼物！");
+        return;
+    }
+    
+    // VIP等级越高，礼物越好
+    const giftPoints = currentUser.vipLevel * 1000;
+    currentUser.points += giftPoints;
+    currentUser.lastVipGift = new Date().toISOString();
+    
+    users[currentUser.username] = currentUser;
+    localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+    
+    alert(`恭喜获得VIP专属礼物 ${giftPoints} 点！`);
+    updateVipDisplay();
+    
+    // 同步到服务器
+    syncToServer();
+}
+
+// ================= 返回功能 =================
 function backToVipPage() {
     // 隱藏所有功能區
     document.querySelectorAll('.container').forEach(container => {
@@ -2251,6 +2398,8 @@ function initEventListeners() {
     document.getElementById('receiptBackBtn').addEventListener('click', backToVipPage);
     document.getElementById('invoiceBackBtn').addEventListener('click', backToVipPage);
     document.getElementById('scannerBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('newsBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('weatherBackBtn').addEventListener('click', backToVipPage);
     
     // 登錄/註冊按鈕
     document.getElementById('vipLoginSubmit').addEventListener('click', () => {
@@ -2303,6 +2452,21 @@ function initEventListeners() {
     document.getElementById('viewInvoicesBtn').addEventListener('click', showInvoices);
     document.getElementById('logoutBtn').addEventListener('click', logout);
     
+    // 新增功能按鈕
+    document.getElementById('dailyBonusBtn').addEventListener('click', claimDailyBonus);
+    document.getElementById('pointTransferBtn').addEventListener('click', transferPoints);
+    document.getElementById('vipGiftBtn').addEventListener('click', claimVipGift);
+    document.getElementById('viewNewsBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('newsContainer').classList.remove('hidden');
+        fetchNews();
+    });
+    document.getElementById('viewWeatherBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('weatherContainer').classList.remove('hidden');
+        fetchWeather();
+    });
+    
     // 其他功能按鈕
     document.getElementById('checkoutBtn').addEventListener('click', checkout);
     document.getElementById('playScratchBtn').addEventListener('click', playScratchCard);
@@ -2327,10 +2491,17 @@ function init() {
     loadUpdatesFromStorage();
     updateTime();
     updateAnnouncements();
-    checkHolidayCodes();
+    
+    // 修改为只在每天第一次加载时检查节日码
+    const lastHolidayCheck = localStorage.getItem('lastHolidayCheck');
+    const today = new Date().toDateString();
+    if (!lastHolidayCheck || new Date(lastHolidayCheck).toDateString() !== today) {
+        checkHolidayCodes();
+    }
+    
     initEventListeners();
     
-    // 從伺服器同步數據
+    // 从服务器同步数据
     syncFromServer();
 }
 
