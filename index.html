@@ -192,6 +192,45 @@
             color: #e53935;
             font-weight: bold;
         }
+        /* 新增新聞和天氣樣式 */
+        .news-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f8ff;
+            border-radius: 4px;
+        }
+        .news-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .news-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .news-source {
+            color: #666;
+            font-size: 0.8em;
+        }
+        .weather-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0fff0;
+            border-radius: 4px;
+        }
+        .weather-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        .weather-date {
+            font-weight: bold;
+        }
+        .weather-temp {
+            color: #e53935;
+        }
+        .weather-desc {
+            color: #2196F3;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -252,6 +291,17 @@
             <div id="announcementsList"></div>
         </div>
         <div class="time-display" id="userTime"></div>
+        
+        <!-- 新增新聞和天氣區塊 -->
+        <div id="newsContainer" class="news-container">
+            <h3>最新新聞</h3>
+            <div id="newsList"></div>
+        </div>
+        
+        <div id="weatherContainer" class="weather-container">
+            <h3>天氣預報</h3>
+            <div id="weatherList"></div>
+        </div>
         
         <div class="vip-level" id="vipLevelDisplay"></div>
         <div class="progress-container">
@@ -405,6 +455,14 @@ const SYSTEM_CONFIG = {
     configUrl: "http://192.168.50.1/vip_system_config.json",
     dataUrl: "http://192.168.50.1/vip_system_data.json",
     syncUrl: "http://192.168.50.1/vip_system_sync.php"
+};
+
+// API 配置
+const API_CONFIG = {
+    newsApiKey: "pub_77914c9ab741571647f817116519227c8df64",
+    weatherApiKey: "f08876bf13681726c0c84bbb5af68d3e",
+    newsApiUrl: "https://newsdata.io/api/1/news?apikey=",
+    weatherApiUrl: "https://api.openweathermap.org/data/2.5/forecast?q=Taipei&units=metric&lang=zh_tw&appid="
 };
 
 // 台灣節慶日期 (月份是0-11)
@@ -696,6 +754,123 @@ let cart = [];
 let aiChatHistory = [];
 let lastCompensationTime = null;
 let scannerInterval = null;
+
+// ================= 新聞功能 =================
+function fetchNews() {
+    const url = `${API_CONFIG.newsApiUrl}${API_CONFIG.newsApiKey}&country=tw&language=zh`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.results && data.results.length > 0) {
+                displayNews(data.results.slice(0, 5)); // 只顯示前5條新聞
+            } else {
+                document.getElementById('newsList').innerHTML = "<p>暫無最新新聞</p>";
+            }
+        })
+        .catch(error => {
+            console.error("獲取新聞失敗:", error);
+            document.getElementById('newsList').innerHTML = "<p>無法加載新聞</p>";
+        });
+}
+
+function displayNews(newsItems) {
+    const newsList = document.getElementById('newsList');
+    newsList.innerHTML = '';
+    
+    newsItems.forEach(news => {
+        const newsItem = document.createElement('div');
+        newsItem.className = 'news-item';
+        
+        const title = news.title || "無標題";
+        const source = news.source_id || "未知來源";
+        const link = news.link ? `<a href="${news.link}" target="_blank">閱讀更多</a>` : "";
+        const image = news.image_url ? `<img src="${news.image_url}" style="max-width:100%; margin-top:5px;">` : "";
+        
+        newsItem.innerHTML = `
+            <div class="news-title">${title}</div>
+            <div class="news-source">來源: ${source}</div>
+            ${image}
+            <div style="margin-top:5px;">${link}</div>
+        `;
+        
+        newsList.appendChild(newsItem);
+    });
+}
+
+// ================= 天氣功能 =================
+function fetchWeather() {
+    const url = `${API_CONFIG.weatherApiUrl}${API_CONFIG.weatherApiKey}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.list && data.list.length > 0) {
+                displayWeather(data.list);
+            } else {
+                document.getElementById('weatherList').innerHTML = "<p>暫無天氣預報</p>";
+            }
+        })
+        .catch(error => {
+            console.error("獲取天氣失敗:", error);
+            document.getElementById('weatherList').innerHTML = "<p>無法加載天氣預報</p>";
+        });
+}
+
+function displayWeather(weatherData) {
+    const weatherList = document.getElementById('weatherList');
+    weatherList.innerHTML = '';
+    
+    // 只顯示今天和未來3天的預報
+    const today = new Date();
+    const forecastDays = [];
+    
+    for (let i = 0; i < 4; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        forecastDays.push(date.toDateString());
+    }
+    
+    // 過濾出每天中午的天氣數據
+    const dailyForecasts = {};
+    
+    weatherData.forEach(item => {
+        const date = new Date(item.dt * 1000).toDateString();
+        const time = new Date(item.dt * 1000).getHours();
+        
+        if (forecastDays.includes(date) && time >= 11 && time <= 13) {
+            dailyForecasts[date] = item;
+        }
+    });
+    
+    // 顯示天氣預報
+    forecastDays.forEach(date => {
+        if (dailyForecasts[date]) {
+            const forecast = dailyForecasts[date];
+            const weatherItem = document.createElement('div');
+            weatherItem.className = 'weather-item';
+            
+            const dateStr = new Date(date).toLocaleDateString('zh-TW', { 
+                month: 'short', 
+                day: 'numeric', 
+                weekday: 'short' 
+            });
+            
+            const temp = Math.round(forecast.main.temp);
+            const description = forecast.weather[0].description;
+            const icon = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
+            
+            weatherItem.innerHTML = `
+                <div class="weather-date">${dateStr}</div>
+                <div><img src="${icon}" alt="${description}"></div>
+                <div class="weather-temp">${temp}°C</div>
+                <div class="weather-desc">${description}</div>
+            `;
+            
+            weatherList.appendChild(weatherItem);
+        }
+    });
+}
 
 // ================= 發票功能 =================
 function generateInvoiceNumber() {
@@ -1546,6 +1721,10 @@ function login(username, password, isVip = false, isAdmin = false) {
         // 檢查發票兌獎
         checkAllInvoices();
         
+        // 獲取新聞和天氣
+        fetchNews();
+        fetchWeather();
+        
         // 如果是管理員，添加管理按鈕
         if (currentUser.isAdmin) {
             const levelDescription = document.getElementById('levelDescription');
@@ -1715,7 +1894,7 @@ function updateVipDisplay() {
         checkInBtn.textContent = "今日已簽到";
     } else {
         checkInBtn.disabled = false;
-        checkInBtn.textContent = `每日簽到 (${Math.floor(userLevel.points * 0.02)} 點)`;
+        checkInBtn.textContent = `每日簽到 (100 點)`; // 修改為固定100點
     }
 }
 
@@ -1741,12 +1920,11 @@ function vipCheckIn() {
         return;
     }
     
-    const userLevel = getUserLevel(currentUser.points);
-    const pointsToAdd = Math.floor(userLevel.points * 0.02); // 獲得當前等級所需點數的2%
+    const pointsToAdd = 100; // 修改為固定100點
     
     currentUser.points += pointsToAdd;
     currentUser.lastCheckIn = new Date().toISOString();
-    currentUser.vipLevel = userLevel.level;
+    currentUser.vipLevel = getUserLevel(currentUser.points).level;
     
     users[currentUser.username] = currentUser;
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
