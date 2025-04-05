@@ -102,17 +102,6 @@
             font-size: 1.2em;
             margin-bottom: 10px;
         }
-        #barcodeContainer {
-            text-align: center;
-            margin: 20px 0;
-        }
-        #scratchCard {
-            padding: 20px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            text-align: center;
-            margin: 10px 0;
-        }
         #updateStatus {
             margin: 10px 0;
             padding: 10px;
@@ -156,32 +145,6 @@
             text-align: center;
             margin: 10px 0;
         }
-        /* 新增樣式 */
-        #scannerArea {
-            margin: 10px 0;
-            border: 2px dashed #ccc;
-            position: relative;
-            min-height: 300px;
-        }
-        #scanResult {
-            margin: 10px 0;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 4px;
-            text-align: center;
-        }
-        #receiptList {
-            margin-top: 20px;
-        }
-        #receiptList .cart-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 8px;
-        }
-        #scannerCanvas {
-            display: none;
-        }
         .invoice-container {
             margin: 10px 0;
             padding: 10px;
@@ -192,46 +155,30 @@
             color: #e53935;
             font-weight: bold;
         }
-        /* 新增新聞和天氣樣式 */
-        .news-container {
+        .news-container, .weather-container {
             margin: 10px 0;
             padding: 10px;
-            background: #f0f8ff;
             border-radius: 4px;
+            text-align: center;
         }
-        .news-item {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        .news-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .news-source {
-            color: #666;
-            font-size: 0.8em;
+        .news-container {
+            background: #f0f8ff;
         }
         .weather-container {
+            background: #f0fff0;
+        }
+        .usage-code-container {
             margin: 10px 0;
             padding: 10px;
-            background: #f0fff0;
+            background: #e6f7ff;
             border-radius: 4px;
         }
-        .weather-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
+        .usage-code-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 4px;
         }
-        .weather-date {
-            font-weight: bold;
-        }
-        .weather-temp {
-            color: #e53935;
-        }
-        .weather-desc {
-            color: #2196F3;
-        }
-        /* 新增功能区域样式 */
         .new-features-container {
             margin: 10px 0;
             padding: 10px;
@@ -247,96 +194,70 @@
             width: calc(50% - 10px);
             display: inline-block;
         }
-        /* 整合新闻天气到功能区 */
-        .info-features-container {
-            margin: 10px 0;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 4px;
-        }
-        .info-features-container h3 {
-            margin-top: 0;
-            color: #b30000;
-        }
-        .info-features-container button {
-            margin: 5px;
-            width: calc(50% - 10px);
-            display: inline-block;
-        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
-    <!-- 登錄選項選擇界面 -->
+    <!-- 登录选项选择界面 -->
     <div class="container" id="loginOptionContainer">
-        <h2>請選擇登錄類型</h2>
-        <button id="vipLoginBtn">VIP 會員登錄</button>
-        <button id="normalLoginBtn">普通客戶登錄</button>
-        <button id="adminLoginBtn">管理員登錄</button>
+        <h2>请选择登录类型</h2>
+        <button id="vipLoginBtn">VIP 会员登录</button>
+        <button id="normalLoginBtn">普通客户登录</button>
+        <button id="adminLoginBtn">管理员登录</button>
     </div>
 
-    <!-- VIP 登錄界面 -->
+    <!-- VIP 登录界面 -->
     <div class="container hidden" id="vipLoginContainer">
-        <h2>VIP 會員登錄</h2>
-        <input type="text" id="vipUsername" placeholder="VIP 帳號">
-        <input type="password" id="vipPassword" placeholder="VIP 密碼">
-        <button id="vipLoginSubmit">VIP 登錄</button>
+        <h2>VIP 会员登录</h2>
+        <input type="text" id="vipUsername" placeholder="VIP 帐号">
+        <input type="password" id="vipPassword" placeholder="VIP 密码">
+        <button id="vipLoginSubmit">VIP 登录</button>
         <button id="vipBackBtn">返回</button>
     </div>
 
-    <!-- 普通客戶登錄界面 -->
+    <!-- 普通客户登录界面 -->
     <div class="container hidden" id="normalLoginContainer">
-        <h2>普通客戶登錄</h2>
-        <input type="text" id="normalUsername" placeholder="用戶名">
-        <input type="password" id="normalPassword" placeholder="密碼">
+        <h2>普通客户登录</h2>
+        <input type="text" id="normalUsername" placeholder="用户名">
+        <input type="password" id="normalPassword" placeholder="密码">
         <div id="loginError"></div>
-        <button id="normalLoginSubmit">登錄</button>
-        <button id="normalRegisterBtn">註冊新帳號</button>
+        <button id="normalLoginSubmit">登录</button>
+        <button id="normalRegisterBtn">注册新帐号</button>
         <button id="normalBackBtn">返回</button>
     </div>
 
-    <!-- 管理員登錄界面 -->
+    <!-- 管理员登录界面 -->
     <div class="container hidden" id="adminLoginContainer">
-        <h2>管理員登錄</h2>
-        <input type="text" id="adminUsername" placeholder="管理員帳號">
-        <input type="password" id="adminPassword" placeholder="管理員密碼">
-        <button id="adminLoginSubmit">管理員登錄</button>
+        <h2>管理员登录</h2>
+        <input type="text" id="adminUsername" placeholder="管理员帐号">
+        <input type="password" id="adminPassword" placeholder="管理员密码">
+        <button id="adminLoginSubmit">管理员登录</button>
         <button id="adminBackBtn">返回</button>
     </div>
 
-    <!-- 註冊界面 -->
+    <!-- 注册界面 -->
     <div class="container hidden" id="registerContainer">
-        <h2>註冊新帳號</h2>
-        <input type="text" id="newUsername" placeholder="用戶名">
-        <input type="password" id="newPassword" placeholder="密碼">
-        <input type="email" id="newEmail" placeholder="電子郵件">
-        <button id="registerSubmit">註冊</button>
+        <h2>注册新帐号</h2>
+        <input type="text" id="newUsername" placeholder="用户名">
+        <input type="password" id="newPassword" placeholder="密码">
+        <input type="email" id="newEmail" placeholder="电子邮件">
+        <button id="registerSubmit">注册</button>
         <button id="registerBackBtn">返回</button>
     </div>
 
     <!-- VIP 功能界面 -->
     <div class="container hidden" id="vipContainer">
-        <h2 id="vipTitle">VIP 會員您好！</h2>
+        <h2 id="vipTitle">VIP 会员您好！</h2>
         <div id="userAnnouncement" class="announcement">
             <h3>最新公告</h3>
             <div id="announcementsList"></div>
         </div>
         <div class="time-display" id="userTime"></div>
         
-        <!-- 整合新闻天气到功能区 -->
-        <div class="info-features-container">
-            <h3>資訊服務</h3>
-            <button id="viewNewsBtn">查看最新新聞</button>
-            <button id="viewWeatherBtn">查看天氣預報</button>
-        </div>
-        
-        <!-- 新增功能区域 -->
+        <!-- 新闻和天气按钮 -->
         <div class="new-features-container">
-            <h3>高級功能</h3>
-            <button id="dailyBonusBtn">每日額外獎勵</button>
-            <button id="pointTransferBtn">點數轉賬</button>
-            <button id="vipGiftBtn">VIP專屬禮物</button>
+            <h3>信息服务</h3>
+            <button id="viewNewsBtn">查看新闻</button>
+            <button id="viewWeatherBtn">查看天气</button>
         </div>
         
         <div class="vip-level" id="vipLevelDisplay"></div>
@@ -346,87 +267,82 @@
         
         <div class="level-description" id="levelDescription"></div>
         
-        <button id="checkInBtn">每日簽到</button>
-        <button id="viewLevelsBtn">查看VIP等級</button>
-        <button id="redeemItemsBtn">兌換商品</button>
-        <button id="scratchCardBtn">VIP刮刮樂</button>
-        <button id="changePasswordBtn">更改密碼</button>
-        <button id="redeemCodeBtn">輸入兌換碼</button>
+        <button id="checkInBtn">每日签到</button>
+        <button id="viewLevelsBtn">查看VIP等级</button>
+        <button id="redeemItemsBtn">兑换商品</button>
+        <button id="scratchCardBtn">VIP刮刮乐</button>
+        <button id="changePasswordBtn">更改密码</button>
+        <button id="redeemCodeBtn">输入兑换码</button>
         <button id="aiChatBtn">AI客服</button>
-        <button id="checkUpdatesBtn">檢查更新</button>
+        <button id="checkUpdatesBtn">检查更新</button>
         <button id="viewReceiptsBtn">查看收件</button>
-        <button id="viewInvoicesBtn">查看發票</button>
+        <button id="viewInvoicesBtn">查看发票</button>
         <div id="updateStatus"></div>
+        
+        <!-- 新增功能区域 -->
+        <div class="new-features-container">
+            <h3>高级功能</h3>
+            <button id="dailyBonusBtn">每日额外奖励</button>
+            <button id="pointTransferBtn">点数转账</button>
+            <button id="vipGiftBtn">VIP专属礼物</button>
+        </div>
+        
         <button id="logoutBtn">登出</button>
     </div>
 
-    <!-- 兌換商品界面 -->
+    <!-- 兑换商品界面 -->
     <div class="container hidden" id="redeemContainer">
-        <h2>兌換商品</h2>
+        <h2>兑换商品</h2>
         <div id="redeemItemsList"></div>
-        <h3>我的購物車</h3>
+        <h3>我的购物车</h3>
         <div id="cartItems"></div>
-        <button id="checkoutBtn">結帳</button>
+        <button id="checkoutBtn">结帐</button>
         <button id="redeemBackBtn">返回</button>
     </div>
 
-    <!-- 刮刮樂界面 -->
+    <!-- 刮刮乐界面 -->
     <div class="container hidden" id="scratchCardContainer">
-        <h2>VIP刮刮樂</h2>
+        <h2>VIP刮刮乐</h2>
         <div id="scratchCard">
-            <p>刮刮樂遊戲，有機會贏得大獎！</p>
-            <button id="playScratchBtn">購買刮刮樂 (<span id="scratchCardPrice">10</span> 點)</button>
+            <p>刮刮乐游戏，有机会赢得大奖！</p>
+            <button id="playScratchBtn">购买刮刮乐 (<span id="scratchCardPrice">10</span> 点)</button>
             <div id="scratchResult"></div>
         </div>
         <button id="scratchBackBtn">返回</button>
     </div>
 
-    <!-- 更改密碼界面 -->
+    <!-- 更改密码界面 -->
     <div class="container hidden" id="changePasswordContainer">
-        <h2>更改密碼</h2>
-        <input type="password" id="oldPassword" placeholder="舊密碼">
-        <input type="password" id="newPassword" placeholder="新密碼">
-        <input type="password" id="confirmPassword" placeholder="確認新密碼">
-        <button id="changePasswordSubmit">更改密碼</button>
+        <h2>更改密码</h2>
+        <input type="password" id="oldPassword" placeholder="旧密码">
+        <input type="password" id="newPassword" placeholder="新密码">
+        <input type="password" id="confirmPassword" placeholder="确认新密码">
+        <button id="changePasswordSubmit">更改密码</button>
         <button id="changePasswordBackBtn">返回</button>
     </div>
 
-    <!-- 所有VIP等級顯示 -->
+    <!-- 所有VIP等级显示 -->
     <div class="container hidden" id="allLevelsContainer">
-        <h2>VIP等級系統</h2>
+        <h2>VIP等级系统</h2>
         <div id="levelsList"></div>
         <button id="levelsBackBtn">返回</button>
     </div>
 
-    <!-- 新聞界面 -->
-    <div class="container hidden" id="newsContainer">
-        <h2>最新新聞</h2>
-        <div id="newsList"></div>
-        <button id="newsBackBtn">返回</button>
-    </div>
-
-    <!-- 天氣界面 -->
-    <div class="container hidden" id="weatherContainer">
-        <h2>天氣預報</h2>
-        <div id="weatherList"></div>
-        <button id="weatherBackBtn">返回</button>
-    </div>
-
-    <!-- 公告管理界面 (僅管理員可見) -->
+    <!-- 公告管理界面 (仅管理员可见) -->
     <div class="container hidden" id="announcementManagementContainer">
         <h2>公告管理</h2>
         <div id="announcementListForManagement"></div>
         <h3>新增公告</h3>
-        <textarea id="newAnnouncementContent" placeholder="輸入公告內容" rows="3"></textarea>
-        <button id="addAnnouncementBtn">發布公告</button>
+        <textarea id="newAnnouncementContent" placeholder="输入公告内容" rows="3"></textarea>
+        <button id="addAnnouncementBtn">发布公告</button>
         <button id="announcementBackBtn">返回</button>
     </div>
 
-    <!-- 兌換碼界面 -->
+    <!-- 兑换码界面 -->
     <div class="container hidden" id="redeemCodeContainer">
-        <h2>輸入兌換碼</h2>
-        <input type="text" id="redeemCodeInput" placeholder="輸入兌換碼">
-        <button id="redeemCodeSubmit">兌換</button>
+        <h2>输入兑换码</h2>
+        <input type="text" id="redeemCodeInput" placeholder="输入兑换码">
+        <button id="redeemCodeSubmit">兑换</button>
         <div id="redeemCodeResult"></div>
         <button id="redeemCodeBackBtn">返回</button>
     </div>
@@ -435,36 +351,36 @@
     <div class="container hidden" id="aiChatContainer">
         <h2>AI客服</h2>
         <div class="ai-chat-container" id="aiChatMessages">
-            <div class="ai-message ai-bot">您好！我是AI客服，請問有什麼可以幫助您的？</div>
+            <div class="ai-message ai-bot">您好！我是AI客服，请问有什么可以帮助您的？</div>
         </div>
-        <input type="text" id="aiUserInput" placeholder="輸入您的問題">
-        <button id="sendAiMessageBtn">發送</button>
+        <input type="text" id="aiUserInput" placeholder="输入您的问题">
+        <button id="sendAiMessageBtn">发送</button>
         <button id="aiChatBackBtn">返回</button>
     </div>
 
-    <!-- 管理員商品管理界面 -->
+    <!-- 管理员商品管理界面 -->
     <div class="container hidden" id="itemManagementContainer">
         <h2>商品管理</h2>
         <div id="itemListForManagement"></div>
         <h3>新增商品</h3>
-        <input type="text" id="newItemName" placeholder="商品名稱">
-        <input type="number" id="newItemCost" placeholder="所需點數">
+        <input type="text" id="newItemName" placeholder="商品名称">
+        <input type="number" id="newItemCost" placeholder="所需点数">
         <select id="newItemVipOnly">
-            <option value="false">所有用戶</option>
-            <option value="true">僅限VIP</option>
+            <option value="false">所有用户</option>
+            <option value="true">仅限VIP</option>
         </select>
         <button id="addItemBtn">新增商品</button>
         <button id="itemBackBtn">返回</button>
     </div>
 
-    <!-- 管理員兌換碼管理界面 -->
+    <!-- 管理员兑换码管理界面 -->
     <div class="container hidden" id="codeManagementContainer">
-        <h2>兌換碼管理</h2>
+        <h2>兑换码管理</h2>
         <div id="codeListForManagement"></div>
-        <h3>新增兌換碼</h3>
-        <input type="text" id="newCodeValue" placeholder="兌換碼">
-        <input type="number" id="newCodePoints" placeholder="點數">
-        <button id="addCodeBtn">新增兌換碼</button>
+        <h3>新增兑换码</h3>
+        <input type="text" id="newCodeValue" placeholder="兑换码">
+        <input type="number" id="newCodePoints" placeholder="点数">
+        <button id="addCodeBtn">新增兑换码</button>
         <button id="codeBackBtn">返回</button>
     </div>
 
@@ -475,33 +391,52 @@
         <button id="receiptBackBtn">返回</button>
     </div>
 
-    <!-- 發票界面 -->
+    <!-- 发票界面 -->
     <div class="container hidden" id="invoiceContainer">
-        <h2>我的發票</h2>
+        <h2>我的发票</h2>
         <div id="invoiceList"></div>
         <button id="invoiceBackBtn">返回</button>
     </div>
 
-    <!-- 管理員掃描界面 -->
-    <div class="container hidden" id="barcodeScannerContainer">
-        <h2>條碼掃描</h2>
-        <div id="scannerArea">
-            <video id="scannerVideo" width="100%" playsinline></video>
-            <canvas id="scannerCanvas" class="hidden"></canvas>
-        </div>
-        <div id="scanResult">
-            <p>請將條碼對準相機</p>
-        </div>
-        <button id="startScannerBtn">開始掃描</button>
-        <button id="stopScannerBtn" class="hidden">停止掃描</button>
-        <button id="scannerBackBtn">返回</button>
+    <!-- 使用码界面 -->
+    <div class="container hidden" id="usageCodeContainer">
+        <h2>使用商品</h2>
+        <input type="text" id="usageCodeInput" placeholder="输入使用码">
+        <button id="usageCodeSubmit">使用</button>
+        <div id="usageCodeResult"></div>
+        <button id="usageCodeBackBtn">返回</button>
+    </div>
+
+    <!-- 管理员使用码管理界面 -->
+    <div class="container hidden" id="usageCodeManagementContainer">
+        <h2>使用码管理</h2>
+        <div id="usageCodeListForManagement"></div>
+        <h3>新增使用码</h3>
+        <input type="text" id="newUsageCodeValue" placeholder="使用码">
+        <input type="text" id="newUsageCodeItem" placeholder="商品名称">
+        <button id="addUsageCodeBtn">新增使用码</button>
+        <button id="usageCodeManagementBackBtn">返回</button>
+    </div>
+
+    <!-- 新闻界面 -->
+    <div class="container hidden" id="newsContainer">
+        <h2>最新新闻</h2>
+        <div id="newsList"></div>
+        <button id="newsBackBtn">返回</button>
+    </div>
+
+    <!-- 天气界面 -->
+    <div class="container hidden" id="weatherContainer">
+        <h2>天气预报</h2>
+        <div id="weatherList"></div>
+        <button id="weatherBackBtn">返回</button>
     </div>
 
 <script>
-// ================= 系統配置 =================
+// ================= 系统配置 =================
 const SYSTEM_CONFIG = {
     version: "1.8.0",
-    lastUpdate: "2023-11-30",
+    lastUpdate: "2023-11-25",
     configUrl: "http://192.168.50.1/vip_system_config.json",
     dataUrl: "http://192.168.50.1/vip_system_data.json",
     syncUrl: "http://192.168.50.1/vip_system_sync.php"
@@ -515,54 +450,53 @@ const API_CONFIG = {
     weatherApiUrl: "https://api.openweathermap.org/data/2.5/forecast?q=Taipei&units=metric&lang=zh_tw&appid="
 };
 
-// 台灣節慶日期 (月份是0-11)
+// 台湾节庆日期 (月份是0-11)
 const TAIWAN_HOLIDAYS = [
     { name: "元旦", date: new Date(new Date().getFullYear(), 0, 1) },
-    { name: "春節", date: new Date(new Date().getFullYear(), 1, 10) }, // 示例日期
-    { name: "清明節", date: new Date(new Date().getFullYear(), 3, 4) },
-    { name: "4/11節慶", date: new Date(new Date().getFullYear(), 3, 11) }, // 新增4/11節慶
-    { name: "端午節", date: new Date(new Date().getFullYear(), 5, 14) }, // 示例日期
-    { name: "中秋節", date: new Date(new Date().getFullYear(), 8, 29) }, // 示例日期
-    { name: "雙十節", date: new Date(new Date().getFullYear(), 9, 10) }
+    { name: "春节", date: new Date(new Date().getFullYear(), 1, 10) }, // 示例日期
+    { name: "清明节", date: new Date(new Date().getFullYear(), 3, 4) },
+    { name: "4/11节庆", date: new Date(new Date().getFullYear(), 3, 11) }, // 新增4/11节庆
+    { name: "端午节", date: new Date(new Date().getFullYear(), 5, 14) }, // 示例日期
+    { name: "中秋节", date: new Date(new Date().getFullYear(), 8, 29) }, // 示例日期
+    { name: "双十节", date: new Date(new Date().getFullYear(), 9, 10) }
 ];
 
-// 發票獎項配置
+// 发票奖项配置
 const INVOICE_PRIZES = {
-    "特別獎": { amount: 10000000, probability: 0.000001 },
-    "特獎": { amount: 2000000, probability: 0.000005 },
-    "頭獎": { amount: 200000, probability: 0.00001 },
-    "二獎": { amount: 40000, probability: 0.00005 },
-    "三獎": { amount: 10000, probability: 0.0001 },
-    "四獎": { amount: 4000, probability: 0.001 },
-    "五獎": { amount: 1000, probability: 0.01 },
-    "六獎": { amount: 200, probability: 0.1 }
+    "特别奖": { amount: 10000000, probability: 0.000001 },
+    "特奖": { amount: 2000000, probability: 0.000005 },
+    "头奖": { amount: 200000, probability: 0.00001 },
+    "二奖": { amount: 40000, probability: 0.00005 },
+    "三奖": { amount: 10000, probability: 0.0001 },
+    "四奖": { amount: 4000, probability: 0.001 },
+    "五奖": { amount: 1000, probability: 0.01 },
+    "六奖": { amount: 200, probability: 0.1 }
 };
 
-// ================= VIP等級系統 =================
-// 普通用戶等級 (0-99,999點) 共500級，每級200點
+// ================= VIP等级系统 =================
+// 普通用户等级 (0-99,999点) 共500级，每级200点
 const NORMAL_LEVELS = [];
 for (let i = 0; i < 500; i++) {
     const points = i * 200;
     let name = "";
     
-    // 特殊名稱等級
+    // 特殊名称等级
     switch(i) {
-        case 0: name = "戰場菜鳥"; break;
-        case 1: name = "繃帶實習生"; break;
-        case 2: name = "手槍新手"; break;
-        case 3: name = "彈殼收集者"; break;
-        case 4: name = "戰術蹲伏者"; break;
-        case 5: name = "能量飲料試喝員"; break;
-        case 6: name = "防彈背心學徒"; break;
-        case 7: name = "紅點鏡體驗者"; break;
-        case 8: name = "急救包實習生"; break;
-        case 9: name = "煙霧彈投擲手"; break;
-        case 495: name = "戰術大師候選人"; break;
-        case 496: name = "空投追蹤者"; break;
-        case 497: name = "決賽圈觀察員"; break;
-        case 498: name = "戰場生存專家"; break;
-        case 499: name = "準VIP挑戰者"; break;
-        default: name = `等級 ${i+1}`;
+        case 0: name = "战场菜鸟"; break;
+        case 1: name = "绷带实习生"; break;
+        case 2: name = "手枪新手"; break;
+        case 3: name = "弹壳收集者"; break;
+        case 4: name = "战术蹲伏者"; break;
+        case 5: name = "能量饮料试喝员"; break;
+        case 6: name = "防弹背心学徒"; break;
+        case 7: name = "红点镜体验者"; break;
+        case 8: name = "急救包实习生"; break;
+        case 9: name = "烟雾弹投掷手"; break;
+        case 495: name = "战术大师候选人"; break;
+        case 496: name = "空投追踪者"; break;
+        case 497: name = "战场生存专家"; break;
+        case 498: name = "准VIP挑战者"; break;
+        default: name = `等级 ${i+1}`;
     }
     
     NORMAL_LEVELS.push({
@@ -578,172 +512,173 @@ for (let i = 0; i < 500; i++) {
                i < 300 ? "⭐" : 
                i < 400 ? "🌟" : "💎",
         discount: 1 - (i * 0.0002),
-        scratchPrice: 20 - Math.floor(i / 25)
+        scratchPrice: 20 - Math.floor(i / 25),
+        checkInPoints: 100 + Math.floor(i / 5) * 10 // 签到点数随等级提升
     });
 }
 
-// VIP等級 (100,000點起) 共100級，每級100,000點
+// VIP等级 (100,000点起) 共100级，每级100,000点
 const VIP_LEVELS = [];
 for (let i = 0; i < 100; i++) {
     const points = 100000 + (i * 100000);
     let name = "";
     let group = "";
     
-    // 分組和命名
+    // 分组和命名
     if (i < 10) {
-        group = "基礎特種兵";
+        group = "基础特种兵";
         switch(i) {
-            case 0: name = "防彈衣新兵"; break;
-            case 1: name = "空投追蹤者"; break;
-            case 2: name = "止血帶醫護兵"; break;
-            case 3: name = "戰術頭盔偵察兵"; break;
-            case 4: name = "能量飲料補給官"; break;
-            case 5: name = "八倍鏡狙擊學徒"; break;
-            case 6: name = "破片手榴彈專家"; break;
-            case 7: name = "平底鍋近戰士"; break;
-            case 8: name = "戰術背包運輸官"; break;
-            case 9: name = "消音器潛行兵"; break;
+            case 0: name = "防弹衣新兵"; break;
+            case 1: name = "空投追踪者"; break;
+            case 2: name = "止血带医护兵"; break;
+            case 3: name = "战术头盔侦察兵"; break;
+            case 4: name = "能量饮料补给官"; break;
+            case 5: name = "八倍镜狙击学徒"; break;
+            case 6: name = "破片手榴弹专家"; break;
+            case 7: name = "平底锅近战士"; break;
+            case 8: name = "战术背包运输官"; break;
+            case 9: name = "消音器潜行兵"; break;
         }
     } else if (i < 20) {
-        group = "進階突擊手";
+        group = "进阶突击手";
         switch(i) {
-            case 10: name = "快速彈匣突擊兵"; break;
-            case 11: name = "燃燒瓶火焰兵"; break;
-            case 12: name = "醫療箱急救官"; break;
-            case 13: name = "紅點瞄準突擊手"; break;
-            case 14: name = "戰術槍托工程師"; break;
-            case 15: name = "垂直握把穩定兵"; break;
-            case 16: name = "擴容彈匣火力手"; break;
-            case 17: name = "戰術靴疾行兵"; break;
-            case 18: name = "戰術手套攀爬者"; break;
-            case 19: name = "戰術護膝潛伏者"; break;
+            case 10: name = "快速弹匣突击兵"; break;
+            case 11: name = "燃烧瓶火焰兵"; break;
+            case 12: name = "医疗箱急救官"; break;
+            case 13: name = "红点瞄准突击手"; break;
+            case 14: name = "战术枪托工程师"; break;
+            case 15: name = "垂直握把稳定兵"; break;
+            case 16: name = "扩容弹匣火力手"; break;
+            case 17: name = "战术靴疾行兵"; break;
+            case 18: name = "战术手套攀爬者"; break;
+            case 19: name = "战术护膝潜伏者"; break;
         }
     } else if (i < 30) {
-        group = "精英狙擊手";
+        group = "精英狙击手";
         switch(i) {
-            case 20: name = "六倍鏡狙擊手"; break;
-            case 21: name = "栓狙大師"; break;
-            case 22: name = "消焰器隱蔽者"; break;
-            case 23: name = "戰術掩體建造者"; break;
-            case 24: name = "高倍鏡觀察員"; break;
-            case 25: name = "戰術趴射專家"; break;
-            case 26: name = "戰術換彈達人"; break;
-            case 27: name = "戰術腰射王者"; break;
-            case 28: name = "戰術閃身槍高手"; break;
-            case 29: name = "戰術預瞄宗師"; break;
+            case 20: name = "六倍镜狙击手"; break;
+            case 21: name = "栓狙大师"; break;
+            case 22: name = "消焰器隐蔽者"; break;
+            case 23: name = "战术掩体建造者"; break;
+            case 24: name = "高倍镜观察员"; break;
+            case 25: name = "战术趴射专家"; break;
+            case 26: name = "战术换弹达人"; break;
+            case 27: name = "战术腰射王者"; break;
+            case 28: name = "战术闪身枪高手"; break;
+            case 29: name = "战术预瞄宗师"; break;
         }
     } else if (i < 40) {
-        group = "特種戰術專家";
+        group = "特种战术专家";
         switch(i) {
-            case 30: name = "戰術煙霧掩護官"; break;
-            case 31: name = "戰術閃光突襲者"; break;
-            case 32: name = "戰術震爆彈專家"; break;
-            case 33: name = "戰術燃燒瓶指揮官"; break;
-            case 34: name = "戰術破片手雷大師"; break;
-            case 35: name = "戰術投擲物宗師"; break;
-            case 36: name = "戰術近戰格鬥家"; break;
-            case 37: name = "戰術載具駕駛員"; break;
-            case 38: name = "戰術摩托車特技手"; break;
-            case 39: name = "戰術吉普車指揮官"; break;
+            case 30: name = "战术烟雾掩护官"; break;
+            case 31: name = "战术闪光突袭者"; break;
+            case 32: name = "战术震爆弹专家"; break;
+            case 33: name = "战术燃烧瓶指挥官"; break;
+            case 34: name = "战术破片手雷大师"; break;
+            case 35: name = "战术投掷物宗师"; break;
+            case 36: name = "战术近战格斗家"; break;
+            case 37: name = "战术载具驾驶员"; break;
+            case 38: name = "战术摩托车特技手"; break;
+            case 39: name = "战术吉普车指挥官"; break;
         }
     } else if (i < 50) {
-        group = "戰場指揮官";
+        group = "战场指挥官";
         switch(i) {
-            case 40: name = "戰術空投召喚師"; break;
-            case 41: name = "戰術信號槍專家"; break;
-            case 42: name = "戰術轟炸區預判者"; break;
-            case 43: name = "戰術毒圈計算師"; break;
-            case 44: name = "戰術決賽圈主宰"; break;
-            case 45: name = "戰術四人小隊隊長"; break;
-            case 46: name = "戰術救援專家"; break;
-            case 47: name = "戰術火力壓制者"; break;
-            case 48: name = "戰術戰地工程師"; break;
-            case 49: name = "戰術戰場元帥"; break;
+            case 40: name = "战术空投召唤师"; break;
+            case 41: name = "战术信号枪专家"; break;
+            case 42: name = "战术轰炸区预判者"; break;
+            case 43: name = "战术毒圈计算师"; break;
+            case 44: name = "战术决赛圈主宰"; break;
+            case 45: name = "战术四人小队队长"; break;
+            case 46: name = "战术救援专家"; break;
+            case 47: name = "战术火力压制者"; break;
+            case 48: name = "战术战地工程师"; break;
+            case 49: name = "战术战场元帅"; break;
         }
     } else if (i < 60) {
-        group = "傳奇特戰兵";
+        group = "传奇特战兵";
         switch(i) {
-            case 50: name = "戰術吉利服獵人"; break;
-            case 51: name = "戰術潛行暗殺者"; break;
-            case 52: name = "戰術夜視儀特工"; break;
-            case 53: name = "戰術全自動掃射手"; break;
-            case 54: name = "戰術單發狙擊王者"; break;
-            case 55: name = "戰術霰彈槍近戰神"; break;
-            case 56: name = "戰術衝鋒槍速射王"; break;
-            case 57: name = "戰術輕機槍火力王"; break;
-            case 58: name = "戰術十字弩暗殺者"; break;
-            case 59: name = "戰術全能武器大師"; break;
+            case 50: name = "战术吉利服猎人"; break;
+            case 51: name = "战术潜行暗杀者"; break;
+            case 52: name = "战术夜视仪特工"; break;
+            case 53: name = "战术全自动扫射手"; break;
+            case 54: name = "战术单发狙击王者"; break;
+            case 55: name = "战术霰弹枪近战神"; break;
+            case 56: name = "战术冲锋枪速射王"; break;
+            case 57: name = "战术轻机枪火力王"; break;
+            case 58: name = "战术十字弩暗杀者"; break;
+            case 59: name = "战术全能武器大师"; break;
         }
     } else if (i < 70) {
-        group = "戰場傳奇";
+        group = "战场传奇";
         switch(i) {
-            case 60: name = "戰術絕地求生者"; break;
-            case 61: name = "戰術吃雞王者"; break;
-            case 62: name = "戰術不死戰神"; break;
-            case 63: name = "戰術零傷通關者"; break;
-            case 64: name = "戰術單人四排冠軍"; break;
-            case 65: name = "戰術全圖追殺者"; break;
-            case 66: name = "戰術無傷滅隊王"; break;
-            case 67: name = "戰術終極生存者"; break;
-            case 68: name = "戰術不敗傳說"; break;
-            case 69: name = "戰術絕地之神"; break;
+            case 60: name = "战术绝地求生者"; break;
+            case 61: name = "战术吃鸡王者"; break;
+            case 62: name = "战术不死战神"; break;
+            case 63: name = "战术零伤通关者"; break;
+            case 64: name = "战术单人四排冠军"; break;
+            case 65: name = "战术全图追杀者"; break;
+            case 66: name = "战术无伤灭队王"; break;
+            case 67: name = "战术终极生存者"; break;
+            case 68: name = "战术不败传说"; break;
+            case 69: name = "战术绝地之神"; break;
         }
     } else if (i < 80) {
-        group = "至尊戰神";
+        group = "至尊战神";
         switch(i) {
-            case 70: name = "戰術戰場主宰者"; break;
-            case 71: name = "戰術殺戮機器"; break;
-            case 72: name = "戰術無敵兵王"; break;
-            case 73: name = "戰術終極獵手"; break;
-            case 74: name = "戰術戰爭領主"; break;
-            case 75: name = "戰術毀滅者"; break;
-            case 76: name = "戰術死神"; break;
-            case 77: name = "戰術修羅"; break;
-            case 78: name = "戰術滅世者"; break;
-            case 79: name = "戰術終極戰神"; break;
+            case 70: name = "战术战场主宰者"; break;
+            case 71: name = "战术杀戮机器"; break;
+            case 72: name = "战术无敌兵王"; break;
+            case 73: name = "战术终极猎手"; break;
+            case 74: name = "战术战争领主"; break;
+            case 75: name = "战术毁灭者"; break;
+            case 76: name = "战术死神"; break;
+            case 77: name = "战术修罗"; break;
+            case 78: name = "战术灭世者"; break;
+            case 79: name = "战术终极战神"; break;
         }
     } else if (i < 90) {
-        group = "神話級特種兵";
+        group = "神话级特种兵";
         switch(i) {
-            case 80: name = "戰術天選之人"; break;
-            case 81: name = "戰術天命之子"; break;
-            case 82: name = "戰術不滅戰魂"; break;
-            case 83: name = "戰術傳奇兵王"; break;
-            case 84: name = "戰術神級指揮官"; break;
-            case 85: name = "戰術不朽戰神"; break;
-            case 86: name = "戰術終極兵皇"; break;
-            case 87: name = "戰術弒神者"; break;
-            case 88: name = "戰術滅世戰神"; break;
-            case 89: name = "戰術絕地至尊"; break;
+            case 80: name = "战术天选之人"; break;
+            case 81: name = "战术天命之子"; break;
+            case 82: name = "战术不灭战魂"; break;
+            case 83: name = "战术传奇兵王"; break;
+            case 84: name = "战术神级指挥官"; break;
+            case 85: name = "战术不朽战神"; break;
+            case 86: name = "战术终极兵皇"; break;
+            case 87: name = "战术弑神者"; break;
+            case 88: name = "战术灭世战神"; break;
+            case 89: name = "战术绝地至尊"; break;
         }
     } else {
-        group = "終極神話";
+        group = "终极神话";
         switch(i) {
-            case 90: name = "戰術萬人敵"; break;
-            case 91: name = "戰術不敗神話"; break;
-            case 92: name = "戰術弒天戰神"; break;
-            case 93: name = "戰術滅世之神"; break;
-            case 94: name = "戰術終極殺戮者"; break;
-            case 95: name = "戰術無上兵主"; break;
-            case 96: name = "戰術絕地帝王"; break;
-            case 97: name = "戰術修羅戰神"; break;
-            case 98: name = "戰術滅界主宰"; break;
-            case 99: name = "戰術終極至尊神"; break;
+            case 90: name = "战术万人敌"; break;
+            case 91: name = "战术不败神话"; break;
+            case 92: name = "战术弑天战神"; break;
+            case 93: name = "战术灭世之神"; break;
+            case 94: name = "战术终极杀戮者"; break;
+            case 95: name = "战术无上兵主"; break;
+            case 96: name = "战术绝地帝王"; break;
+            case 97: name = "战术修罗战神"; break;
+            case 98: name = "战术灭界主宰"; break;
+            case 99: name = "战术终极至尊神"; break;
         }
     }
     
     VIP_LEVELS.push({
-        level: i + 500, // 從500開始
+        level: i + 500, // 从500开始
         name: `VIP ${i+1} ${name}`,
         points: points,
-        color: i < 10 ? "#cd7f32" : // 銅
-               i < 20 ? "#c0c0c0" : // 銀
+        color: i < 10 ? "#cd7f32" : // 铜
+               i < 20 ? "#c0c0c0" : // 银
                i < 30 ? "#ffd700" : // 金
                i < 40 ? "#e5e4e2" : // 白金
-               i < 50 ? "#b9f2ff" : // 鑽石
+               i < 50 ? "#b9f2ff" : // 钻石
                i < 60 ? "#000000" : // 黑金
-               i < 70 ? "#ff0000" : // 紅
-               i < 80 ? "#0000ff" : // 藍
+               i < 70 ? "#ff0000" : // 红
+               i < 80 ? "#0000ff" : // 蓝
                i < 90 ? "#800080" : // 紫
                         "#000000", // 黑
         emoji: i < 10 ? "🥉" : 
@@ -758,30 +693,37 @@ for (let i = 0; i < 100; i++) {
                         "⚫",
         discount: 0.8 - (i * 0.002),
         scratchPrice: 10 - Math.floor(i / 10),
-        group: group
+        group: group,
+        checkInPoints: 500 + (i * 50) // VIP签到点数更高且随等级提升
     });
 }
 
-// 合併所有等級
+// 合并所有等级
 const ALL_LEVELS = [...NORMAL_LEVELS, ...VIP_LEVELS];
 
-// 可兌換商品 (初始數據)
+// 可兑换商品 (初始数据)
 let REDEEM_ITEMS = [
     { id: 1, name: "咖啡券", cost: 50, vipOnly: false },
     { id: 2, name: "午餐券", cost: 100, vipOnly: false },
-    { id: 3, name: "電影票", cost: 200, vipOnly: false },
-    { id: 4, name: "VIP專屬禮盒", cost: 500, vipOnly: true },
-    { id: 5, name: "高級餐廳券", cost: 1000, vipOnly: true },
-    { id: 6, name: "VIP家務券", cost: 800, vipOnly: true }
+    { id: 3, name: "电影票", cost: 200, vipOnly: false },
+    { id: 4, name: "VIP专属礼盒", cost: 500, vipOnly: true },
+    { id: 5, name: "高级餐厅券", cost: 1000, vipOnly: true },
+    { id: 6, name: "VIP家务券", cost: 800, vipOnly: true }
 ];
 
-// 兌換碼 (初始數據)
+// 兑换码 (初始数据)
 let REDEEM_CODES = [
     { code: "WELCOME100", points: 100, usedBy: [] },
     { code: "VIP500", points: 500, usedBy: [], vipOnly: true }
 ];
 
-// 用戶數據 (修改为支持无限点数)
+// 使用码 (初始数据)
+let USAGE_CODES = [
+    { code: "USE12345", item: "咖啡券", used: false, usedBy: null, usedAt: null },
+    { code: "USE67890", item: "午餐券", used: false, usedBy: null, usedAt: null }
+];
+
+// 用户数据
 let users = JSON.parse(localStorage.getItem('vipSystemUsers')) || {
     "vip8888": { password: "vip8888", email: "vip8888@vip.com", points: Infinity, vipLevel: 1, lastCheckIn: null },
     "001": { password: "001", email: "001@example.com", points: Infinity, vipLevel: 0, lastCheckIn: null },
@@ -793,19 +735,18 @@ let users = JSON.parse(localStorage.getItem('vipSystemUsers')) || {
     "test5": { password: "123", email: "test5@example.com", points: 500000, vipLevel: 9, lastCheckIn: null }
 };
 
-// 公告數據
+// 公告数据
 let announcements = JSON.parse(localStorage.getItem('vipSystemAnnouncements')) || [
-    { id: 1, content: "歡迎使用VIP系統！", date: "2023-11-01T10:00:00" },
-    { id: 2, content: "系統將於每週三進行例行維護", date: "2023-11-15T14:30:00" }
+    { id: 1, content: "欢迎使用VIP系统！", date: "2023-11-01T10:00:00" },
+    { id: 2, content: "系统将于每周三进行例行维护", date: "2023-11-15T14:30:00" }
 ];
 
 let currentUser = null;
 let cart = [];
 let aiChatHistory = [];
 let lastCompensationTime = null;
-let scannerInterval = null;
 
-// ================= 新聞功能 =================
+// ================= 新闻功能 =================
 function fetchNews() {
     const url = `${API_CONFIG.newsApiUrl}${API_CONFIG.newsApiKey}&country=tw&language=zh`;
     
@@ -813,14 +754,14 @@ function fetchNews() {
         .then(response => response.json())
         .then(data => {
             if (data.results && data.results.length > 0) {
-                displayNews(data.results.slice(0, 5)); // 只顯示前5條新聞
+                displayNews(data.results.slice(0, 5)); // 只显示前5条新闻
             } else {
-                document.getElementById('newsList').innerHTML = "<p>暫無最新新聞</p>";
+                document.getElementById('newsList').innerHTML = "<p>暂无最新新闻</p>";
             }
         })
         .catch(error => {
-            console.error("獲取新聞失敗:", error);
-            document.getElementById('newsList').innerHTML = "<p>無法加載新聞</p>";
+            console.error("获取新闻失败:", error);
+            document.getElementById('newsList').innerHTML = "<p>无法加载新闻</p>";
         });
 }
 
@@ -830,16 +771,16 @@ function displayNews(newsItems) {
     
     newsItems.forEach(news => {
         const newsItem = document.createElement('div');
-        newsItem.className = 'news-item';
+        newsItem.className = 'announcement-item';
         
-        const title = news.title || "無標題";
-        const source = news.source_id || "未知來源";
-        const link = news.link ? `<a href="${news.link}" target="_blank">閱讀更多</a>` : "";
+        const title = news.title || "无标题";
+        const source = news.source_id || "未知来源";
+        const link = news.link ? `<a href="${news.link}" target="_blank">阅读更多</a>` : "";
         const image = news.image_url ? `<img src="${news.image_url}" style="max-width:100%; margin-top:5px;">` : "";
         
         newsItem.innerHTML = `
             <div class="news-title">${title}</div>
-            <div class="news-source">來源: ${source}</div>
+            <div class="news-source">来源: ${source}</div>
             ${image}
             <div style="margin-top:5px;">${link}</div>
         `;
@@ -848,7 +789,7 @@ function displayNews(newsItems) {
     });
 }
 
-// ================= 天氣功能 =================
+// ================= 天气功能 =================
 function fetchWeather() {
     const url = `${API_CONFIG.weatherApiUrl}${API_CONFIG.weatherApiKey}`;
     
@@ -858,12 +799,12 @@ function fetchWeather() {
             if (data.list && data.list.length > 0) {
                 displayWeather(data.list);
             } else {
-                document.getElementById('weatherList').innerHTML = "<p>暫無天氣預報</p>";
+                document.getElementById('weatherList').innerHTML = "<p>暂无天气预报</p>";
             }
         })
         .catch(error => {
-            console.error("獲取天氣失敗:", error);
-            document.getElementById('weatherList').innerHTML = "<p>無法加載天氣預報</p>";
+            console.error("获取天气失败:", error);
+            document.getElementById('weatherList').innerHTML = "<p>无法加载天气预报</p>";
         });
 }
 
@@ -871,7 +812,7 @@ function displayWeather(weatherData) {
     const weatherList = document.getElementById('weatherList');
     weatherList.innerHTML = '';
     
-    // 只顯示今天和未來3天的預報
+    // 只显示今天和未来3天的预报
     const today = new Date();
     const forecastDays = [];
     
@@ -881,7 +822,7 @@ function displayWeather(weatherData) {
         forecastDays.push(date.toDateString());
     }
     
-    // 過濾出每天中午的天氣數據
+    // 过滤出每天中午的天气数据
     const dailyForecasts = {};
     
     weatherData.forEach(item => {
@@ -893,12 +834,12 @@ function displayWeather(weatherData) {
         }
     });
     
-    // 顯示天氣預報
+    // 显示天气预报
     forecastDays.forEach(date => {
         if (dailyForecasts[date]) {
             const forecast = dailyForecasts[date];
             const weatherItem = document.createElement('div');
-            weatherItem.className = 'weather-item';
+            weatherItem.className = 'announcement-item';
             
             const dateStr = new Date(date).toLocaleDateString('zh-TW', { 
                 month: 'short', 
@@ -922,9 +863,9 @@ function displayWeather(weatherData) {
     });
 }
 
-// ================= 發票功能 =================
+// ================= 发票功能 =================
 function generateInvoiceNumber() {
-    // 產生隨機發票號碼 (格式: 2位英文字母 + 8位數字)
+    // 产生随机发票号码 (格式: 2位英文字母 + 8位数字)
     const letters = 'ABCDEFGHJKLMNPQRSTUVXYWZ';
     const letter1 = letters[Math.floor(Math.random() * letters.length)];
     const letter2 = letters[Math.floor(Math.random() * letters.length)];
@@ -933,7 +874,7 @@ function generateInvoiceNumber() {
 }
 
 function checkInvoicePrize(invoiceNumber) {
-    // 檢查是否為中獎發票 (模擬)
+    // 检查是否为中奖发票 (模拟)
     const random = Math.random();
     let prize = null;
     
@@ -948,13 +889,13 @@ function checkInvoicePrize(invoiceNumber) {
 }
 
 function checkAllInvoices() {
-    // 檢查今天是否是奇數月的25號
+    // 检查今天是否是奇数月的25号
     const today = new Date();
     const month = today.getMonth() + 1; // 月份是0-11
     const date = today.getDate();
     
     if (month % 2 === 1 && date === 25) {
-        // 是奇數月的25號，執行自動兌獎
+        // 是奇数月的25号，执行自动兑奖
         if (currentUser && currentUser.invoices) {
             let totalPrize = 0;
             
@@ -975,9 +916,9 @@ function checkAllInvoices() {
                 users[currentUser.username] = currentUser;
                 localStorage.setItem('vipSystemUsers', JSON.stringify(users));
                 
-                addAnnouncementFromSystem(`發票兌獎結果：恭喜您獲得 ${totalPrize} 點獎勵！`);
+                addAnnouncementFromSystem(`发票兑奖结果：恭喜您获得 ${totalPrize} 点奖励！`);
                 
-                // 同步到伺服器
+                // 同步到服务器
                 syncToServer();
             }
         }
@@ -992,7 +933,7 @@ function showInvoices() {
     container.innerHTML = '';
     
     if (!currentUser.invoices || currentUser.invoices.length === 0) {
-        container.innerHTML = "<p>沒有發票記錄</p>";
+        container.innerHTML = "<p>没有发票记录</p>";
         return;
     }
     
@@ -1005,18 +946,18 @@ function showInvoices() {
         
         let prizeInfo = '';
         if (invoice.prize) {
-            prizeInfo = `<p class="invoice-prize">中獎: ${invoice.prize.name} ${invoice.prize.amount} 點</p>`;
+            prizeInfo = `<p class="invoice-prize">中奖: ${invoice.prize.name} ${invoice.prize.amount} 点</p>`;
         } else if (invoice.checked) {
-            prizeInfo = `<p>未中獎</p>`;
+            prizeInfo = `<p>未中奖</p>`;
         } else {
-            prizeInfo = `<p>等待兌獎 (奇數月25號自動兌獎)</p>`;
+            prizeInfo = `<p>等待兑奖 (奇数月25号自动兑奖)</p>`;
         }
         
         invoiceDiv.innerHTML = `
-            <h3>發票 #${index + 1}</h3>
-            <p>發票號碼: ${invoice.number}</p>
+            <h3>发票 #${index + 1}</h3>
+            <p>发票号码: ${invoice.number}</p>
             <p>日期: ${formattedDate}</p>
-            <p>消費金額: ${invoice.amount} 點</p>
+            <p>消费金额: ${invoice.amount} 点</p>
             ${prizeInfo}
         `;
         
@@ -1024,214 +965,107 @@ function showInvoices() {
     });
 }
 
-// ================= 條碼掃描功能 =================
-function initBarcodeScanner() {
-    document.getElementById('startScannerBtn').addEventListener('click', startScanner);
-    document.getElementById('stopScannerBtn').addEventListener('click', stopScanner);
-    document.getElementById('scannerBackBtn').addEventListener('click', () => {
-        stopScanner();
-        backToVipPage();
-    });
-}
-
-function startScanner() {
-    const video = document.getElementById('scannerVideo');
-    const canvas = document.getElementById('scannerCanvas');
-    const ctx = canvas.getContext('2d');
+// ================= 使用码功能 =================
+function useCode() {
+    const codeInput = document.getElementById('usageCodeInput').value.trim().toUpperCase();
+    const resultDiv = document.getElementById('usageCodeResult');
     
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(function(stream) {
-            video.srcObject = stream;
-            video.play();
-            
-            document.getElementById('startScannerBtn').classList.add('hidden');
-            document.getElementById('stopScannerBtn').classList.remove('hidden');
-            
-            scannerInterval = setInterval(() => {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                try {
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height);
-                    
-                    if (code) {
-                        processScannedBarcode(code.data);
-                    }
-                } catch (e) {
-                    console.error("掃描錯誤:", e);
-                }
-            }, 500);
-        })
-        .catch(function(err) {
-            console.error("無法訪問相機:", err);
-            alert("無法訪問相機，請確保已授予相機權限");
-        });
-}
-
-function stopScanner() {
-    const video = document.getElementById('scannerVideo');
-    if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-    }
-    clearInterval(scannerInterval);
-    document.getElementById('startScannerBtn').classList.remove('hidden');
-    document.getElementById('stopScannerBtn').classList.add('hidden');
-}
-
-function processScannedBarcode(barcodeData) {
-    // 驗證條碼格式
-    if (!barcodeData.startsWith("VIPCHECKOUT:")) {
-        document.getElementById('scanResult').innerHTML = "<p style='color:red'>無效條碼</p>";
+    if (!codeInput) {
+        resultDiv.innerHTML = "<p style='color:red'>请输入使用码</p>";
         return;
     }
     
-    // 解析條碼數據
-    const parts = barcodeData.split(':');
-    const username = parts[1];
-    const timestamp = parseInt(parts[2]);
-    const points = parseInt(parts[3]);
+    const usageCode = USAGE_CODES.find(c => c.code === codeInput);
     
-    // 檢查條碼是否已使用
-    if (users[username].usedBarcodes && users[username].usedBarcodes.includes(barcodeData)) {
-        document.getElementById('scanResult').innerHTML = "<p style='color:red'>此條碼已使用</p>";
+    if (!usageCode) {
+        resultDiv.innerHTML = "<p style='color:red'>使用码无效</p>";
         return;
     }
     
-    // 標記條碼為已使用
-    if (!users[username].usedBarcodes) {
-        users[username].usedBarcodes = [];
-    }
-    users[username].usedBarcodes.push(barcodeData);
-    
-    // 更新收據狀態
-    if (users[username].receipts) {
-        const receipt = users[username].receipts.find(r => r.id === barcodeData);
-        if (receipt) {
-            receipt.used = true;
-        }
+    if (usageCode.used) {
+        resultDiv.innerHTML = "<p style='color:red'>此使用码已被使用</p>";
+        return;
     }
     
-    // 同步到本地存儲
-    localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+    // 使用成功
+    usageCode.used = true;
+    usageCode.usedBy = currentUser.username;
+    usageCode.usedAt = new Date().toISOString();
     
-    // 同步到伺服器
+    localStorage.setItem('vipSystemUsageCodes', JSON.stringify(USAGE_CODES));
+    
+    resultDiv.innerHTML = `<p style='color:green'>使用成功！商品 "${usageCode.item}" 已兑换</p>`;
+    document.getElementById('usageCodeInput').value = '';
+    
+    // 同步到服务器
     syncToServer();
-    
-    document.getElementById('scanResult').innerHTML = `
-        <p style='color:green'>掃描成功！</p>
-        <p>用戶: ${username}</p>
-        <p>時間: ${new Date(timestamp).toLocaleString()}</p>
-        <p>點數: ${points}</p>
-    `;
-    
-    // 3秒後重置掃描結果
-    setTimeout(() => {
-        document.getElementById('scanResult').innerHTML = "<p>請將條碼對準相機</p>";
-    }, 3000);
 }
 
-// ================= 收件功能 =================
-function showReceipts() {
-    document.getElementById('vipContainer').classList.add('hidden');
-    document.getElementById('receiptContainer').classList.remove('hidden');
-    
-    const container = document.getElementById('receiptList');
+function loadUsageCodeManagement() {
+    const container = document.getElementById('usageCodeListForManagement');
     container.innerHTML = '';
     
-    if (!currentUser.receipts || currentUser.receipts.length === 0) {
-        container.innerHTML = "<p>沒有收件記錄</p>";
+    USAGE_CODES.forEach(code => {
+        const codeDiv = document.createElement('div');
+        codeDiv.className = 'usage-code-item';
+        
+        const usedInfo = code.used ? 
+            `已使用 - 使用者: ${code.usedBy} (${new Date(code.usedAt).toLocaleString()})` : 
+            "未使用";
+        
+        codeDiv.innerHTML = `
+            <strong>${code.code}</strong> - ${code.item}<br>
+            状态: ${usedInfo}
+            <button onclick="deleteUsageCode('${code.code}')">删除</button>
+        `;
+        container.appendChild(codeDiv);
+    });
+}
+
+function addUsageCode() {
+    const codeValue = document.getElementById('newUsageCodeValue').value.trim().toUpperCase();
+    const codeItem = document.getElementById('newUsageCodeItem').value.trim();
+    
+    if (!codeValue || !codeItem) {
+        alert("请填写完整的使用码信息！");
         return;
     }
     
-    currentUser.receipts.forEach((receipt, index) => {
-        const receiptDiv = document.createElement('div');
-        receiptDiv.className = 'cart-item';
-        
-        const date = new Date(receipt.date);
-        const formattedDate = date.toLocaleString('zh-TW');
-        
-        receiptDiv.innerHTML = `
-            <h3>收據 #${index + 1}</h3>
-            <p>日期: ${formattedDate}</p>
-            <p>狀態: ${receipt.used ? '<span style="color:red">已使用</span>' : '<span style="color:green">未使用</span>'}</p>
-            <p>總點數: ${receipt.total}</p>
-            <div id="barcode-${receipt.id}"></div>
-            ${receipt.used ? '' : '<p>請出示此條碼給管理員掃描</p>'}
-        `;
-        
-        container.appendChild(receiptDiv);
-        
-        // 生成條碼
-        JsBarcode(`#barcode-${receipt.id}`, receipt.id, {
-            format: "CODE128",
-            displayValue: true,
-            fontSize: 16,
-            lineColor: "#000",
-            width: 2,
-            height: 50
-        });
+    if (USAGE_CODES.some(c => c.code === codeValue)) {
+        alert("此使用码已存在！");
+        return;
+    }
+    
+    USAGE_CODES.push({
+        code: codeValue,
+        item: codeItem,
+        used: false,
+        usedBy: null,
+        usedAt: null
     });
+    
+    localStorage.setItem('vipSystemUsageCodes', JSON.stringify(USAGE_CODES));
+    
+    document.getElementById('newUsageCodeValue').value = '';
+    document.getElementById('newUsageCodeItem').value = '';
+    loadUsageCodeManagement();
+    
+    // 同步到服务器
+    syncToServer();
 }
 
-// ================= 同步功能 =================
-function syncToServer() {
-    fetch('http://192.168.50.1/sync', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            users: users,
-            items: REDEEM_ITEMS,
-            codes: REDEEM_CODES,
-            announcements: announcements,
-            version: SYSTEM_CONFIG.version
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("同步成功:", data);
-    })
-    .catch(error => {
-        console.error("同步錯誤:", error);
-    });
+function deleteUsageCode(code) {
+    if (!confirm("确定要删除此使用码吗？")) return;
+    
+    USAGE_CODES = USAGE_CODES.filter(c => c.code !== code);
+    localStorage.setItem('vipSystemUsageCodes', JSON.stringify(USAGE_CODES));
+    loadUsageCodeManagement();
+    
+    // 同步到服务器
+    syncToServer();
 }
 
-function syncFromServer() {
-    fetch('http://192.168.50.1/sync')
-    .then(response => response.json())
-    .then(data => {
-        if (data.version > SYSTEM_CONFIG.version) {
-            // 更新本地數據
-            users = data.users || users;
-            REDEEM_ITEMS = data.items || REDEEM_ITEMS;
-            REDEEM_CODES = data.codes || REDEEM_CODES;
-            announcements = data.announcements || announcements;
-            
-            // 保存到本地存儲
-            localStorage.setItem('vipSystemUsers', JSON.stringify(users));
-            localStorage.setItem('vipSystemItems', JSON.stringify(REDEEM_ITEMS));
-            localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
-            localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
-            
-            // 更新界面
-            if (currentUser) {
-                currentUser = users[currentUser.username] || currentUser;
-                updateVipDisplay();
-                updateAnnouncements();
-            }
-            
-            console.log("數據同步完成");
-        }
-    })
-    .catch(error => {
-        console.error("同步錯誤:", error);
-    });
-}
-
-// ================= 節慶兌換碼功能 (修改为基于日期判断) =================
+// ================= 节庆兑换码功能 =================
 function checkHolidayCodes() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -1328,7 +1162,7 @@ function loadAnnouncementManagement() {
         announcementDiv.innerHTML = `
             <div class="announcement-content">${announcement.content}</div>
             <div class="announcement-date">${formattedDate}</div>
-            <button onclick="deleteAnnouncement(${announcement.id})">刪除</button>
+            <button onclick="deleteAnnouncement(${announcement.id})">删除</button>
         `;
         container.appendChild(announcementDiv);
     });
@@ -1337,7 +1171,7 @@ function loadAnnouncementManagement() {
 function addAnnouncement() {
     const content = document.getElementById('newAnnouncementContent').value.trim();
     if (!content) {
-        alert("請輸入公告內容！");
+        alert("请输入公告内容！");
         return;
     }
     
@@ -1355,7 +1189,7 @@ function addAnnouncement() {
     loadAnnouncementManagement();
     updateAnnouncements();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
@@ -1372,12 +1206,12 @@ function addAnnouncementFromSystem(content) {
     localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
     updateAnnouncements();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
 function deleteAnnouncement(id) {
-    if (!confirm("確定要刪除此公告嗎？")) return;
+    if (!confirm("确定要删除此公告吗？")) return;
     
     announcements = announcements.filter(a => a.id !== id);
     localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
@@ -1385,38 +1219,38 @@ function deleteAnnouncement(id) {
     loadAnnouncementManagement();
     updateAnnouncements();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
-// ================= 兌換碼功能 =================
+// ================= 兑换码功能 =================
 function redeemCode() {
     const codeInput = document.getElementById('redeemCodeInput').value.trim().toUpperCase();
     const resultDiv = document.getElementById('redeemCodeResult');
     
     if (!codeInput) {
-        resultDiv.innerHTML = "<p style='color:red'>請輸入兌換碼</p>";
+        resultDiv.innerHTML = "<p style='color:red'>请输入兑换码</p>";
         return;
     }
     
     const redeemCode = REDEEM_CODES.find(c => c.code === codeInput);
     
     if (!redeemCode) {
-        resultDiv.innerHTML = "<p style='color:red'>兌換碼無效</p>";
+        resultDiv.innerHTML = "<p style='color:red'>兑换码无效</p>";
         return;
     }
     
     if (redeemCode.vipOnly && (!currentUser || currentUser.vipLevel <= 0)) {
-        resultDiv.innerHTML = "<p style='color:red'>此兌換碼僅限VIP會員使用</p>";
+        resultDiv.innerHTML = "<p style='color:red'>此兑换码仅限VIP会员使用</p>";
         return;
     }
     
     if (redeemCode.usedBy.includes(currentUser.username)) {
-        resultDiv.innerHTML = "<p style='color:red'>您已使用過此兌換碼</p>";
+        resultDiv.innerHTML = "<p style='color:red'>您已使用过此兑换码</p>";
         return;
     }
     
-    // 兌換成功
+    // 兑换成功
     currentUser.points += redeemCode.points;
     redeemCode.usedBy.push(currentUser.username);
     users[currentUser.username] = currentUser;
@@ -1424,12 +1258,12 @@ function redeemCode() {
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
     
-    resultDiv.innerHTML = `<p style='color:green'>兌換成功！獲得 ${redeemCode.points} 點</p>`;
+    resultDiv.innerHTML = `<p style='color:green'>兑换成功！获得 ${redeemCode.points} 点</p>`;
     document.getElementById('redeemCodeInput').value = '';
     
     updateVipDisplay();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
@@ -1442,12 +1276,12 @@ function loadCodeManagement() {
         codeDiv.className = 'redeem-code-container';
         
         const usedCount = code.usedBy ? code.usedBy.length : 0;
-        const isHoliday = code.isHoliday ? ' (節慶兌換碼)' : '';
+        const isHoliday = code.isHoliday ? ' (节庆兑换码)' : '';
         
         codeDiv.innerHTML = `
-            <strong>${code.code}</strong> - ${code.points} 點${isHoliday}<br>
+            <strong>${code.code}</strong> - ${code.points} 点${isHoliday}<br>
             已使用: ${usedCount} 次
-            <button onclick="deleteCode('${code.code}')">刪除</button>
+            <button onclick="deleteCode('${code.code}')">删除</button>
         `;
         container.appendChild(codeDiv);
     });
@@ -1458,12 +1292,12 @@ function addCode() {
     const codePoints = parseInt(document.getElementById('newCodePoints').value);
     
     if (!codeValue || isNaN(codePoints)) {
-        alert("請填寫完整的兌換碼資訊！");
+        alert("请填写完整的兑换码信息！");
         return;
     }
     
     if (REDEEM_CODES.some(c => c.code === codeValue)) {
-        alert("此兌換碼已存在！");
+        alert("此兑换码已存在！");
         return;
     }
     
@@ -1479,18 +1313,18 @@ function addCode() {
     document.getElementById('newCodePoints').value = '';
     loadCodeManagement();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
 function deleteCode(code) {
-    if (!confirm("確定要刪除此兌換碼嗎？")) return;
+    if (!confirm("确定要删除此兑换码吗？")) return;
     
     REDEEM_CODES = REDEEM_CODES.filter(c => c.code !== code);
     localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
     loadCodeManagement();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
@@ -1499,65 +1333,65 @@ function sendAiMessage() {
     const userInput = document.getElementById('aiUserInput').value.trim();
     if (!userInput) return;
     
-    // 添加用戶消息
+    // 添加用户消息
     addAiMessage(userInput, true);
     document.getElementById('aiUserInput').value = '';
     
-    // 模擬AI回應
+    // 模拟AI回应
     setTimeout(() => {
         let response = "";
         let giveCompensation = false;
         
-        // 檢查是否已經獲得過今天的賠償
+        // 检查是否已经获得过今天的赔偿
         const today = new Date().toDateString();
         const lastCompDay = lastCompensationTime ? new Date(lastCompensationTime).toDateString() : null;
         const alreadyCompensated = lastCompDay === today;
         
-        // 簡單的關鍵詞匹配
-        if ((userInput.includes("問題") || userInput.includes("錯誤") || userInput.includes("bug") || 
-             userInput.includes("故障") || userInput.includes("補償")) && !alreadyCompensated) {
-            response = "很抱歉給您帶來不便。我們已記錄您的問題，並將贈送您 500 點作為補償。";
+        // 简单的关键词匹配
+        if ((userInput.includes("问题") || userInput.includes("错误") || userInput.includes("bug") || 
+             userInput.includes("故障") || userInput.includes("补偿")) && !alreadyCompensated) {
+            response = "很抱歉给您带来不便。我们已记录您的问题，并将赠送您 500 点作为补偿。";
             giveCompensation = true;
             
-            // 記錄賠償時間
+            // 记录赔偿时间
             lastCompensationTime = new Date().toISOString();
         } 
-        else if (alreadyCompensated && (userInput.includes("問題") || userInput.includes("錯誤") || 
-                userInput.includes("bug") || userInput.includes("故障") || userInput.includes("補償"))) {
-            response = "我們今天已經為您提供過補償了。如有其他問題，請聯繫客服人員。";
+        else if (alreadyCompensated && (userInput.includes("问题") || userInput.includes("错误") || 
+                userInput.includes("bug") || userInput.includes("故障") || userInput.includes("补偿"))) {
+            response = "我们今天已经为您提供过补偿了。如有其他问题，请联系客服人员。";
         }
-        else if (userInput.includes("謝謝") || userInput.includes("感謝")) {
-            response = "感謝您的支持！如果有任何問題，請隨時聯繫我們。";
+        else if (userInput.includes("谢谢") || userInput.includes("感谢")) {
+            response = "感谢您的支持！如果有任何问题，请随时联系我们。";
         }
-        else if (userInput.includes("兌換碼")) {
-            response = "您可以在VIP功能界面點擊「輸入兌換碼」來使用兌換碼。節慶期間會有特別兌換碼發放，請關注公告！";
+        else if (userInput.includes("兑换码")) {
+            response = "您可以在VIP功能界面点击「输入兑换码」来使用兑换码。节庆期间会有特别兑换码发放，请关注公告！";
         }
-        else if (userInput.includes("刮刮樂")) {
-            response = "刮刮樂遊戲可以讓您有機會贏得點數獎勵！獎勵點數為購買價格的0.5-5倍。";
+        else if (userInput.includes("刮刮乐")) {
+            response = "刮刮乐游戏可以让您有机会赢得点数奖励！奖励点数为购买价格的0.5-5倍。";
         }
-        else if (userInput.includes("等級") || userInput.includes("VIP")) {
-            response = "VIP等級系統根據您的累積點數決定。點數越高，等級越高，享受的折扣和優惠也越多！";
+        else if (userInput.includes("等级") || userInput.includes("VIP")) {
+            response = "VIP等级系统根据您的累积点数决定。点数越高，等级越高，享受的折扣和优惠也越多！";
         }
-        else if (userInput.includes("條碼") || userInput.includes("收件")) {
-            response = "購買商品後會生成專屬條碼，請在「查看收件」中查看您的條碼，並出示給管理員掃描。每個條碼只能使用一次。";
+        else if (userInput.includes("使用码")) {
+            response = "购买商品后会获得使用码，请在「使用商品」界面输入使用码来兑换商品。每个使用码只能使用一次。";
         }
-        else if (userInput.includes("發票")) {
-            response = "每次購買商品都會自動獲取一張發票，奇數月的25號系統會自動進行兌獎，中獎獎金會直接轉為點數存入您的帳戶。";
+        else if (userInput.includes("发票")) {
+            response = "每次购买商品都会自动获取一张发票，奇数月的25号系统会自动进行兑奖，中奖奖金会直接转为点数存入您的账户。";
         }
         else {
-            response = "感謝您的詢問。我們已收到您的消息，將盡快為您處理。";
+            response = "感谢您的询问。我们已收到您的消息，将尽快为您处理。";
         }
         
         addAiMessage(response, false);
         
-        // 補償點數
+        // 补偿点数
         if (giveCompensation && currentUser) {
             currentUser.points += 500;
             users[currentUser.username] = currentUser;
             localStorage.setItem('vipSystemUsers', JSON.stringify(users));
             updateVipDisplay();
             
-            // 同步到伺服器
+            // 同步到服务器
             syncToServer();
         }
     }, 1000);
@@ -1571,7 +1405,7 @@ function addAiMessage(message, isUser) {
     chatContainer.appendChild(messageDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
     
-    // 保存聊天記錄
+    // 保存聊天记录
     aiChatHistory.push({
         message: message,
         isUser: isUser,
@@ -1589,9 +1423,9 @@ function loadItemManagement() {
         itemDiv.className = 'cart-item';
         
         itemDiv.innerHTML = `
-            <strong>${item.name}</strong> - ${item.cost} 點
-            ${item.vipOnly ? '(僅限VIP)' : ''}
-            <button onclick="deleteItem(${item.id})">刪除</button>
+            <strong>${item.name}</strong> - ${item.cost} 点
+            ${item.vipOnly ? '(仅限VIP)' : ''}
+            <button onclick="deleteItem(${item.id})">删除</button>
         `;
         container.appendChild(itemDiv);
     });
@@ -1603,7 +1437,7 @@ function addItem() {
     const vipOnly = document.getElementById('newItemVipOnly').value === 'true';
     
     if (!name || isNaN(cost)) {
-        alert("請填寫完整的商品資訊！");
+        alert("请填写完整的商品信息！");
         return;
     }
     
@@ -1622,46 +1456,50 @@ function addItem() {
     document.getElementById('newItemCost').value = '';
     loadItemManagement();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
 function deleteItem(id) {
-    if (!confirm("確定要刪除此商品嗎？")) return;
+    if (!confirm("确定要删除此商品吗？")) return;
     
     REDEEM_ITEMS = REDEEM_ITEMS.filter(i => i.id !== id);
     localStorage.setItem('vipSystemItems', JSON.stringify(REDEEM_ITEMS));
     loadItemManagement();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
-// ================= 網路更新功能 =================
+// ================= 网络更新功能 =================
 function checkForUpdates() {
-    document.getElementById('updateStatus').textContent = "正在檢查更新...";
+    document.getElementById('updateStatus').textContent = "正在检查更新...";
     document.getElementById('updateStatus').style.backgroundColor = "#fff3e0";
     
-    // 模擬網路請求獲取配置
+    // 模拟网络请求获取配置
     setTimeout(() => {
         try {
-            // 這裡實際應該使用fetch從SYSTEM_CONFIG.configUrl獲取數據
-            // 以下是模擬數據
+            // 这里实际应该使用fetch从SYSTEM_CONFIG.configUrl获取数据
+            // 以下是模拟数据
             const mockConfig = {
                 version: "1.8.0",
-                lastUpdate: "2023-11-30",
-                announcements: ["新功能上線：發票兌獎系統", "新增自動兌獎功能"]
+                lastUpdate: "2023-11-25",
+                announcements: ["新功能上线：使用码系统", "新增VIP专属礼物功能"]
             };
             
             const mockData = {
                 items: [
                     ...REDEEM_ITEMS,
-                    { id: 7, name: "豪華SPA券", cost: 800, vipOnly: true },
-                    { id: 8, name: "高爾夫體驗", cost: 1500, vipOnly: true }
+                    { id: 7, name: "豪华SPA券", cost: 800, vipOnly: true },
+                    { id: 8, name: "高尔夫体验", cost: 1500, vipOnly: true }
                 ],
                 codes: [
                     ...REDEEM_CODES,
                     { code: "UPDATE2023", points: 300, usedBy: [] }
+                ],
+                usageCodes: [
+                    ...USAGE_CODES,
+                    { code: "USE54321", item: "电影票", used: false, usedBy: null, usedAt: null }
                 ]
             };
             
@@ -1669,9 +1507,10 @@ function checkForUpdates() {
             SYSTEM_CONFIG.version = mockConfig.version;
             SYSTEM_CONFIG.lastUpdate = mockConfig.lastUpdate;
             
-            // 更新數據
+            // 更新数据
             REDEEM_ITEMS = mockData.items;
             REDEEM_CODES = mockData.codes;
+            USAGE_CODES = mockData.usageCodes;
             
             // 添加新公告
             mockConfig.announcements.forEach(announcement => {
@@ -1681,35 +1520,37 @@ function checkForUpdates() {
             document.getElementById('updateStatus').textContent = `已是最新版本 ${mockConfig.version}`;
             document.getElementById('updateStatus').style.backgroundColor = "#e6ffe6";
             
-            // 更新用戶界面
+            // 更新用户界面
             if (currentUser) {
                 updateVipDisplay();
                 updateAnnouncements();
             }
             
-            // 保存更新後的數據到本地存儲
+            // 保存更新后的数据到本地存储
             localStorage.setItem('vipSystemConfig', JSON.stringify(SYSTEM_CONFIG));
             localStorage.setItem('vipSystemData', JSON.stringify({
                 items: REDEEM_ITEMS,
-                codes: REDEEM_CODES
+                codes: REDEEM_CODES,
+                usageCodes: USAGE_CODES
             }));
             
-            // 同步到伺服器
+            // 同步到服务器
             syncToServer();
             
         } catch (error) {
-            document.getElementById('updateStatus').textContent = "更新失敗: " + error.message;
+            document.getElementById('updateStatus').textContent = "更新失败: " + error.message;
             document.getElementById('updateStatus').style.backgroundColor = "#ffe6e6";
         }
     }, 1500);
 }
 
-// 從本地存儲加載更新
+// 从本地存储加载更新
 function loadUpdatesFromStorage() {
     const savedConfig = localStorage.getItem('vipSystemConfig');
     const savedData = localStorage.getItem('vipSystemData');
     const savedAnnouncements = localStorage.getItem('vipSystemAnnouncements');
     const savedCodes = localStorage.getItem('vipSystemCodes');
+    const savedUsageCodes = localStorage.getItem('vipSystemUsageCodes');
     
     if (savedConfig) {
         const config = JSON.parse(savedConfig);
@@ -1722,6 +1563,7 @@ function loadUpdatesFromStorage() {
         const data = JSON.parse(savedData);
         REDEEM_ITEMS = data.items || REDEEM_ITEMS;
         REDEEM_CODES = data.codes || REDEEM_CODES;
+        USAGE_CODES = data.usageCodes || USAGE_CODES;
     }
     
     if (savedAnnouncements) {
@@ -1731,9 +1573,13 @@ function loadUpdatesFromStorage() {
     if (savedCodes) {
         REDEEM_CODES = JSON.parse(savedCodes);
     }
+    
+    if (savedUsageCodes) {
+        USAGE_CODES = JSON.parse(savedUsageCodes);
+    }
 }
 
-// ================= 用戶界面功能 =================
+// ================= 用户界面功能 =================
 function toggleVisibility(elementId, show) {
     document.getElementById(elementId).classList.toggle('hidden', !show);
 }
@@ -1747,18 +1593,18 @@ function updateTime() {
     setTimeout(updateTime, 1000);
 }
 
-// ================= 用戶功能 =================
+// ================= 用户功能 =================
 function login(username, password, isVip = false, isAdmin = false) {
     if (!username || !password) {
-        document.getElementById('loginError').textContent = "請輸入帳號和密碼！";
+        document.getElementById('loginError').textContent = "请输入帐号和密码！";
         return false;
     }
     
     if (users[username] && users[username].password === password) {
-        // 檢查VIP和管理員權限
+        // 检查VIP和管理员权限
         if ((isVip && users[username].vipLevel <= 0 && !users[username].isAdmin) || 
             (isAdmin && !users[username].isAdmin)) {
-            document.getElementById('loginError').textContent = "權限不足！";
+            document.getElementById('loginError').textContent = "权限不足！";
             return false;
         }
         
@@ -1768,20 +1614,17 @@ function login(username, password, isVip = false, isAdmin = false) {
         updateVipDisplay();
         updateAnnouncements();
         
-        // 檢查發票兌獎
+        // 检查发票兑奖
         checkAllInvoices();
         
-        // 同步到伺服器
-        syncFromServer();
-        
-        // 如果是管理員，添加管理按鈕
+        // 如果是管理员，添加管理按钮
         if (currentUser.isAdmin) {
             const levelDescription = document.getElementById('levelDescription');
             
-            // 清除現有按鈕
+            // 清除现有按钮
             levelDescription.querySelectorAll('button').forEach(btn => btn.remove());
             
-            // 公告管理按鈕
+            // 公告管理按钮
             const announcementButton = document.createElement('button');
             announcementButton.textContent = "公告管理";
             announcementButton.onclick = function() {
@@ -1791,7 +1634,7 @@ function login(username, password, isVip = false, isAdmin = false) {
             };
             levelDescription.appendChild(announcementButton);
             
-            // 商品管理按鈕
+            // 商品管理按钮
             const itemButton = document.createElement('button');
             itemButton.textContent = "商品管理";
             itemButton.onclick = function() {
@@ -1801,9 +1644,9 @@ function login(username, password, isVip = false, isAdmin = false) {
             };
             levelDescription.appendChild(itemButton);
             
-            // 兌換碼管理按鈕
+            // 兑换码管理按钮
             const codeButton = document.createElement('button');
-            codeButton.textContent = "兌換碼管理";
+            codeButton.textContent = "兑换码管理";
             codeButton.onclick = function() {
                 document.getElementById('vipContainer').classList.add('hidden');
                 document.getElementById('codeManagementContainer').classList.remove('hidden');
@@ -1811,20 +1654,20 @@ function login(username, password, isVip = false, isAdmin = false) {
             };
             levelDescription.appendChild(codeButton);
             
-            // 條碼掃描按鈕
-            const scanButton = document.createElement('button');
-            scanButton.textContent = "條碼掃描";
-            scanButton.onclick = function() {
+            // 使用码管理按钮
+            const usageCodeButton = document.createElement('button');
+            usageCodeButton.textContent = "使用码管理";
+            usageCodeButton.onclick = function() {
                 document.getElementById('vipContainer').classList.add('hidden');
-                document.getElementById('barcodeScannerContainer').classList.remove('hidden');
-                initBarcodeScanner();
+                document.getElementById('usageCodeManagementContainer').classList.remove('hidden');
+                loadUsageCodeManagement();
             };
-            levelDescription.appendChild(scanButton);
+            levelDescription.appendChild(usageCodeButton);
         }
         
         return true;
     } else {
-        document.getElementById('loginError').textContent = "帳號或密碼錯誤！";
+        document.getElementById('loginError').textContent = "帐号或密码错误！";
         return false;
     }
 }
@@ -1835,12 +1678,12 @@ function register() {
     const email = document.getElementById('newEmail').value.trim();
     
     if (!username || !password || !email) {
-        alert("請填寫所有欄位！");
+        alert("请填写所有栏位！");
         return;
     }
     
     if (users[username]) {
-        alert("用戶名已存在！");
+        alert("用户名已存在！");
         return;
     }
     
@@ -1853,11 +1696,11 @@ function register() {
     };
     
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
-    alert("註冊成功！");
+    alert("注册成功！");
     toggleVisibility('registerContainer', false);
     toggleVisibility('normalLoginContainer', true);
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
@@ -1876,27 +1719,27 @@ function changePassword() {
     const confirmPassword = document.getElementById('confirmPassword').value.trim();
     
     if (!oldPassword || !newPassword || !confirmPassword) {
-        alert("請填寫所有欄位！");
+        alert("请填写所有栏位！");
         return;
     }
     
     if (newPassword !== confirmPassword) {
-        alert("新密碼與確認密碼不符！");
+        alert("新密码与确认密码不符！");
         return;
     }
     
     if (currentUser.password !== oldPassword) {
-        alert("舊密碼錯誤！");
+        alert("旧密码错误！");
         return;
     }
     
     currentUser.password = newPassword;
     users[currentUser.username] = currentUser;
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
-    alert("密碼更改成功！");
+    alert("密码更改成功！");
     toggleVisibility('changePasswordContainer', false);
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
@@ -1911,8 +1754,8 @@ function updateVipDisplay() {
         `${userLevel.emoji} ${userLevel.name} ${currentUser.username} 您好！`;
     
     document.getElementById('vipLevelDisplay').innerHTML = `
-        <span style="color: ${userLevel.color}">${userLevel.name} (等級 ${userLevel.level})</span><br>
-        當前點數: ${currentUser.points === Infinity ? "∞" : currentUser.points.toLocaleString()}
+        <span style="color: ${userLevel.color}">${userLevel.name} (等级 ${userLevel.level})</span><br>
+        当前点数: ${currentUser.points === Infinity ? "∞" : currentUser.points.toLocaleString()}
     `;
     
     if (nextLevel) {
@@ -1921,9 +1764,9 @@ function updateVipDisplay() {
         document.getElementById('pointsProgress').textContent = `${Math.floor(progress)}%`;
         
         document.getElementById('levelDescription').innerHTML = `
-            <strong>下一等級:</strong> ${nextLevel.name} (需要 ${(nextLevel.points - currentUser.points).toLocaleString()} 點)<br>
-            <strong>折扣優惠:</strong> ${Math.floor(userLevel.discount * 100)}折<br>
-            <strong>刮刮樂價格:</strong> ${userLevel.scratchPrice} 點
+            <strong>下一等级:</strong> ${nextLevel.name} (需要 ${(nextLevel.points - currentUser.points).toLocaleString()} 点)<br>
+            <strong>折扣优惠:</strong> ${Math.floor(userLevel.discount * 100)}折<br>
+            <strong>刮刮乐价格:</strong> ${userLevel.scratchPrice} 点
         `;
         
         document.getElementById('scratchCardPrice').textContent = userLevel.scratchPrice;
@@ -1931,19 +1774,20 @@ function updateVipDisplay() {
         document.getElementById('pointsProgress').style.width = "100%";
         document.getElementById('pointsProgress').textContent = "MAX";
         document.getElementById('levelDescription').innerHTML = `
-            <strong>您已達到最高等級！</strong><br>
-            <strong>折扣優惠:</strong> ${Math.floor(userLevel.discount * 100)}折
+            <strong>您已达到最高等级！</strong><br>
+            <strong>折扣优惠:</strong> ${Math.floor(userLevel.discount * 100)}折
         `;
     }
     
-    // 更新簽到按鈕狀態
+    // 更新签到按钮状态
     const checkInBtn = document.getElementById('checkInBtn');
     if (isCheckedInToday()) {
         checkInBtn.disabled = true;
-        checkInBtn.textContent = "今日已簽到";
+        checkInBtn.textContent = "今日已签到";
     } else {
         checkInBtn.disabled = false;
-        checkInBtn.textContent = `每日簽到 (100 點)`; // 修改為固定100點
+        const userLevel = getUserLevel(currentUser.points);
+        checkInBtn.textContent = `每日签到 (${userLevel.checkInPoints} 点)`;
     }
 }
 
@@ -1965,11 +1809,12 @@ function isCheckedInToday() {
 
 function vipCheckIn() {
     if (isCheckedInToday()) {
-        alert("今日已簽到！");
+        alert("今日已签到！");
         return;
     }
     
-    const pointsToAdd = 100; // 修改為固定100點
+    const userLevel = getUserLevel(currentUser.points);
+    const pointsToAdd = userLevel.checkInPoints;
     
     currentUser.points += pointsToAdd;
     currentUser.lastCheckIn = new Date().toISOString();
@@ -1979,13 +1824,13 @@ function vipCheckIn() {
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     
     updateVipDisplay();
-    alert(`簽到成功！獲得 ${pointsToAdd.toLocaleString()} 點！`);
+    alert(`签到成功！获得 ${pointsToAdd.toLocaleString()} 点！`);
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
-// ================= 兌換商品功能 =================
+// ================= 兑换商品功能 =================
 function showRedeemItems() {
     const container = document.getElementById('redeemItemsList');
     container.innerHTML = "";
@@ -1995,14 +1840,14 @@ function showRedeemItems() {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'cart-item';
             itemDiv.innerHTML = `
-                <strong>${item.name}</strong> - ${item.cost} 點
-                <button class="addToCartBtn" data-id="${item.id}">加入購物車</button>
+                <strong>${item.name}</strong> - ${item.cost} 点
+                <button class="addToCartBtn" data-id="${item.id}">加入购物车</button>
             `;
             container.appendChild(itemDiv);
         }
     });
     
-    // 為所有加入購物車按鈕添加事件監聽
+    // 为所有加入购物车按钮添加事件监听
     document.querySelectorAll('.addToCartBtn').forEach(btn => {
         btn.addEventListener('click', function() {
             addToCart(parseInt(this.getAttribute('data-id')));
@@ -2030,7 +1875,7 @@ function updateCartDisplay() {
     container.innerHTML = "";
     
     if (cart.length === 0) {
-        container.innerHTML = "<p>購物車是空的</p>";
+        container.innerHTML = "<p>购物车是空的</p>";
         return;
     }
     
@@ -2043,15 +1888,15 @@ function updateCartDisplay() {
         const discountedPrice = Math.floor(item.cost * userLevel.discount);
         itemDiv.innerHTML = `
             <strong>${item.name}</strong> - 
-            原價: ${item.cost} 點 | 
-            折扣價: ${discountedPrice} 點
+            原价: ${item.cost} 点 | 
+            折扣价: ${discountedPrice} 点
             <button class="removeFromCartBtn" data-index="${index}">移除</button>
         `;
         container.appendChild(itemDiv);
         total += discountedPrice;
     });
     
-    // 為所有移除按鈕添加事件監聽
+    // 为所有移除按钮添加事件监听
     document.querySelectorAll('.removeFromCartBtn').forEach(btn => {
         btn.addEventListener('click', function() {
             removeFromCart(parseInt(this.getAttribute('data-index')));
@@ -2059,13 +1904,13 @@ function updateCartDisplay() {
     });
     
     const totalDiv = document.createElement('div');
-    totalDiv.innerHTML = `<strong>總計: ${total} 點</strong>`;
+    totalDiv.innerHTML = `<strong>总计: ${total} 点</strong>`;
     container.appendChild(totalDiv);
 }
 
 function checkout() {
     if (cart.length === 0) {
-        alert("購物車是空的！");
+        alert("购物车是空的！");
         return;
     }
     
@@ -2077,7 +1922,7 @@ function checkout() {
     });
     
     if (currentUser.points < total && currentUser.points !== Infinity) {
-        alert("點數不足！");
+        alert("点数不足！");
         return;
     }
     
@@ -2085,22 +1930,40 @@ function checkout() {
         currentUser.points -= total;
     }
     
-    // 生成條碼數據 (包含用戶名、時間戳和總點數)
-    const barcodeData = `VIPCHECKOUT:${currentUser.username}:${new Date().getTime()}:${total}`;
+    // 生成使用码
+    const usageCodes = [];
+    cart.forEach(item => {
+        const usageCode = `USE${Math.floor(10000 + Math.random() * 90000)}`;
+        usageCodes.push({
+            code: usageCode,
+            item: item.name,
+            used: false,
+            usedBy: null,
+            usedAt: null
+        });
+        
+        USAGE_CODES.push({
+            code: usageCode,
+            item: item.name,
+            used: false,
+            usedBy: null,
+            usedAt: null
+        });
+    });
     
-    // 保存收件記錄
+    // 保存收件记录
     if (!currentUser.receipts) {
         currentUser.receipts = [];
     }
     currentUser.receipts.push({
-        id: barcodeData,
+        id: `RECEIPT${new Date().getTime()}`,
         items: [...cart],
         total: total,
         date: new Date().toISOString(),
-        used: false
+        usageCodes: usageCodes.map(uc => uc.code)
     });
     
-    // 生成發票
+    // 生成发票
     if (!currentUser.invoices) {
         currentUser.invoices = [];
     }
@@ -2113,78 +1976,76 @@ function checkout() {
     
     users[currentUser.username] = currentUser;
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+    localStorage.setItem('vipSystemUsageCodes', JSON.stringify(USAGE_CODES));
     
-    // 顯示條碼
+    // 显示收据和使用码
     const receiptContainer = document.getElementById('cartItems');
     const receiptDiv = document.createElement('div');
     receiptDiv.className = 'cart-item';
+    
+    let usageCodesHtml = '<h4>使用码:</h4>';
+    usageCodes.forEach(code => {
+        usageCodesHtml += `<p>${code.item}: ${code.code}</p>`;
+    });
+    
     receiptDiv.innerHTML = `
-        <h3>收據 #${currentUser.receipts.length}</h3>
+        <h3>收据 #${currentUser.receipts.length}</h3>
         <p>日期: ${new Date().toLocaleString()}</p>
-        <p>總點數: ${total}</p>
-        <div id="barcode-${barcodeData}"></div>
-        <p>請出示此條碼給管理員掃描</p>
+        <p>总点数: ${total}</p>
+        ${usageCodesHtml}
+        <p>请在「使用商品」界面输入使用码兑换商品</p>
     `;
     receiptContainer.appendChild(receiptDiv);
     
-    // 生成條碼
-    JsBarcode(`#barcode-${barcodeData}`, barcodeData, {
-        format: "CODE128",
-        displayValue: true,
-        fontSize: 16,
-        lineColor: "#000",
-        width: 2,
-        height: 50
-    });
-    
-    alert(`購買成功！${currentUser.points === Infinity ? '' : `扣除 ${total} 點`}\n條碼已生成，請出示給工作人員掃描。`);
+    alert(`购买成功！扣除 ${total} 点\n使用码已生成，请在「使用商品」界面输入使用码兑换商品。`);
     cart = [];
     updateCartDisplay();
     updateVipDisplay();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
-// ================= 刮刮樂功能 =================
+// ================= 刮刮乐功能 =================
 function playScratchCard() {
     const userLevel = getUserLevel(currentUser.points);
     const price = userLevel.scratchPrice;
     
     if (currentUser.points < price && currentUser.points !== Infinity) {
-        alert("點數不足！");
+        alert("点数不足！");
         return;
     }
     
-    // 扣除點數
     if (currentUser.points !== Infinity) {
+        // 扣除点数
         currentUser.points -= price;
     }
     
-    // 隨機獎勵 (0.5x-5x價格)
-    const rewardMultiplier = 0.5 + Math.random() * 4.5;
-    const reward = Math.floor(price * rewardMultiplier);
+    // 随机奖励 (1x-5x价格，至少100点)
+    const rewardMultiplier = 1 + Math.random() * 4;
+    let reward = Math.floor(price * rewardMultiplier);
+    reward = Math.max(reward, 100); // 确保至少100点
     
-    // 增加獎勵點數
+    // 增加奖励点数
     currentUser.points += reward;
     
-    // 保存用戶數據
+    // 保存用户数据
     users[currentUser.username] = currentUser;
     localStorage.setItem('vipSystemUsers', JSON.stringify(users));
     
     document.getElementById('scratchResult').innerHTML = `
         <h3>恭喜您！</h3>
-        <p>獲得 ${reward} 點獎勵！</p>
-        <p>當前點數: ${currentUser.points === Infinity ? "∞" : currentUser.points.toLocaleString()}</p>
+        <p>获得 ${reward} 点奖励！</p>
+        <p>当前点数: ${currentUser.points === Infinity ? "∞" : currentUser.points.toLocaleString()}</p>
     `;
     
     updateVipDisplay();
     
-    // 同步到伺服器
+    // 同步到服务器
     syncToServer();
 }
 
-// ================= VIP等級查看 =================
+// ================= VIP等级查看 =================
 function viewAllLevels() {
     document.getElementById('vipContainer').classList.add('hidden');
     document.getElementById('allLevelsContainer').classList.remove('hidden');
@@ -2192,12 +2053,12 @@ function viewAllLevels() {
     const container = document.getElementById('levelsList');
     container.innerHTML = "";
     
-    // 顯示普通等級
+    // 显示普通等级
     const normalLevelsDiv = document.createElement('div');
-    normalLevelsDiv.innerHTML = `<h3>普通用戶（0 - 99,999點）｜500級</h3>`;
+    normalLevelsDiv.innerHTML = `<h3>普通用户（0 - 99,999点）｜500级</h3>`;
     container.appendChild(normalLevelsDiv);
     
-    // 顯示特殊普通等級
+    // 显示特殊普通等级
     const specialNormalLevels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 495, 496, 497, 498, 499];
     specialNormalLevels.forEach(i => {
         const level = NORMAL_LEVELS[i];
@@ -2209,19 +2070,19 @@ function viewAllLevels() {
         
         levelDiv.innerHTML = `
             <strong style="color: ${level.color}">${level.emoji} ${level.name}</strong>
-            ${isCurrentLevel ? '<span style="color:red"> (當前等級)</span>' : ''}<br>
-            等級: ${level.level} | 需求點數: ${level.points.toLocaleString()}<br>
-            折扣: ${Math.floor(level.discount * 100)}折 | 刮刮樂: ${level.scratchPrice} 點
+            ${isCurrentLevel ? '<span style="color:red"> (当前等级)</span>' : ''}<br>
+            等级: ${level.level} | 需求点数: ${level.points.toLocaleString()}<br>
+            折扣: ${Math.floor(level.discount * 100)}折 | 刮刮乐: ${level.scratchPrice} 点 | 签到: ${level.checkInPoints} 点
         `;
         container.appendChild(levelDiv);
     });
     
-    // 顯示VIP等級
+    // 显示VIP等级
     const vipLevelsDiv = document.createElement('div');
-    vipLevelsDiv.innerHTML = `<h3 style="margin-top:20px;">VIP用戶（100,000點起）｜100級</h3>`;
+    vipLevelsDiv.innerHTML = `<h3 style="margin-top:20px;">VIP用户（100,000点起）｜100级</h3>`;
     container.appendChild(vipLevelsDiv);
     
-    // 顯示所有VIP等級
+    // 显示所有VIP等级
     VIP_LEVELS.forEach((level, i) => {
         const levelDiv = document.createElement('div');
         levelDiv.className = "level-description";
@@ -2229,7 +2090,7 @@ function viewAllLevels() {
         
         const isCurrentLevel = currentUser && getUserLevel(currentUser.points).level === level.level;
         
-        // 每10級顯示分組標題
+        // 每10级显示分组标题
         if (i % 10 === 0) {
             const groupDiv = document.createElement('div');
             groupDiv.innerHTML = `<h4>${level.group}</h4>`;
@@ -2238,17 +2099,16 @@ function viewAllLevels() {
         
         levelDiv.innerHTML = `
             <strong style="color: ${level.color}">${level.emoji} ${level.name}</strong>
-            ${isCurrentLevel ? '<span style="color:red"> (當前等級)</span>' : ''}<br>
-            等級: ${level.level} | 需求點數: ${level.points.toLocaleString()}<br>
-            折扣: ${Math.floor(level.discount * 100)}折 | 刮刮樂: ${level.scratchPrice} 點
+            ${isCurrentLevel ? '<span style="color:red"> (当前等级)</span>' : ''}<br>
+            等级: ${level.level} | 需求点数: ${level.points.toLocaleString()}<br>
+            折扣: ${Math.floor(level.discount * 100)}折 | 刮刮乐: ${level.scratchPrice} 点 | 签到: ${level.checkInPoints} 点
         `;
         container.appendChild(levelDiv);
     });
 }
 
-// ================= 新增功能 =================
-// 每日额外奖励
-function claimDailyBonus() {
+// ================= 新增功能实现 =================
+function dailyBonus() {
     if (!currentUser) return;
     
     // 检查今天是否已经领取过
@@ -2273,8 +2133,7 @@ function claimDailyBonus() {
     syncToServer();
 }
 
-// 点数转账
-function transferPoints() {
+function pointTransfer() {
     const recipient = prompt("请输入接收方用户名:");
     if (!recipient || !users[recipient]) {
         alert("无效的用户名！");
@@ -2309,8 +2168,7 @@ function transferPoints() {
     syncToServer();
 }
 
-// VIP专属礼物
-function claimVipGift() {
+function vipGift() {
     if (!currentUser || currentUser.vipLevel <= 0) {
         alert("此功能仅限VIP会员使用！");
         return;
@@ -2339,32 +2197,139 @@ function claimVipGift() {
     syncToServer();
 }
 
-// ================= 返回功能 =================
+// ================= 同步功能 =================
+function syncToServer() {
+    fetch(SYSTEM_CONFIG.syncUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            users: users,
+            items: REDEEM_ITEMS,
+            codes: REDEEM_CODES,
+            usageCodes: USAGE_CODES,
+            announcements: announcements,
+            version: SYSTEM_CONFIG.version
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("同步成功:", data);
+    })
+    .catch(error => {
+        console.error("同步错误:", error);
+    });
+}
+
+function syncFromServer() {
+    fetch(SYSTEM_CONFIG.syncUrl)
+    .then(response => response.json())
+    .then(data => {
+        if (data.version > SYSTEM_CONFIG.version) {
+            // 更新本地数据
+            users = data.users || users;
+            REDEEM_ITEMS = data.items || REDEEM_ITEMS;
+            REDEEM_CODES = data.codes || REDEEM_CODES;
+            USAGE_CODES = data.usageCodes || USAGE_CODES;
+            announcements = data.announcements || announcements;
+            
+            // 保存到本地存储
+            localStorage.setItem('vipSystemUsers', JSON.stringify(users));
+            localStorage.setItem('vipSystemItems', JSON.stringify(REDEEM_ITEMS));
+            localStorage.setItem('vipSystemCodes', JSON.stringify(REDEEM_CODES));
+            localStorage.setItem('vipSystemUsageCodes', JSON.stringify(USAGE_CODES));
+            localStorage.setItem('vipSystemAnnouncements', JSON.stringify(announcements));
+            
+            // 更新界面
+            if (currentUser) {
+                currentUser = users[currentUser.username] || currentUser;
+                updateVipDisplay();
+                updateAnnouncements();
+            }
+            
+            console.log("数据同步完成");
+        }
+    })
+    .catch(error => {
+        console.error("同步错误:", error);
+    });
+}
+
+// ================= 收件功能 =================
+function showReceipts() {
+    document.getElementById('vipContainer').classList.add('hidden');
+    document.getElementById('receiptContainer').classList.remove('hidden');
+    
+    const container = document.getElementById('receiptList');
+    container.innerHTML = '';
+    
+    if (!currentUser.receipts || currentUser.receipts.length === 0) {
+        container.innerHTML = "<p>没有收件记录</p>";
+        return;
+    }
+    
+    currentUser.receipts.forEach((receipt, index) => {
+        const receiptDiv = document.createElement('div');
+        receiptDiv.className = 'cart-item';
+        
+        const date = new Date(receipt.date);
+        const formattedDate = date.toLocaleString('zh-TW');
+        
+        let itemsList = '<ul>';
+        receipt.items.forEach(item => {
+            itemsList += `<li>${item.name}</li>`;
+        });
+        itemsList += '</ul>';
+        
+        let usageCodesList = '<h4>使用码:</h4><ul>';
+        receipt.usageCodes.forEach(code => {
+            const codeInfo = USAGE_CODES.find(uc => uc.code === code);
+            const usedStatus = codeInfo && codeInfo.used ? 
+                `(已使用 - ${new Date(codeInfo.usedAt).toLocaleString()})` : 
+                "(未使用)";
+            usageCodesList += `<li>${code} ${usedStatus}</li>`;
+        });
+        usageCodesList += '</ul>';
+        
+        receiptDiv.innerHTML = `
+            <h3>收据 #${index + 1}</h3>
+            <p>日期: ${formattedDate}</p>
+            <p>总点数: ${receipt.total}</p>
+            <h4>商品:</h4>
+            ${itemsList}
+            ${usageCodesList}
+        `;
+        
+        container.appendChild(receiptDiv);
+    });
+}
+
 function backToVipPage() {
-    // 隱藏所有功能區
+    // 隐藏所有功能区
     document.querySelectorAll('.container').forEach(container => {
         if (container.id !== 'vipContainer' && container.id !== 'loginOptionContainer') {
             container.classList.add('hidden');
         }
     });
     
-    // 顯示VIP主界面
+    // 显示VIP主界面
     document.getElementById('vipContainer').classList.remove('hidden');
 }
 
 function backToLoginOptions() {
-    // 隱藏所有容器
+    // 隐藏所有容器
     document.querySelectorAll('.container').forEach(container => {
         container.classList.add('hidden');
     });
     
-    // 顯示登錄選項
+    // 显示登录选项
     document.getElementById('loginOptionContainer').classList.remove('hidden');
 }
 
-// ================= 初始化事件監聽 =================
+// ================= 初始化事件监听 =================
 function initEventListeners() {
-    // 登錄選項按鈕
+    // 登录选项按钮
     document.getElementById('vipLoginBtn').addEventListener('click', () => {
         toggleVisibility('loginOptionContainer', false);
         toggleVisibility('vipLoginContainer', true);
@@ -2378,7 +2343,7 @@ function initEventListeners() {
         toggleVisibility('adminLoginContainer', true);
     });
     
-    // 返回按鈕
+    // 返回按钮
     document.getElementById('vipBackBtn').addEventListener('click', backToLoginOptions);
     document.getElementById('normalBackBtn').addEventListener('click', backToLoginOptions);
     document.getElementById('adminBackBtn').addEventListener('click', backToLoginOptions);
@@ -2397,11 +2362,12 @@ function initEventListeners() {
     document.getElementById('codeBackBtn').addEventListener('click', backToVipPage);
     document.getElementById('receiptBackBtn').addEventListener('click', backToVipPage);
     document.getElementById('invoiceBackBtn').addEventListener('click', backToVipPage);
-    document.getElementById('scannerBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('usageCodeBackBtn').addEventListener('click', backToVipPage);
     document.getElementById('newsBackBtn').addEventListener('click', backToVipPage);
     document.getElementById('weatherBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('usageCodeManagementBackBtn').addEventListener('click', backToVipPage);
     
-    // 登錄/註冊按鈕
+    // 登录/注册按钮
     document.getElementById('vipLoginSubmit').addEventListener('click', () => {
         const username = document.getElementById('vipUsername').value.trim();
         const password = document.getElementById('vipPassword').value.trim();
@@ -2423,7 +2389,7 @@ function initEventListeners() {
     });
     document.getElementById('registerSubmit').addEventListener('click', register);
     
-    // VIP功能按鈕
+    // VIP功能按钮
     document.getElementById('checkInBtn').addEventListener('click', vipCheckIn);
     document.getElementById('viewLevelsBtn').addEventListener('click', viewAllLevels);
     document.getElementById('redeemItemsBtn').addEventListener('click', () => {
@@ -2452,10 +2418,26 @@ function initEventListeners() {
     document.getElementById('viewInvoicesBtn').addEventListener('click', showInvoices);
     document.getElementById('logoutBtn').addEventListener('click', logout);
     
-    // 新增功能按鈕
-    document.getElementById('dailyBonusBtn').addEventListener('click', claimDailyBonus);
-    document.getElementById('pointTransferBtn').addEventListener('click', transferPoints);
-    document.getElementById('vipGiftBtn').addEventListener('click', claimVipGift);
+    // 使用码功能按钮
+    document.getElementById('usageCodeSubmit').addEventListener('click', useCode);
+    document.getElementById('addUsageCodeBtn').addEventListener('click', addUsageCode);
+    
+    // 其他功能按钮
+    document.getElementById('checkoutBtn').addEventListener('click', checkout);
+    document.getElementById('playScratchBtn').addEventListener('click', playScratchCard);
+    document.getElementById('changePasswordSubmit').addEventListener('click', changePassword);
+    document.getElementById('addAnnouncementBtn').addEventListener('click', addAnnouncement);
+    document.getElementById('redeemCodeSubmit').addEventListener('click', redeemCode);
+    document.getElementById('sendAiMessageBtn').addEventListener('click', sendAiMessage);
+    document.getElementById('addItemBtn').addEventListener('click', addItem);
+    document.getElementById('addCodeBtn').addEventListener('click', addCode);
+    
+    // 新增功能按钮
+    document.getElementById('dailyBonusBtn').addEventListener('click', dailyBonus);
+    document.getElementById('pointTransferBtn').addEventListener('click', pointTransfer);
+    document.getElementById('vipGiftBtn').addEventListener('click', vipGift);
+    
+    // 新闻和天气按钮
     document.getElementById('viewNewsBtn').addEventListener('click', () => {
         document.getElementById('vipContainer').classList.add('hidden');
         document.getElementById('newsContainer').classList.remove('hidden');
@@ -2467,22 +2449,15 @@ function initEventListeners() {
         fetchWeather();
     });
     
-    // 其他功能按鈕
-    document.getElementById('checkoutBtn').addEventListener('click', checkout);
-    document.getElementById('playScratchBtn').addEventListener('click', playScratchCard);
-    document.getElementById('changePasswordSubmit').addEventListener('click', changePassword);
-    document.getElementById('addAnnouncementBtn').addEventListener('click', addAnnouncement);
-    document.getElementById('redeemCodeSubmit').addEventListener('click', redeemCode);
-    document.getElementById('sendAiMessageBtn').addEventListener('click', sendAiMessage);
-    document.getElementById('addItemBtn').addEventListener('click', addItem);
-    document.getElementById('addCodeBtn').addEventListener('click', addCode);
-    
-    // 輸入框回車事件
+    // 输入框回车事件
     document.getElementById('aiUserInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendAiMessage();
     });
     document.getElementById('redeemCodeInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') redeemCode();
+    });
+    document.getElementById('usageCodeInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') useCode();
     });
 }
 
@@ -2505,7 +2480,10 @@ function init() {
     syncFromServer();
 }
 
-window.onload = init;
+// 确保DOM完全加载后再初始化
+document.addEventListener('DOMContentLoaded', function() {
+    init();
+});
 </script>
 </body>
 </html>
