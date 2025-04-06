@@ -194,6 +194,36 @@
             width: calc(50% - 10px);
             display: inline-block;
         }
+        /* 新增新聞顯示樣式 */
+        .news-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .news-source {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .news-image {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .news-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .news-link:hover {
+            text-decoration: underline;
+        }
+        .news-desc {
+            margin: 10px 0;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -435,8 +465,8 @@
 <script>
 // ================= 系统配置 =================
 const SYSTEM_CONFIG = {
-    version: "1.8.0",
-    lastUpdate: "2023-11-25",
+    version: "1.90.9",
+    lastUpdate: "2025-1-25",
     configUrl: "http://192.168.50.1/vip_system_config.json",
     dataUrl: "http://192.168.50.1/vip_system_data.json",
     syncUrl: "http://192.168.50.1/vip_system_sync.php"
@@ -494,8 +524,9 @@ for (let i = 0; i < 500; i++) {
         case 9: name = "烟雾弹投掷手"; break;
         case 495: name = "战术大师候选人"; break;
         case 496: name = "空投追踪者"; break;
-        case 497: name = "战场生存专家"; break;
-        case 498: name = "准VIP挑战者"; break;
+        case 497: name = "决赛圈观察员"; break;
+        case 498: name = "战场生存专家"; break;
+        case 499: name = "准VIP挑战者"; break;
         default: name = `等级 ${i+1}`;
     }
     
@@ -517,181 +548,111 @@ for (let i = 0; i < 500; i++) {
     });
 }
 
-// VIP等级 (100,000点起) 共100级，每级100,000点
+// VIP等级 (100,000点起) 共1000级，每级100,000点
 const VIP_LEVELS = [];
-for (let i = 0; i < 100; i++) {
+const VIP_LEVEL_NAMES = [
+    // 1~100级：基础成长阶段（铜→银）
+    "普通客户", "新晋VIP", "活跃VIP", "铜星VIP", "铜星VIP+", "铜辉VIP", "铜辉VIP+", "铜冠VIP", "铜冠VIP+", "铜尊VIP",
+    "银星VIP", "银辉VIP", "银冠VIP", "银尊VIP", "双银VIP", "银耀VIP", "银龙VIP", "银王VIP", "银皇VIP",
+    
+    // 101~300级：中阶尊贵阶段（金→白金→钻石）
+    "金星VIP", "金星VIP+", "金辉VIP", "金辉VIP+", "金冠VIP", "金冠VIP+", "金尊VIP", "双金VIP", "金耀VIP", "金龙VIP",
+    "白金VIP", "白金VIP+", "白金辉VIP", "白金冠VIP", "白金尊VIP", "双白金VIP", "白金耀VIP", "白金龙VIP", "白金皇VIP",
+    "钻石VIP", "钻石VIP+", "钻辉VIP", "钻冠VIP", "钻尊VIP", "黑钻VIP", "黑钻VIP+", "黑钻辉VIP", "黑钻皇VIP", "黑钻圣VIP",
+    "皇冠VIP",
+    
+    // 301~600级：高阶特权阶段（王者→传奇→至尊）
+    "皇冠VIP+", "皇冠辉VIP", "皇冠尊VIP", "双皇冠VIP", "皇冠耀VIP", "皇冠龙VIP", "皇冠皇VIP", "皇冠圣VIP",
+    "星耀VIP", "星耀VIP+", "星耀辉VIP", "星耀圣VIP", "星耀神VIP",
+    "王者VIP", "王者VIP+", "王者辉VIP", "王者圣VIP", "王者神VIP",
+    "传奇VIP", "传奇VIP+", "传奇辉VIP", "传奇圣VIP", "传奇神VIP",
+    "至尊VIP", "至尊VIP+", "至尊辉VIP", "至尊圣VIP", "至尊神VIP",
+    "天界VIP", "天界VIP+", "天界辉VIP", "天界圣VIP", "天界神VIP",
+    "银河VIP",
+    
+    // 601~900级：顶级巅峰阶段（宇宙→永恒→无限）
+    "银河VIP+", "银河辉VIP", "银河圣VIP", "银河神VIP", "双银河VIP",
+    "宇宙VIP", "宇宙VIP+", "宇宙辉VIP", "宇宙圣VIP", "宇宙神VIP",
+    "幻影VIP", "幻影VIP+", "幻影辉VIP", "幻影圣VIP", "幻影神VIP",
+    "永恒VIP", "永恒VIP+", "永恒辉VIP", "永恒圣VIP", "永恒神VIP",
+    "神话VIP", "神话VIP+", "神话辉VIP", "神话圣VIP", "神话神VIP",
+    "创世VIP", "创世VIP+", "创世辉VIP", "创世圣VIP", "创世神VIP",
+    "无限VIP-初阶",
+    
+    // 901~999级：超凡至神阶段（近神领域）
+    "无限VIP-中阶", "无限VIP-高阶", "无限VIP-巅峰", "无限VIP-圣域", "无限VIP-神域", 
+    "无限VIP-至尊神", "无限VIP-不朽神", "无限VIP-终极神", "无限VIP-近神", "无限VIP-准神",
+    
+    // 第1000级：终极荣耀
+    "✨ 无限VIP-∞（永恒之神）"
+];
+
+for (let i = 0; i < 500; i++) {
     const points = 100000 + (i * 100000);
     let name = "";
     let group = "";
+    let color = "";
+    let emoji = "";
     
-    // 分组和命名
-    if (i < 10) {
-        group = "基础特种兵";
-        switch(i) {
-            case 0: name = "防弹衣新兵"; break;
-            case 1: name = "空投追踪者"; break;
-            case 2: name = "止血带医护兵"; break;
-            case 3: name = "战术头盔侦察兵"; break;
-            case 4: name = "能量饮料补给官"; break;
-            case 5: name = "八倍镜狙击学徒"; break;
-            case 6: name = "破片手榴弹专家"; break;
-            case 7: name = "平底锅近战士"; break;
-            case 8: name = "战术背包运输官"; break;
-            case 9: name = "消音器潜行兵"; break;
+    // 根据等级范围设置不同的组别和样式
+    if (i < 100) {
+        // 1~100级：基础成长阶段（铜→银）
+        group = "基础成长阶段";
+        color = i < 50 ? "#cd7f32" : "#c0c0c0"; // 铜色或银色
+        emoji = i < 50 ? "🥉" : "🥈";
+    } else if (i < 300) {
+        // 101~300级：中阶尊贵阶段（金→白金→钻石）
+        group = "中阶尊贵阶段";
+        if (i < 200) {
+            color = "#ffd700"; // 金色
+            emoji = "🥇";
+        } else {
+            color = "#e5e4e2"; // 白金
+            emoji = "💠";
         }
-    } else if (i < 20) {
-        group = "进阶突击手";
-        switch(i) {
-            case 10: name = "快速弹匣突击兵"; break;
-            case 11: name = "燃烧瓶火焰兵"; break;
-            case 12: name = "医疗箱急救官"; break;
-            case 13: name = "红点瞄准突击手"; break;
-            case 14: name = "战术枪托工程师"; break;
-            case 15: name = "垂直握把稳定兵"; break;
-            case 16: name = "扩容弹匣火力手"; break;
-            case 17: name = "战术靴疾行兵"; break;
-            case 18: name = "战术手套攀爬者"; break;
-            case 19: name = "战术护膝潜伏者"; break;
+    } else if (i < 600) {
+        // 301~600级：高阶特权阶段（王者→传奇→至尊）
+        group = "高阶特权阶段";
+        if (i < 400) {
+            color = "#b9f2ff"; // 钻石蓝
+            emoji = "💎";
+        } else if (i < 500) {
+            color = "#000000"; // 黑金
+            emoji = "♠️";
+        } else {
+            color = "#ff0000"; // 红色
+            emoji = "❤️";
         }
-    } else if (i < 30) {
-        group = "精英狙击手";
-        switch(i) {
-            case 20: name = "六倍镜狙击手"; break;
-            case 21: name = "栓狙大师"; break;
-            case 22: name = "消焰器隐蔽者"; break;
-            case 23: name = "战术掩体建造者"; break;
-            case 24: name = "高倍镜观察员"; break;
-            case 25: name = "战术趴射专家"; break;
-            case 26: name = "战术换弹达人"; break;
-            case 27: name = "战术腰射王者"; break;
-            case 28: name = "战术闪身枪高手"; break;
-            case 29: name = "战术预瞄宗师"; break;
-        }
-    } else if (i < 40) {
-        group = "特种战术专家";
-        switch(i) {
-            case 30: name = "战术烟雾掩护官"; break;
-            case 31: name = "战术闪光突袭者"; break;
-            case 32: name = "战术震爆弹专家"; break;
-            case 33: name = "战术燃烧瓶指挥官"; break;
-            case 34: name = "战术破片手雷大师"; break;
-            case 35: name = "战术投掷物宗师"; break;
-            case 36: name = "战术近战格斗家"; break;
-            case 37: name = "战术载具驾驶员"; break;
-            case 38: name = "战术摩托车特技手"; break;
-            case 39: name = "战术吉普车指挥官"; break;
-        }
-    } else if (i < 50) {
-        group = "战场指挥官";
-        switch(i) {
-            case 40: name = "战术空投召唤师"; break;
-            case 41: name = "战术信号枪专家"; break;
-            case 42: name = "战术轰炸区预判者"; break;
-            case 43: name = "战术毒圈计算师"; break;
-            case 44: name = "战术决赛圈主宰"; break;
-            case 45: name = "战术四人小队队长"; break;
-            case 46: name = "战术救援专家"; break;
-            case 47: name = "战术火力压制者"; break;
-            case 48: name = "战术战地工程师"; break;
-            case 49: name = "战术战场元帅"; break;
-        }
-    } else if (i < 60) {
-        group = "传奇特战兵";
-        switch(i) {
-            case 50: name = "战术吉利服猎人"; break;
-            case 51: name = "战术潜行暗杀者"; break;
-            case 52: name = "战术夜视仪特工"; break;
-            case 53: name = "战术全自动扫射手"; break;
-            case 54: name = "战术单发狙击王者"; break;
-            case 55: name = "战术霰弹枪近战神"; break;
-            case 56: name = "战术冲锋枪速射王"; break;
-            case 57: name = "战术轻机枪火力王"; break;
-            case 58: name = "战术十字弩暗杀者"; break;
-            case 59: name = "战术全能武器大师"; break;
-        }
-    } else if (i < 70) {
-        group = "战场传奇";
-        switch(i) {
-            case 60: name = "战术绝地求生者"; break;
-            case 61: name = "战术吃鸡王者"; break;
-            case 62: name = "战术不死战神"; break;
-            case 63: name = "战术零伤通关者"; break;
-            case 64: name = "战术单人四排冠军"; break;
-            case 65: name = "战术全图追杀者"; break;
-            case 66: name = "战术无伤灭队王"; break;
-            case 67: name = "战术终极生存者"; break;
-            case 68: name = "战术不败传说"; break;
-            case 69: name = "战术绝地之神"; break;
-        }
-    } else if (i < 80) {
-        group = "至尊战神";
-        switch(i) {
-            case 70: name = "战术战场主宰者"; break;
-            case 71: name = "战术杀戮机器"; break;
-            case 72: name = "战术无敌兵王"; break;
-            case 73: name = "战术终极猎手"; break;
-            case 74: name = "战术战争领主"; break;
-            case 75: name = "战术毁灭者"; break;
-            case 76: name = "战术死神"; break;
-            case 77: name = "战术修罗"; break;
-            case 78: name = "战术灭世者"; break;
-            case 79: name = "战术终极战神"; break;
-        }
-    } else if (i < 90) {
-        group = "神话级特种兵";
-        switch(i) {
-            case 80: name = "战术天选之人"; break;
-            case 81: name = "战术天命之子"; break;
-            case 82: name = "战术不灭战魂"; break;
-            case 83: name = "战术传奇兵王"; break;
-            case 84: name = "战术神级指挥官"; break;
-            case 85: name = "战术不朽战神"; break;
-            case 86: name = "战术终极兵皇"; break;
-            case 87: name = "战术弑神者"; break;
-            case 88: name = "战术灭世战神"; break;
-            case 89: name = "战术绝地至尊"; break;
+    } else if (i < 900) {
+        // 601~900级：顶级巅峰阶段（宇宙→永恒→无限）
+        group = "顶级巅峰阶段";
+        if (i < 700) {
+            color = "#0000ff"; // 蓝色
+            emoji = "🔵";
+        } else if (i < 800) {
+            color = "#800080"; // 紫色
+            emoji = "🟣";
+        } else {
+            color = "#000000"; // 黑色
+            emoji = "⚫";
         }
     } else {
-        group = "终极神话";
-        switch(i) {
-            case 90: name = "战术万人敌"; break;
-            case 91: name = "战术不败神话"; break;
-            case 92: name = "战术弑天战神"; break;
-            case 93: name = "战术灭世之神"; break;
-            case 94: name = "战术终极杀戮者"; break;
-            case 95: name = "战术无上兵主"; break;
-            case 96: name = "战术绝地帝王"; break;
-            case 97: name = "战术修罗战神"; break;
-            case 98: name = "战术灭界主宰"; break;
-            case 99: name = "战术终极至尊神"; break;
-        }
+        // 901~1000级：超凡至神阶段（近神领域）
+        group = "超凡至神阶段";
+        color = "#ff4500"; // 橙红色
+        emoji = "✨";
     }
+    
+    // 使用预定义的VIP等级名称，如果超出范围则使用默认名称
+    name = VIP_LEVEL_NAMES[i] || `VIP ${i+1}`;
     
     VIP_LEVELS.push({
         level: i + 500, // 从500开始
-        name: `VIP ${i+1} ${name}`,
+        name: name,
         points: points,
-        color: i < 10 ? "#cd7f32" : // 铜
-               i < 20 ? "#c0c0c0" : // 银
-               i < 30 ? "#ffd700" : // 金
-               i < 40 ? "#e5e4e2" : // 白金
-               i < 50 ? "#b9f2ff" : // 钻石
-               i < 60 ? "#000000" : // 黑金
-               i < 70 ? "#ff0000" : // 红
-               i < 80 ? "#0000ff" : // 蓝
-               i < 90 ? "#800080" : // 紫
-                        "#000000", // 黑
-        emoji: i < 10 ? "🥉" : 
-               i < 20 ? "🥈" : 
-               i < 30 ? "🥇" : 
-               i < 40 ? "💠" : 
-               i < 50 ? "💎" : 
-               i < 60 ? "♠️" : 
-               i < 70 ? "❤️" : 
-               i < 80 ? "🔵" : 
-               i < 90 ? "🟣" : 
-                        "⚫",
-        discount: 0.8 - (i * 0.002),
+        color: color,
+        emoji: emoji,
+        discount: 0.8 - (i * 0.0002),
         scratchPrice: 10 - Math.floor(i / 10),
         group: group,
         checkInPoints: 500 + (i * 50) // VIP签到点数更高且随等级提升
@@ -737,14 +698,16 @@ let users = JSON.parse(localStorage.getItem('vipSystemUsers')) || {
 
 // 公告数据
 let announcements = JSON.parse(localStorage.getItem('vipSystemAnnouncements')) || [
-    { id: 1, content: "欢迎使用VIP系统！", date: "2023-11-01T10:00:00" },
-    { id: 2, content: "系统将于每周三进行例行维护", date: "2023-11-15T14:30:00" }
+    { id: 1, content: "欢迎使用VIP系统！", date: "2025-1-01T10:00:00" },
+    { id: 2, content: "系统将于每周三进行例行维护", date: "2025-1-15T14:30:00" }
 ];
 
 let currentUser = null;
 let cart = [];
 let aiChatHistory = [];
 let lastCompensationTime = null;
+let newsUpdateInterval = null;
+let weatherUpdateInterval = null;
 
 // ================= 新闻功能 =================
 function fetchNews() {
@@ -775,14 +738,16 @@ function displayNews(newsItems) {
         
         const title = news.title || "无标题";
         const source = news.source_id || "未知来源";
-        const link = news.link ? `<a href="${news.link}" target="_blank">阅读更多</a>` : "";
-        const image = news.image_url ? `<img src="${news.image_url}" style="max-width:100%; margin-top:5px;">` : "";
+        const link = news.link ? `<a href="${news.link}" class="news-link" target="_blank">阅读更多</a>` : "";
+        const image = news.image_url ? `<img src="${news.image_url}" class="news-image" alt="${title}">` : "";
+        const description = news.description ? `<div class="news-desc">${news.description}</div>` : "";
         
         newsItem.innerHTML = `
             <div class="news-title">${title}</div>
             <div class="news-source">来源: ${source}</div>
+            ${description}
             ${image}
-            <div style="margin-top:5px;">${link}</div>
+            ${link}
         `;
         
         newsList.appendChild(newsItem);
@@ -1711,6 +1676,16 @@ function logout() {
     document.getElementById('normalUsername').value = "";
     document.getElementById('normalPassword').value = "";
     document.getElementById('loginError').textContent = "";
+    
+    // 清除新闻和天气的自动更新
+    if (newsUpdateInterval) {
+        clearInterval(newsUpdateInterval);
+        newsUpdateInterval = null;
+    }
+    if (weatherUpdateInterval) {
+        clearInterval(weatherUpdateInterval);
+        weatherUpdateInterval = null;
+    }
 }
 
 function changePassword() {
@@ -2079,31 +2054,58 @@ function viewAllLevels() {
     
     // 显示VIP等级
     const vipLevelsDiv = document.createElement('div');
-    vipLevelsDiv.innerHTML = `<h3 style="margin-top:20px;">VIP用户（100,000点起）｜100级</h3>`;
+    vipLevelsDiv.innerHTML = `<h3 style="margin-top:20px;">VIP用户（100,000点起）｜1000级</h3>`;
     container.appendChild(vipLevelsDiv);
     
-    // 显示所有VIP等级
-    VIP_LEVELS.forEach((level, i) => {
-        const levelDiv = document.createElement('div');
-        levelDiv.className = "level-description";
-        levelDiv.style.borderLeft = `5px solid ${level.color}`;
+    // 按阶段显示VIP等级
+    const vipStages = [
+        { name: "1~100级：基础成长阶段（铜→银）", start: 0, end: 99 },
+        { name: "101~300级：中阶尊贵阶段（金→白金→钻石）", start: 100, end: 299 },
+        { name: "301~600级：高阶特权阶段（王者→传奇→至尊）", start: 300, end: 599 },
+        { name: "601~900级：顶级巅峰阶段（宇宙→永恒→无限）", start: 600, end: 899 },
+        { name: "901~999级：超凡至神阶段（近神领域）", start: 900, end: 998 },
+        { name: "第1000级：终极荣耀", start: 999, end: 999 }
+    ];
+    
+    vipStages.forEach(stage => {
+        const stageDiv = document.createElement('div');
+        stageDiv.innerHTML = `<h4>${stage.name}</h4>`;
+        container.appendChild(stageDiv);
         
-        const isCurrentLevel = currentUser && getUserLevel(currentUser.points).level === level.level;
-        
-        // 每10级显示分组标题
-        if (i % 10 === 0) {
-            const groupDiv = document.createElement('div');
-            groupDiv.innerHTML = `<h4>${level.group}</h4>`;
-            container.appendChild(groupDiv);
+        // 显示该阶段的代表性等级
+        const representativeLevels = [];
+        if (stage.end - stage.start <= 10) {
+            // 如果阶段等级少，全部显示
+            for (let i = stage.start; i <= stage.end; i++) {
+                representativeLevels.push(i);
+            }
+        } else {
+            // 否则显示开始、中间和结束的几个等级
+            representativeLevels.push(stage.start);
+            representativeLevels.push(Math.floor(stage.start + (stage.end - stage.start) * 0.25));
+            representativeLevels.push(Math.floor(stage.start + (stage.end - stage.start) * 0.5));
+            representativeLevels.push(Math.floor(stage.start + (stage.end - stage.start) * 0.75));
+            representativeLevels.push(stage.end);
         }
         
-        levelDiv.innerHTML = `
-            <strong style="color: ${level.color}">${level.emoji} ${level.name}</strong>
-            ${isCurrentLevel ? '<span style="color:red"> (当前等级)</span>' : ''}<br>
-            等级: ${level.level} | 需求点数: ${level.points.toLocaleString()}<br>
-            折扣: ${Math.floor(level.discount * 100)}折 | 刮刮乐: ${level.scratchPrice} 点 | 签到: ${level.checkInPoints} 点
-        `;
-        container.appendChild(levelDiv);
+        representativeLevels.forEach(i => {
+            const level = VIP_LEVELS[i];
+            if (level) {
+                const levelDiv = document.createElement('div');
+                levelDiv.className = "level-description";
+                levelDiv.style.borderLeft = `5px solid ${level.color}`;
+                
+                const isCurrentLevel = currentUser && getUserLevel(currentUser.points).level === level.level;
+                
+                levelDiv.innerHTML = `
+                    <strong style="color: ${level.color}">${level.emoji} ${level.name}</strong>
+                    ${isCurrentLevel ? '<span style="color:red"> (当前等级)</span>' : ''}<br>
+                    等级: ${level.level} | 需求点数: ${level.points.toLocaleString()}<br>
+                    折扣: ${Math.floor(level.discount * 100)}折 | 刮刮乐: ${level.scratchPrice} 点 | 签到: ${level.checkInPoints} 点
+                `;
+                container.appendChild(levelDiv);
+            }
+        });
     });
 }
 
@@ -2376,7 +2378,9 @@ function initEventListeners() {
     document.getElementById('normalLoginSubmit').addEventListener('click', () => {
         const username = document.getElementById('normalUsername').value.trim();
         const password = document.getElementById('normalPassword').value.trim();
-        login(username, password);
+        if (login(username, password)) {
+            document.getElementById('loginError').textContent = "";
+        }
     });
     document.getElementById('adminLoginSubmit').addEventListener('click', () => {
         const username = document.getElementById('adminUsername').value.trim();
@@ -2442,11 +2446,23 @@ function initEventListeners() {
         document.getElementById('vipContainer').classList.add('hidden');
         document.getElementById('newsContainer').classList.remove('hidden');
         fetchNews();
+        
+        // 设置每10秒自动更新新闻
+        if (newsUpdateInterval) {
+            clearInterval(newsUpdateInterval);
+        }
+        newsUpdateInterval = setInterval(fetchNews, 10000);
     });
     document.getElementById('viewWeatherBtn').addEventListener('click', () => {
         document.getElementById('vipContainer').classList.add('hidden');
         document.getElementById('weatherContainer').classList.remove('hidden');
         fetchWeather();
+        
+        // 设置每10秒自动更新天气
+        if (weatherUpdateInterval) {
+            clearInterval(weatherUpdateInterval);
+        }
+        weatherUpdateInterval = setInterval(fetchWeather, 10000);
     });
     
     // 输入框回车事件
@@ -2480,10 +2496,7 @@ function init() {
     syncFromServer();
 }
 
-// 确保DOM完全加载后再初始化
-document.addEventListener('DOMContentLoaded', function() {
-    init();
-});
+window.onload = init;
 </script>
 </body>
-</html>
+</html>V
