@@ -1,16 +1,1539 @@
 <!DOCTYPE html>
 <html lang="zh-Hant-TW">
 <head>
-<meta charset="UTF-8">
-<style type="text/css">
-
-</style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超級VIP客戶登錄系統 v1.9.1</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            color: #333; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #FFD700;
+            font-size: 18px;
+        }
+        .container { 
+            background: rgba(255,255,255,0.9); 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); 
+            margin: 20px auto; 
+            padding: 20px; 
+            max-width: 800px; 
+        }
+        h2 { text-align: center; color: #b30000; font-size: 24px; }
+        h3 { font-size: 20px; }
+        input, textarea, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 16px;
+        }
+        button { 
+            background-color: #FFA500; 
+            color: black; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            width: 100%; 
+            margin: 5px 0; 
+            transition: background-color 0.3s; 
+            font-size: 16px;
+        }
+        button:hover { background-color: #FF8C00; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .hidden { display: none; }
+        .cart-item { background: #e6ffe6; padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .vip-level { 
+            font-weight: bold; 
+            color: #b30000; 
+            margin: 10px 0; 
+            text-align: center; 
+            font-size: 18px; 
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            transition: width 0.3s;
+        }
+        .level-description {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .announcement {
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .announcement-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        .announcement-item:last-child {
+            border-bottom: none;
+        }
+        .announcement-content {
+            flex-grow: 1;
+        }
+        .announcement-date {
+            color: #666;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .time-display {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        #updateStatus {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .redeem-code-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e6f7ff;
+            border-radius: 4px;
+        }
+        .ai-chat-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .ai-message {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .ai-user {
+            background: #e6ffe6;
+            text-align: right;
+        }
+        .ai-bot {
+            background: #e6f7ff;
+            text-align: left;
+        }
+        .admin-controls {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        #loginError {
+            color: red;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .invoice-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff3e0;
+            border-radius: 4px;
+        }
+        .invoice-prize {
+            color: #e53935;
+            font-weight: bold;
+        }
+        .news-container, .weather-container {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .news-container {
+            background: #f0f8ff;
+        }
+        .weather-container {
+            background: #f0fff0;
+        }
+        .usage-code-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e6f7ff;
+            border-radius: 4px;
+        }
+        .usage-code-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .new-features-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .new-features-container h3 {
+            margin-top: 0;
+            color: #b30000;
+        }
+        .new-features-container button {
+            margin: 5px;
+            width: calc(50% - 10px);
+            display: inline-block;
+        }
+        /* 條碼相關樣式 */
+        #barcodeImage {
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        #barcodeText {
+            font-family: monospace;
+            font-size: 16px;
+            text-align: center;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        #scannerVideo {
+            background: #000;
+        }
+        #scannedItemInfo {
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .voucher-container {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0fff0;
+            border-radius: 4px;
+        }
+        .voucher-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #e6ffe6;
+            border-radius: 4px;
+        }
+        /* 天氣樣式 */
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .update-time {
+            color: #666;
+            font-size: 14px;
+        }
+        .refresh-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .refresh-btn:hover {
+            background-color: #0d62c9;
+        }
+        .region-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .region-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        .current-location {
+            border: 2px solid #1a73e8;
+            background-color: #e8f0fe;
+        }
+        .region-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #1a73e8;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .current-region {
+            color: #d32f2f;
+        }
+        .weather-info {
+            margin-top: 10px;
+        }
+        .weather-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 5px;
+        }
+        .weather-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .weather-value {
+            color: #333;
+        }
+        .pop-high {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .pop-medium {
+            color: #fb8c00;
+            font-weight: bold;
+        }
+        .pop-low {
+            color: #388e3c;
+            font-weight: bold;
+        }
+        .weather-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .location-error {
+            color: #d32f2f;
+            text-align: center;
+            margin: 10px 0;
+        }
+        /* 新增錢包樣式 */
+        .wallet-container {
+            margin: 15px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .wallet-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #b30000;
+            margin: 10px 0;
+        }
+        .wallet-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .wallet-btn {
+            flex: 1;
+            margin: 0 5px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        /* 管理員樣式 */
+        .admin-panel {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .admin-section {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .admin-section:last-child {
+            border-bottom: none;
+        }
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .user-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            flex-grow: 1;
+        }
+        .user-actions button {
+            width: auto;
+            padding: 5px 10px;
+            margin-left: 5px;
+        }
+        /* 彈窗樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #barcodeDisplay, #barcodeDisplay * {
+                visibility: visible;
+            }
+            #barcodeDisplay {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            #printBarcodeBtn, #barcodeBackBtn {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- 只顯示修改部分的代碼，其他部分保持不變 -->
+    <!-- 登录选项选择界面 -->
+    <div class="container" id="loginOptionContainer">
+        <h2>请选择登录类型</h2>
+        <button id="vipLoginBtn">VIP 会员登录</button>
+        <button id="normalLoginBtn">普通客户登录</button>
+        <button id="adminLoginBtn">管理员登录</button>
+    </div>
+
+    <!-- VIP 登录界面 -->
+    <div class="container hidden" id="vipLoginContainer">
+        <h2>VIP 会员登录</h2>
+        <input type="text" id="vipUsername" placeholder="VIP 帐号">
+        <input type="password" id="vipPassword" placeholder="VIP 密码">
+        <button id="vipLoginSubmit">VIP 登录</button>
+        <button id="vipBackBtn">返回</button>
+    </div>
+
+    <!-- 普通客户登录界面 -->
+    <div class="container hidden" id="normalLoginContainer">
+        <h2>普通客户登录</h2>
+        <input type="text" id="normalUsername" placeholder="用户名">
+        <input type="password" id="normalPassword" placeholder="密码">
+        <div id="loginError"></div>
+        <button id="normalLoginSubmit">登录</button>
+        <button id="normalRegisterBtn">注册新帐号</button>
+        <button id="normalBackBtn">返回</button>
+    </div>
+
+    <!-- 管理员登录界面 -->
+    <div class="container hidden" id="adminLoginContainer">
+        <h2>管理员登录</h2>
+        <input type="text" id="adminUsername" placeholder="管理员帐号">
+        <input type="password" id="adminPassword" placeholder="管理员密码">
+        <button id="adminLoginSubmit">管理员登录</button>
+        <button id="adminBackBtn">返回</button>
+    </div>
+
+    <!-- 注册界面 -->
+    <div class="container hidden" id="registerContainer">
+        <h2>注册新帐号</h2>
+        <input type="text" id="newUsername" placeholder="用户名">
+        <input type="password" id="newPassword" placeholder="密码">
+        <input type="email" id="newEmail" placeholder="电子邮件">
+        <button id="registerSubmit">注册</button>
+        <button id="registerBackBtn">返回</button>
+    </div>
+
+    <!-- VIP 功能界面 -->
+    <div class="container hidden" id="vipContainer">
+        <h2 id="vipTitle">VIP 会员您好！</h2>
+        <div id="userAnnouncement" class="announcement">
+            <h3>最新公告</h3>
+            <div id="announcementsList"></div>
+        </div>
+        <div class="time-display" id="userTime"></div>
+        
+        <!-- 新增錢包功能 -->
+        <div class="wallet-container">
+            <h3>我的錢包</h3>
+            <div class="wallet-amount" id="walletAmount">0 點</div>
+            <div class="wallet-buttons">
+                <button class="wallet-btn" id="viewWalletBtn">查看明細</button>
+                <button class="wallet-btn" id="transferPointsBtn">轉帳</button>
+                <button class="wallet-btn" id="giftPointsBtn">贈送</button>
+            </div>
+        </div>
+        
+        <!-- 新闻和天气按钮 -->
+        <div class="new-features-container">
+            <h3>信息服务</h3>
+            <button id="viewNewsBtn">查看新闻</button>
+            <button id="viewWeatherBtn">查看天气</button>
+            <button id="viewWeatherAlertsBtn">天气警报</button>
+            <button id="viewTyphoonBtn">台风预报</button>
+        </div>
+        
+        <div class="vip-level" id="vipLevelDisplay"></div>
+        <div class="progress-container">
+            <div id="pointsProgress" class="progress-bar"></div>
+        </div>
+        
+        <div class="level-description" id="levelDescription"></div>
+        
+        <button id="checkInBtn">每日签到</button>
+        <button id="viewLevelsBtn">查看VIP等级</button>
+        <button id="redeemItemsBtn">兑换商品</button>
+        <button id="scratchCardBtn">VIP刮刮乐</button>
+        <button id="changePasswordBtn">更改密码</button>
+        <button id="redeemCodeBtn">输入兑换码</button>
+        <button id="aiChatBtn">AI客服</button>
+        <button id="checkUpdatesBtn">检查更新</button>
+        <button id="viewReceiptsBtn">查看收件</button>
+        <button id="viewInvoicesBtn">查看发票</button>
+        <button id="generateBarcodeBtn">生成商品券条码</button>
+        <button id="viewVouchersBtn">我的商品券</button>
+        <div id="updateStatus"></div>
+        
+        <!-- 新增功能区域 -->
+        <div class="new-features-container">
+            <h3>高级功能</h3>
+            <button id="dailyBonusBtn">每日额外奖励</button>
+            <button id="pointTransferBtn">点数转账</button>
+            <button id="vipGiftBtn">VIP专属礼物</button>
+        </div>
+        
+        <button id="logoutBtn">登出</button>
+    </div>
+
+    <!-- 錢包明細界面 -->
+    <div class="container hidden" id="walletDetailContainer">
+        <h2>錢包明細</h2>
+        <div id="walletTransactions"></div>
+        <button id="walletBackBtn">返回</button>
+    </div>
+
+    <!-- 點數轉帳界面 -->
+    <div class="container hidden" id="transferPointsContainer">
+        <h2>點數轉帳</h2>
+        <input type="text" id="transferRecipient" placeholder="接收方帳號">
+        <input type="number" id="transferAmount" placeholder="轉帳點數">
+        <button id="confirmTransferBtn">確認轉帳</button>
+        <div id="transferResult"></div>
+        <button id="transferBackBtn">返回</button>
+    </div>
+
+    <!-- 點數贈送界面 -->
+    <div class="container hidden" id="giftPointsContainer">
+        <h2>點數贈送</h2>
+        <input type="text" id="giftRecipient" placeholder="接收方帳號">
+        <input type="number" id="giftAmount" placeholder="贈送點數">
+        <button id="confirmGiftBtn">確認贈送</button>
+        <div id="giftResult"></div>
+        <button id="giftBackBtn">返回</button>
+    </div>
+
+    <!-- 新聞界面 -->
+    <div class="container hidden" id="newsContainer">
+        <h2>最新新聞</h2>
+        <div class="weather-header">
+            <span class="update-time" id="newsUpdateTime"></span>
+            <button class="refresh-btn" id="refreshNewsBtn">刷新</button>
+        </div>
+        <div id="newsList" class="announcement"></div>
+        <button id="newsBackBtn">返回</button>
+    </div>
+
+    <!-- 天氣界面 -->
+    <div class="container hidden" id="weatherContainer">
+        <h2>天氣預報 - 全台各縣市</h2>
+        <div class="weather-header">
+            <span class="update-time" id="weatherUpdateTime"></span>
+            <button class="refresh-btn" id="refreshWeatherBtn">刷新</button>
+        </div>
+        <div id="weatherInfo" class="region-list"></div>
+        <button id="weatherBackBtn">返回</button>
+    </div>
+
+    <!-- 天氣警報界面 -->
+    <div class="container hidden" id="weatherAlertContainer">
+        <h2>天氣警報</h2>
+        <div class="weather-header">
+            <span class="update-time" id="alertUpdateTime"></span>
+            <button class="refresh-btn" id="refreshAlertBtn">刷新</button>
+        </div>
+        <div id="weatherAlerts" class="region-list"></div>
+        <button id="alertBackBtn">返回</button>
+    </div>
+
+    <!-- 颱風預報界面 -->
+    <div class="container hidden" id="typhoonContainer">
+        <h2>颱風預報</h2>
+        <div class="weather-header">
+            <span class="update-time" id="typhoonUpdateTime"></span>
+            <button class="refresh-btn" id="refreshTyphoonBtn">刷新</button>
+        </div>
+        <div id="typhoonInfo" class="region-list"></div>
+        <button id="typhoonBackBtn">返回</button>
+    </div>
+
+    <!-- 管理員界面 -->
+    <div class="container hidden" id="adminContainer">
+        <h2>管理員控制面板</h2>
+        <div class="admin-panel">
+            <div class="admin-section">
+                <h3>用戶管理</h3>
+                <div class="user-list" id="userList"></div>
+                <button id="addUserBtn">新增用戶</button>
+            </div>
+            
+            <div class="admin-section">
+                <h3>系統公告</h3>
+                <textarea id="announcementText" placeholder="輸入公告內容"></textarea>
+                <button id="postAnnouncementBtn">發布公告</button>
+            </div>
+            
+            <div class="admin-section">
+                <h3>點數管理</h3>
+                <input type="text" id="adminUsernameInput" placeholder="用戶名">
+                <input type="number" id="adminPointsInput" placeholder="點數">
+                <button id="addPointsBtn">增加點數</button>
+                <button id="subtractPointsBtn">扣除點數</button>
+            </div>
+            
+            <div class="admin-section">
+                <h3>系統設置</h3>
+                <button id="systemSettingsBtn">系統設定</button>
+                <button id="backupDataBtn">備份數據</button>
+                <button id="restoreDataBtn">恢復數據</button>
+            </div>
+        </div>
+        <button id="adminLogoutBtn">登出管理員</button>
+    </div>
+
+    <!-- 彈窗模態框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
 
 <script>
+// ================= 系统配置 =================
+const SYSTEM_CONFIG = {
+    version: "1.9.1",
+    lastUpdate: "2024-04-11",
+    configUrl: "https://your-server.com/vip_system_config.json",
+    dataUrl: "https://your-server.com/vip_system_data.json",
+    syncUrl: "https://your-server.com/vip_system_sync.php",
+    barcodeApiUrl: "https://your-server.com/barcode_api.php"
+};
+
+// API 配置
+const API_CONFIG = {
+    newsApiKey: "pub_77914c9ab741571647f817116519227c8df64",
+    weatherApiUrl: "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWA-6FC4659D-D65C-4612-928C-CC2CCFFBA42A&format=JSON",
+    weatherAlertApiUrl: "https://opendata.cwa.gov.tw/api/v1/rest/datastore/W-C0033-001?Authorization=CWA-6FC4659D-D65C-4612-928C-CC2CCFFBA42A&format=JSON",
+    typhoonApiUrl: "https://opendata.cwa.gov.tw/api/v1/rest/datastore/W-C0034-005?Authorization=CWA-6FC4659D-D65C-4612-928C-CC2CCFFBA42A&format=JSON",
+    geoApiUrl: "https://nominatim.openstreetmap.org/reverse?format=json&lat={latitude}&lon={longitude}&zoom=10&accept-language=zh-TW",
+    barcodeApiKey: "your_barcode_api_key_here"
+};
+
+// 預設用戶數據
+const DEFAULT_USERS = {
+    'vip8888': {
+        username: 'vip8888',
+        password: 'vip8888',
+        points: 100000000,
+        isVip: true,
+        isAdmin: false,
+        transactions: [],
+        vouchers: [],
+        receipts: [],
+        invoices: []
+    },
+    '001': {
+        username: '001',
+        password: '001',
+        points: 100000000,
+        isVip: false,
+        isAdmin: false,
+        transactions: [],
+        vouchers: [],
+        receipts: [],
+        invoices: []
+    },
+    '002': {
+        username: '002',
+        password: '002',
+        points: 100000000,
+        isVip: true,
+        isAdmin: true,
+        transactions: [],
+        vouchers: [],
+        receipts: [],
+        invoices: []
+    }
+};
+
+let users = JSON.parse(JSON.stringify(DEFAULT_USERS)); // 深拷貝預設用戶
+let currentUser = null;
+let newsUpdateInterval = null;
+let weatherUpdateInterval = null;
+let alertUpdateInterval = null;
+let typhoonUpdateInterval = null;
+let announcements = [];
+
+// ================= 彈窗功能 =================
+function showModal(content) {
+    document.getElementById('modalContent').innerHTML = content;
+    document.getElementById('modal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+// 點擊關閉按鈕
+document.querySelector('.close-btn').addEventListener('click', closeModal);
+
+// 點擊彈窗外部關閉
+window.addEventListener('click', function(event) {
+    if (event.target === document.getElementById('modal')) {
+        closeModal();
+    }
+});
+
+// ================= 用戶登入功能 =================
+function initLoginListeners() {
+    // 登入選項按鈕
+    document.getElementById('vipLoginBtn').addEventListener('click', () => {
+        document.getElementById('loginOptionContainer').classList.add('hidden');
+        document.getElementById('vipLoginContainer').classList.remove('hidden');
+    });
+    
+    document.getElementById('normalLoginBtn').addEventListener('click', () => {
+        document.getElementById('loginOptionContainer').classList.add('hidden');
+        document.getElementById('normalLoginContainer').classList.remove('hidden');
+    });
+    
+    document.getElementById('adminLoginBtn').addEventListener('click', () => {
+        document.getElementById('loginOptionContainer').classList.add('hidden');
+        document.getElementById('adminLoginContainer').classList.remove('hidden');
+    });
+    
+    // 返回按鈕
+    document.getElementById('vipBackBtn').addEventListener('click', backToLoginOptions);
+    document.getElementById('normalBackBtn').addEventListener('click', backToLoginOptions);
+    document.getElementById('adminBackBtn').addEventListener('click', backToLoginOptions);
+    document.getElementById('registerBackBtn').addEventListener('click', backToNormalLogin);
+    
+    // 登入提交
+    document.getElementById('vipLoginSubmit').addEventListener('click', () => {
+        const username = document.getElementById('vipUsername').value.trim();
+        const password = document.getElementById('vipPassword').value.trim();
+        loginUser(username, password, true);
+    });
+    
+    document.getElementById('normalLoginSubmit').addEventListener('click', () => {
+        const username = document.getElementById('normalUsername').value.trim();
+        const password = document.getElementById('normalPassword').value.trim();
+        loginUser(username, password, false);
+    });
+    
+    document.getElementById('adminLoginSubmit').addEventListener('click', () => {
+        const username = document.getElementById('adminUsername').value.trim();
+        const password = document.getElementById('adminPassword').value.trim();
+        loginUser(username, password, false, true);
+    });
+    
+    // 註冊按鈕
+    document.getElementById('normalRegisterBtn').addEventListener('click', () => {
+        document.getElementById('normalLoginContainer').classList.add('hidden');
+        document.getElementById('registerContainer').classList.remove('hidden');
+    });
+    
+    document.getElementById('registerSubmit').addEventListener('click', registerUser);
+}
+
+function backToLoginOptions() {
+    document.querySelectorAll('.container').forEach(container => {
+        if (container.id !== 'loginOptionContainer') {
+            container.classList.add('hidden');
+        }
+    });
+    document.getElementById('loginOptionContainer').classList.remove('hidden');
+}
+
+function backToNormalLogin() {
+    document.getElementById('registerContainer').classList.add('hidden');
+    document.getElementById('normalLoginContainer').classList.remove('hidden');
+}
+
+function loginUser(username, password, isVip = false, isAdmin = false) {
+    const errorElement = document.getElementById('loginError');
+    
+    if (!username || !password) {
+        if (errorElement) errorElement.textContent = '請輸入帳號和密碼';
+        return;
+    }
+    
+    // 檢查用戶是否存在
+    if (!users[username]) {
+        if (errorElement) errorElement.textContent = '用戶不存在';
+        return;
+    }
+    
+    const user = users[username];
+    
+    // 檢查密碼
+    if (user.password !== password) {
+        if (errorElement) errorElement.textContent = '密碼錯誤';
+        return;
+    }
+    
+    // 檢查用戶類型
+    if ((isVip && !user.isVip) || (isAdmin && !user.isAdmin)) {
+        if (errorElement) errorElement.textContent = '無權限登入此系統';
+        return;
+    }
+    
+    // 登入成功
+    currentUser = user;
+    if (errorElement) errorElement.textContent = '';
+    
+    // 隱藏所有登入相關容器
+    document.querySelectorAll('.container').forEach(container => {
+        container.classList.add('hidden');
+    });
+    
+    // 根據用戶類型顯示相應界面
+    if (isAdmin) {
+        document.getElementById('adminContainer').classList.remove('hidden');
+        updateAdminPanel();
+    } else {
+        document.getElementById('vipContainer').classList.remove('hidden');
+        updateVipInfo();
+    }
+    
+    // 清除輸入框
+    document.getElementById('vipUsername').value = '';
+    document.getElementById('vipPassword').value = '';
+    document.getElementById('normalUsername').value = '';
+    document.getElementById('normalPassword').value = '';
+    document.getElementById('adminUsername').value = '';
+    document.getElementById('adminPassword').value = '';
+}
+
+function registerUser() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    const email = document.getElementById('newEmail').value.trim();
+    
+    if (!username || !password || !email) {
+        alert('請填寫所有欄位');
+        return;
+    }
+    
+    if (users[username]) {
+        alert('用戶名已存在');
+        return;
+    }
+    
+    // 創建新用戶
+    users[username] = {
+        username: username,
+        password: password,
+        email: email,
+        points: 100000000,
+        isVip: false,
+        isAdmin: false,
+        transactions: [],
+        vouchers: [],
+        receipts: [],
+        invoices: []
+    };
+    
+    alert('註冊成功！');
+    backToNormalLogin();
+    
+    // 清除輸入框
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newEmail').value = '';
+}
+
+// ================= 錢包功能 =================
+function updateWalletDisplay() {
+    if (!currentUser) return;
+    
+    // 更新錢包金額
+    document.getElementById('walletAmount').textContent = 
+        currentUser.points === Infinity ? "∞ 點" : `${currentUser.points.toLocaleString()} 點`;
+    
+    // 更新錢包明細
+    const container = document.getElementById('walletTransactions');
+    if (container) {
+        container.innerHTML = '';
+        
+        if (currentUser.transactions && currentUser.transactions.length > 0) {
+            currentUser.transactions.forEach(transaction => {
+                const div = document.createElement('div');
+                div.className = 'announcement-item';
+                div.innerHTML = `
+                    <div class="announcement-content">
+                        ${transaction.type === 'transfer' ? '轉帳' : 
+                         transaction.type === 'gift' ? '贈送' : 
+                         transaction.type === 'check_in' ? '簽到獎勵' :
+                         transaction.type === 'scratch_card' ? '刮刮樂' :
+                         transaction.type === 'redeem_code' ? '兌換碼' :
+                         transaction.type === 'daily_bonus' ? '每日獎勵' :
+                         transaction.type === 'admin_add' ? '管理員增加' :
+                         transaction.type === 'admin_subtract' ? '管理員扣除' :
+                         transaction.type === 'redeem' ? '兌換商品' : transaction.type}
+                        ${transaction.recipient ? '給 ' + transaction.recipient : ''}
+                        ${transaction.item ? ': ' + transaction.item : ''}
+                        ${transaction.code ? ' (' + transaction.code + ')' : ''}
+                    </div>
+                    <div class="announcement-date">
+                        ${new Date(transaction.date).toLocaleString()} | 
+                        <span style="color:${transaction.amount > 0 ? 'green' : 'red'}">
+                            ${transaction.amount > 0 ? '+' : ''}${transaction.amount} 點
+                        </span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        } else {
+            container.innerHTML = '<p>暫無交易記錄</p>';
+        }
+    }
+}
+
+function transferPoints() {
+    const recipient = document.getElementById('transferRecipient').value.trim();
+    const amount = parseInt(document.getElementById('transferAmount').value);
+    
+    if (!recipient || !users[recipient]) {
+        document.getElementById('transferResult').innerHTML = '<p style="color:red">無效的接收方</p>';
+        return;
+    }
+    
+    if (isNaN(amount) || amount <= 0) {
+        document.getElementById('transferResult').innerHTML = '<p style="color:red">請輸入有效的點數</p>';
+        return;
+    }
+    
+    if (currentUser.points < amount && currentUser.points !== Infinity) {
+        document.getElementById('transferResult').innerHTML = '<p style="color:red">點數不足</p>';
+        return;
+    }
+    
+    // 執行轉帳
+    if (currentUser.points !== Infinity) {
+        currentUser.points -= amount;
+    }
+    users[recipient].points += amount;
+    
+    // 記錄交易
+    const transaction = {
+        type: 'transfer',
+        recipient: recipient,
+        amount: -amount,
+        date: new Date().toISOString()
+    };
+    
+    if (!currentUser.transactions) {
+        currentUser.transactions = [];
+    }
+    currentUser.transactions.push(transaction);
+    
+    // 接收方記錄
+    const recipientTransaction = {
+        type: 'transfer',
+        sender: currentUser.username,
+        amount: amount,
+        date: new Date().toISOString()
+    };
+    
+    if (!users[recipient].transactions) {
+        users[recipient].transactions = [];
+    }
+    users[recipient].transactions.push(recipientTransaction);
+    
+    document.getElementById('transferResult').innerHTML = 
+        `<p style="color:green">成功轉帳 ${amount} 點給 ${recipient}</p>`;
+    
+    // 清空輸入框
+    document.getElementById('transferRecipient').value = '';
+    document.getElementById('transferAmount').value = '';
+    
+    // 更新顯示
+    updateWalletDisplay();
+    updateVipInfo();
+}
+
+function giftPoints() {
+    const recipient = document.getElementById('giftRecipient').value.trim();
+    const amount = parseInt(document.getElementById('giftAmount').value);
+    
+    if (!recipient || !users[recipient]) {
+        document.getElementById('giftResult').innerHTML = '<p style="color:red">無效的接收方</p>';
+        return;
+    }
+    
+    if (isNaN(amount) || amount <= 0) {
+        document.getElementById('giftResult').innerHTML = '<p style="color:red">請輸入有效的點數</p>';
+        return;
+    }
+    
+    if (currentUser.points < amount && currentUser.points !== Infinity) {
+        document.getElementById('giftResult').innerHTML = '<p style="color:red">點數不足</p>';
+        return;
+    }
+    
+    // 執行贈送
+    if (currentUser.points !== Infinity) {
+        currentUser.points -= amount;
+    }
+    users[recipient].points += amount;
+    
+    // 記錄交易
+    const transaction = {
+        type: 'gift',
+        recipient: recipient,
+        amount: -amount,
+        date: new Date().toISOString()
+    };
+    
+    if (!currentUser.transactions) {
+        currentUser.transactions = [];
+    }
+    currentUser.transactions.push(transaction);
+    
+    // 接收方記錄
+    const recipientTransaction = {
+        type: 'gift',
+        sender: currentUser.username,
+        amount: amount,
+        date: new Date().toLocaleString()
+    };
+    
+    if (!users[recipient].transactions) {
+        users[recipient].transactions = [];
+    }
+    users[recipient].transactions.push(recipientTransaction);
+    
+    document.getElementById('giftResult').innerHTML = 
+        `<p style="color:green">成功贈送 ${amount} 點給 ${recipient}</p>`;
+    
+    // 清空輸入框
+    document.getElementById('giftRecipient').value = '';
+    document.getElementById('giftAmount').value = '';
+    
+    // 更新顯示
+    updateWalletDisplay();
+    updateVipInfo();
+}
+
+// ================= 新聞API功能 =================
+function fetchNews() {
+    const url = `https://newsdata.io/api/1/news?apikey=${API_CONFIG.newsApiKey}&country=tw&language=zh`;
+    
+    document.getElementById('newsList').innerHTML = '<div class="loading">加載新聞中...</div>';
+    document.getElementById('newsUpdateTime').textContent = `最後更新: ${new Date().toLocaleString()}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.results && data.results.length > 0) {
+                let newsHtml = '';
+                data.results.slice(0, 10).forEach(news => {
+                    newsHtml += `
+                        <div class="announcement-item">
+                            <div class="announcement-content">
+                                <strong>${news.title || '無標題'}</strong><br>
+                                ${news.description || '無內容描述'}
+                            </div>
+                            <div class="announcement-date">
+                                ${news.pubDate ? new Date(news.pubDate).toLocaleString() : '未知日期'}
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('newsList').innerHTML = newsHtml;
+            } else {
+                document.getElementById('newsList').innerHTML = '<div class="loading">暫無新聞數據</div>';
+            }
+        })
+        .catch(error => {
+            console.error('獲取新聞失敗:', error);
+            document.getElementById('newsList').innerHTML = '<div class="loading">獲取新聞失敗，請稍後再試</div>';
+        });
+}
+
+// ================= 天氣API功能 =================
+function fetchWeather() {
+    document.getElementById('weatherInfo').innerHTML = '<div class="loading">加載天氣數據中...</div>';
+    document.getElementById('weatherUpdateTime').textContent = `最後更新: ${new Date().toLocaleString()}`;
+    
+    fetch(API_CONFIG.weatherApiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.records && data.records.location) {
+                let weatherHtml = '';
+                data.records.location.forEach(location => { // 顯示所有縣市
+                    weatherHtml += `
+                        <div class="region-card">
+                            <div class="region-name">${location.locationName}</div>
+                            <div class="weather-info">
+                                ${location.weatherElement.map(element => {
+                                    const time = element.time[0];
+                                    let elementName = '';
+                                    let parameterName = time.parameter.parameterName || '無數據';
+                                    
+                                    // 轉換為中文描述
+                                    switch(element.elementName) {
+                                        case 'Wx':
+                                            elementName = '天氣現象';
+                                            break;
+                                        case 'PoP':
+                                            elementName = '降雨機率';
+                                            parameterName += '%';
+                                            break;
+                                        case 'MinT':
+                                            elementName = '最低溫度';
+                                            parameterName += '°C';
+                                            break;
+                                        case 'MaxT':
+                                            elementName = '最高溫度';
+                                            parameterName += '°C';
+                                            break;
+                                        case 'CI':
+                                            elementName = '舒適度';
+                                            break;
+                                        case 'MaxAT':
+                                            elementName = '最高體感溫度';
+                                            parameterName += '°C';
+                                            break;
+                                        case 'MinAT':
+                                            elementName = '最低體感溫度';
+                                            parameterName += '°C';
+                                            break;
+                                        default:
+                                            elementName = element.elementName;
+                                    }
+                                    
+                                    return `
+                                        <div class="weather-item">
+                                            <span class="weather-label">${elementName}:</span>
+                                            <span class="weather-value">${parameterName}</span>
+                                        </div>
+                                        <div class="weather-time">
+                                            ${time.startTime ? new Date(time.startTime).toLocaleString() : ''} ~ 
+                                            ${time.endTime ? new Date(time.endTime).toLocaleString() : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('weatherInfo').innerHTML = weatherHtml;
+            } else {
+                document.getElementById('weatherInfo').innerHTML = '<div class="loading">暫無天氣數據</div>';
+            }
+        })
+        .catch(error => {
+            console.error('獲取天氣失敗:', error);
+            document.getElementById('weatherInfo').innerHTML = '<div class="loading">獲取天氣失敗，請稍後再試</div>';
+        });
+}
+
+function fetchWeatherAlerts() {
+    document.getElementById('weatherAlerts').innerHTML = '<div class="loading">加載天氣警報中...</div>';
+    document.getElementById('alertUpdateTime').textContent = `最後更新: ${new Date().toLocaleString()}`;
+    
+    fetch(API_CONFIG.weatherAlertApiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.records && data.records.location) {
+                let alertsHtml = '';
+                data.records.location.forEach(location => {
+                    alertsHtml += `
+                        <div class="region-card">
+                            <div class="region-name">${location.locationName}</div>
+                            <div class="weather-info">
+                                ${location.hazardConditions.hazardInfo.map(hazard => {
+                                    // 轉換為中文描述
+                                    let hazardType = '';
+                                    switch(hazard.hazardType) {
+                                        case 'heavy_rain':
+                                            hazardType = '豪雨';
+                                            break;
+                                        case 'typhoon':
+                                            hazardType = '颱風';
+                                            break;
+                                        case 'strong_wind':
+                                            hazardType = '強風';
+                                            break;
+                                        case 'flood':
+                                            hazardType = '淹水';
+                                            break;
+                                        case 'landslide':
+                                            hazardType = '土石流';
+                                            break;
+                                        default:
+                                            hazardType = hazard.hazardType;
+                                    }
+                                    
+                                    return `
+                                        <div class="weather-item">
+                                            <span class="weather-label">警報類型:</span>
+                                            <span class="weather-value">${hazardType}</span>
+                                        </div>
+                                        <div class="weather-item">
+                                            <span class="weather-label">警報內容:</span>
+                                            <span class="weather-value">${hazard.hazardDescription}</span>
+                                        </div>
+                                        <div class="weather-item">
+                                            <span class="weather-label">發布時間:</span>
+                                            <span class="weather-value">${hazard.issueTime}</span>
+                                        </div>
+                                        <div class="weather-item">
+                                            <span class="weather-label">影響區域:</span>
+                                            <span class="weather-value">${hazard.affectedAreas.join(', ')}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('weatherAlerts').innerHTML = alertsHtml;
+            } else {
+                document.getElementById('weatherAlerts').innerHTML = '<div class="loading">暫無天氣警報</div>';
+            }
+        })
+        .catch(error => {
+            console.error('獲取天氣警報失敗:', error);
+            document.getElementById('weatherAlerts').innerHTML = '<div class="loading">獲取天氣警報失敗，請稍後再試</div>';
+        });
+}
+
+function fetchTyphoonInfo() {
+    document.getElementById('typhoonInfo').innerHTML = '<div class="loading">加載颱風資訊中...</div>';
+    document.getElementById('typhoonUpdateTime').textContent = `最後更新: ${new Date().toLocaleString()}`;
+    
+    fetch(API_CONFIG.typhoonApiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.records && data.records.typhoon) {
+                let typhoonHtml = '';
+                data.records.typhoon.forEach(typhoon => {
+                    typhoonHtml += `
+                        <div class="region-card">
+                            <div class="region-name">${typhoon.name}</div>
+                            <div class="weather-info">
+                                <div class="weather-item">
+                                    <span class="weather-label">颱風編號:</span>
+                                    <span class="weather-value">${typhoon.number}</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">強度:</span>
+                                    <span class="weather-value">${typhoon.intensity}</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">中心位置:</span>
+                                    <span class="weather-value">${typhoon.position.lat}°N, ${typhoon.position.lon}°E</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">移動方向:</span>
+                                    <span class="weather-value">${typhoon.movement.direction}</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">移動速度:</span>
+                                    <span class="weather-value">${typhoon.movement.speed} km/h</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">中心氣壓:</span>
+                                    <span class="weather-value">${typhoon.pressure} hPa</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">近中心最大風速:</span>
+                                    <span class="weather-value">${typhoon.windSpeed} m/s</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">暴風半徑:</span>
+                                    <span class="weather-value">${typhoon.radius} km</span>
+                                </div>
+                                <div class="weather-item">
+                                    <span class="weather-label">預測路徑:</span>
+                                    <span class="weather-value">${typhoon.forecastPath.map(p => `${p.time}: ${p.lat}°N, ${p.lon}°E`).join('<br>')}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('typhoonInfo').innerHTML = typhoonHtml;
+            } else {
+                document.getElementById('typhoonInfo').innerHTML = '<div class="loading">暫無颱風資訊</div>';
+            }
+        })
+        .catch(error => {
+            console.error('獲取颱風資訊失敗:', error);
+            document.getElementById('typhoonInfo').innerHTML = '<div class="loading">獲取颱風資訊失敗，請稍後再試</div>';
+        });
+}
+
+// ================= 管理員功能 =================
+function updateAdminPanel() {
+    if (!currentUser || !currentUser.isAdmin) return;
+    
+    // 更新用戶列表
+    const userList = document.getElementById('userList');
+    userList.innerHTML = '';
+    
+    Object.values(users).forEach(user => {
+        const userItem = document.createElement('div');
+        userItem.className = 'user-item';
+        userItem.innerHTML = `
+            <div class="user-info">
+                <strong>${user.username}</strong> - 
+                點數: ${user.points.toLocaleString()} - 
+                ${user.isVip ? 'VIP' : '普通'} - 
+                ${user.isAdmin ? '管理員' : ''}
+            </div>
+            <div class="user-actions">
+                <button class="edit-user-btn" data-username="${user.username}">編輯</button>
+                <button class="delete-user-btn" data-username="${user.username}">刪除</button>
+            </div>
+        `;
+        userList.appendChild(userItem);
+    });
+    
+    // 添加編輯和刪除按鈕事件
+    document.querySelectorAll('.edit-user-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const username = this.getAttribute('data-username');
+            editUser(username);
+        });
+    });
+    
+    document.querySelectorAll('.delete-user-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const username = this.getAttribute('data-username');
+            deleteUser(username);
+        });
+    });
+    
+    // 更新公告列表
+    updateAnnouncements();
+}
+
+function editUser(username) {
+    const user = users[username];
+    let editHtml = `
+        <h3>編輯用戶: ${username}</h3>
+        <input type="password" id="editPassword" placeholder="新密碼" value="${user.password}">
+        <input type="number" id="editPoints" placeholder="點數" value="${user.points}">
+        <label><input type="checkbox" id="editVip" ${user.isVip ? 'checked' : ''}> VIP會員</label>
+        <label><input type="checkbox" id="editAdmin" ${user.isAdmin ? 'checked' : ''}> 管理員</label>
+        <button id="saveUserBtn">保存</button>
+    `;
+    
+    showModal(editHtml);
+    
+    document.getElementById('saveUserBtn').addEventListener('click', function() {
+        const newPassword = document.getElementById('editPassword').value.trim();
+        const newPoints = parseInt(document.getElementById('editPoints').value);
+        const isVip = document.getElementById('editVip').checked;
+        const isAdmin = document.getElementById('editAdmin').checked;
+        
+        if (!newPassword || isNaN(newPoints)) {
+            alert('請填寫所有欄位');
+            return;
+        }
+        
+        user.password = newPassword;
+        user.points = newPoints;
+        user.isVip = isVip;
+        user.isAdmin = isAdmin;
+        
+        alert('用戶信息已更新');
+        closeModal();
+        updateAdminPanel();
+    });
+}
+
+function deleteUser(username) {
+    if (confirm(`確定要刪除用戶 ${username} 嗎？此操作無法恢復！`)) {
+        if (username === currentUser.username) {
+            alert('不能刪除當前登入的用戶！');
+            return;
+        }
+        
+        delete users[username];
+        alert('用戶已刪除');
+        updateAdminPanel();
+    }
+}
+
+function updateAnnouncements() {
+    const announcementsList = document.getElementById('announcementsList');
+    if (announcementsList) {
+        announcementsList.innerHTML = '';
+        
+        if (announcements.length > 0) {
+            announcements.forEach(announcement => {
+                const div = document.createElement('div');
+                div.className = 'announcement-item';
+                div.innerHTML = `
+                    <div class="announcement-content">${announcement.content}</div>
+                    <div class="announcement-date">${new Date(announcement.date).toLocaleString()}</div>
+                `;
+                announcementsList.appendChild(div);
+            });
+        } else {
+            announcementsList.innerHTML = '<p>暫無公告</p>';
+        }
+    }
+}
+
+function postAnnouncement() {
+    const content = document.getElementById('announcementText').value.trim();
+    if (!content) {
+        alert('請輸入公告內容');
+        return;
+    }
+    
+    const announcement = {
+        content: content,
+        date: new Date().toISOString()
+    };
+    
+    announcements.unshift(announcement); // 添加到開頭
+    document.getElementById('announcementText').value = '';
+    
+    // 更新公告顯示
+    updateAnnouncements();
+    
+    alert('公告發布成功');
+}
+
+function addUserPoints() {
+    const username = document.getElementById('adminUsernameInput').value.trim();
+    const points = parseInt(document.getElementById('adminPointsInput').value);
+    
+    if (!username || !users[username]) {
+        alert('用戶不存在');
+        return;
+    }
+    
+    if (isNaN(points) || points <= 0) {
+        alert('請輸入有效的點數');
+        return;
+    }
+    
+    users[username].points += points;
+    
+    // 記錄交易
+    const transaction = {
+        type: 'admin_add',
+        amount: points,
+        date: new Date().toISOString(),
+        admin: currentUser.username
+    };
+    
+    if (!users[username].transactions) {
+        users[username].transactions = [];
+    }
+    users[username].transactions.push(transaction);
+    
+    alert(`成功為 ${username} 增加 ${points} 點`);
+    document.getElementById('adminPointsInput').value = '';
+    updateAdminPanel();
+}
+
+function subtractUserPoints() {
+    const username = document.getElementById('adminUsernameInput').value.trim();
+    const points = parseInt(document.getElementById('adminPointsInput').value);
+    
+    if (!username || !users[username]) {
+        alert('用戶不存在');
+        return;
+    }
+    
+    if (isNaN(points) || points <= 0) {
+        alert('請輸入有效的點數');
+        return;
+    }
+    
+    if (users[username].points < points) {
+        alert('用戶點數不足');
+        return;
+    }
+    
+    users[username].points -= points;
+    
+    // 記錄交易
+    const transaction = {
+        type: 'admin_subtract',
+        amount: -points,
+        date: new Date().toISOString(),
+        admin: currentUser.username
+    };
+    
+    if (!users[username].transactions) {
+        users[username].transactions = [];
+    }
+    users[username].transactions.push(transaction);
+    
+    alert(`成功從 ${username} 扣除 ${points} 點`);
+    document.getElementById('adminPointsInput').value = '';
+    updateAdminPanel();
+}
+
 // ================= 新增功能實現 =================
 
 // 每日簽到功能
@@ -66,7 +1589,7 @@ document.getElementById('viewLevelsBtn').addEventListener('click', function() {
         `;
     });
     
-    alert(levelHtml);
+    showModal(levelHtml);
 });
 
 // 兌換商品功能
@@ -92,11 +1615,7 @@ document.getElementById('redeemItemsBtn').addEventListener('click', function() {
         `;
     });
     
-    const container = document.createElement('div');
-    container.innerHTML = itemsHtml;
-    
-    // 顯示兌換界面
-    alert(container.innerHTML);
+    showModal(itemsHtml);
     
     // 添加兌換按鈕事件
     document.querySelectorAll('.redeem-item-btn').forEach(btn => {
@@ -138,6 +1657,7 @@ document.getElementById('redeemItemsBtn').addEventListener('click', function() {
             alert(`成功兌換 ${item.name}！`);
             updateWalletDisplay();
             updateVipInfo();
+            closeModal();
         });
     });
 });
@@ -275,9 +1795,7 @@ document.getElementById('aiChatBtn').addEventListener('click', function() {
         </div>
     `;
     
-    const container = document.createElement('div');
-    container.innerHTML = questionHtml;
-    alert(container.innerHTML);
+    showModal(questionHtml);
     
     // 添加提問功能
     document.getElementById('askQuestionBtn').addEventListener('click', function() {
@@ -332,7 +1850,7 @@ document.getElementById('viewReceiptsBtn').addEventListener('click', function() 
         `;
     });
     
-    alert(receiptsHtml);
+    showModal(receiptsHtml);
 });
 
 // 查看發票
@@ -354,7 +1872,7 @@ document.getElementById('viewInvoicesBtn').addEventListener('click', function() 
         `;
     });
     
-    alert(invoicesHtml);
+    showModal(invoicesHtml);
 });
 
 // 生成商品券條碼
@@ -377,15 +1895,14 @@ document.getElementById('generateBarcodeBtn').addEventListener('click', function
         `;
     });
     
-    const container = document.createElement('div');
-    container.innerHTML = vouchersHtml;
-    alert(container.innerHTML);
+    showModal(vouchersHtml);
     
     // 添加生成條碼事件
     document.querySelectorAll('.generate-barcode-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const code = this.getAttribute('data-code');
             alert(`條碼生成成功！\n\n券號: ${code}\n\n請向店員出示此頁面。`);
+            closeModal();
         });
     });
 });
@@ -408,7 +1925,7 @@ document.getElementById('viewVouchersBtn').addEventListener('click', function() 
         `;
     });
     
-    alert(vouchersHtml);
+    showModal(vouchersHtml);
 });
 
 // 每日額外獎勵
@@ -476,17 +1993,338 @@ document.getElementById('vipGiftBtn').addEventListener('click', function() {
     alert(`獲得VIP專屬禮物: ${gift.name}\n請到「我的商品券」查看。`);
 });
 
-// ================= 初始化函數 =================
-function init() {
-    // ... (原有初始化代碼)
+// ================= 其他功能 =================
+function updateVipInfo() {
+    if (!currentUser) return;
     
-    // 初始化用戶數據（如果沒有）
-    Object.values(users).forEach(user => {
-        if (!user.transactions) user.transactions = [];
-        if (!user.vouchers) user.vouchers = [];
-        if (!user.receipts) user.receipts = [];
-        if (!user.invoices) user.invoices = [];
+    document.getElementById('vipTitle').textContent = `VIP 會員 ${currentUser.username} 您好！`;
+    
+    // 計算VIP等級
+    const points = currentUser.points;
+    let vipLevel = 1;
+    if (points >= 200000) vipLevel = 4;
+    else if (points >= 50000) vipLevel = 3;
+    else if (points >= 10000) vipLevel = 2;
+    
+    currentUser.vipLevel = vipLevel;
+    
+    document.getElementById('vipLevelDisplay').textContent = `VIP等級: ${vipLevel}`;
+    document.getElementById('pointsProgress').style.width = `${Math.min(100, (currentUser.points / 200000) * 100)}%`;
+    document.getElementById('pointsProgress').textContent = `${currentUser.points === Infinity ? "∞" : currentUser.points.toLocaleString()} 點`;
+    
+    // 更新等級描述
+    const levelDescriptions = [
+        "",
+        "普通會員: 享受基本功能",
+        "銀牌會員: 每日額外獎勵",
+        "金牌會員: 專屬客服支持",
+        "白金會員: 所有VIP特權"
+    ];
+    
+    document.getElementById('levelDescription').textContent = levelDescriptions[vipLevel];
+    
+    // 更新錢包顯示
+    updateWalletDisplay();
+    // 更新公告顯示
+    updateAnnouncements();
+}
+
+function backToVipPage() {
+    // 隱藏所有功能區
+    document.querySelectorAll('.container').forEach(container => {
+        if (container.id !== 'vipContainer' && container.id !== 'loginOptionContainer' && container.id !== 'adminContainer') {
+            container.classList.add('hidden');
+        }
     });
+    
+    // 根據用戶類型顯示相應界面
+    if (currentUser && currentUser.isAdmin) {
+        document.getElementById('adminContainer').classList.remove('hidden');
+        updateAdminPanel();
+    } else {
+        document.getElementById('vipContainer').classList.remove('hidden');
+        updateVipInfo();
+    }
+    
+    // 清除自動更新
+    if (newsUpdateInterval) {
+        clearInterval(newsUpdateInterval);
+        newsUpdateInterval = null;
+    }
+    if (weatherUpdateInterval) {
+        clearInterval(weatherUpdateInterval);
+        weatherUpdateInterval = null;
+    }
+    if (alertUpdateInterval) {
+        clearInterval(alertUpdateInterval);
+        alertUpdateInterval = null;
+    }
+    if (typhoonUpdateInterval) {
+        clearInterval(typhoonUpdateInterval);
+        typhoonUpdateInterval = null;
+    }
+}
+
+function initEventListeners() {
+    initLoginListeners();
+    
+    // 登出按鈕
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        currentUser = null;
+        backToLoginOptions();
+    });
+    
+    document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+        currentUser = null;
+        backToLoginOptions();
+    });
+    
+    // 錢包相關按鈕
+    document.getElementById('viewWalletBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('walletDetailContainer').classList.remove('hidden');
+        updateWalletDisplay();
+    });
+    
+    document.getElementById('transferPointsBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('transferPointsContainer').classList.remove('hidden');
+    });
+    
+    document.getElementById('giftPointsBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('giftPointsContainer').classList.remove('hidden');
+    });
+    
+    document.getElementById('confirmTransferBtn').addEventListener('click', transferPoints);
+    document.getElementById('confirmGiftBtn').addEventListener('click', giftPoints);
+    
+    document.getElementById('walletBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('transferBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('giftBackBtn').addEventListener('click', backToVipPage);
+    
+    // 輸入框回車事件
+    document.getElementById('transferAmount').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') transferPoints();
+    });
+    
+    document.getElementById('giftAmount').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') giftPoints();
+    });
+    
+    // 新聞和天氣按鈕
+    document.getElementById('viewNewsBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('newsContainer').classList.remove('hidden');
+        fetchNews();
+        
+        // 每5分鐘自動更新新聞
+        newsUpdateInterval = setInterval(fetchNews, 5 * 60 * 1000);
+    });
+    
+    document.getElementById('viewWeatherBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('weatherContainer').classList.remove('hidden');
+        fetchWeather();
+        
+        // 每30分鐘自動更新天氣
+        weatherUpdateInterval = setInterval(fetchWeather, 30 * 60 * 1000);
+    });
+    
+    document.getElementById('viewWeatherAlertsBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('weatherAlertContainer').classList.remove('hidden');
+        fetchWeatherAlerts();
+        
+        // 每30分鐘自動更新天氣警報
+        alertUpdateInterval = setInterval(fetchWeatherAlerts, 30 * 60 * 1000);
+    });
+    
+    document.getElementById('viewTyphoonBtn').addEventListener('click', () => {
+        document.getElementById('vipContainer').classList.add('hidden');
+        document.getElementById('typhoonContainer').classList.remove('hidden');
+        fetchTyphoonInfo();
+        
+        // 每30分鐘自動更新颱風資訊
+        typhoonUpdateInterval = setInterval(fetchTyphoonInfo, 30 * 60 * 1000);
+    });
+    
+    document.getElementById('refreshNewsBtn').addEventListener('click', fetchNews);
+    document.getElementById('refreshWeatherBtn').addEventListener('click', fetchWeather);
+    document.getElementById('refreshAlertBtn').addEventListener('click', fetchWeatherAlerts);
+    document.getElementById('refreshTyphoonBtn').addEventListener('click', fetchTyphoonInfo);
+    
+    document.getElementById('newsBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('weatherBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('alertBackBtn').addEventListener('click', backToVipPage);
+    document.getElementById('typhoonBackBtn').addEventListener('click', backToVipPage);
+    
+    // 管理員按鈕
+    document.getElementById('postAnnouncementBtn').addEventListener('click', postAnnouncement);
+    document.getElementById('addPointsBtn').addEventListener('click', addUserPoints);
+    document.getElementById('subtractPointsBtn').addEventListener('click', subtractUserPoints);
+    document.getElementById('addUserBtn').addEventListener('click', function() {
+        showModal(`
+            <h3>新增用戶</h3>
+            <input type="text" id="newUserUsername" placeholder="用戶名">
+            <input type="password" id="newUserPassword" placeholder="密碼">
+            <input type="number" id="newUserPoints" placeholder="初始點數" value="100000000">
+            <label><input type="checkbox" id="newUserVip"> VIP會員</label>
+            <label><input type="checkbox" id="newUserAdmin"> 管理員</label>
+            <button id="saveNewUserBtn">保存</button>
+        `);
+        
+        document.getElementById('saveNewUserBtn').addEventListener('click', function() {
+            const username = document.getElementById('newUserUsername').value.trim();
+            const password = document.getElementById('newUserPassword').value.trim();
+            const points = parseInt(document.getElementById('newUserPoints').value);
+            const isVip = document.getElementById('newUserVip').checked;
+            const isAdmin = document.getElementById('newUserAdmin').checked;
+            
+            if (!username || !password || isNaN(points)) {
+                alert('請填寫所有欄位');
+                return;
+            }
+            
+            if (users[username]) {
+                alert('用戶名已存在');
+                return;
+            }
+            
+            users[username] = {
+                username: username,
+                password: password,
+                points: points,
+                isVip: isVip,
+                isAdmin: isAdmin,
+                transactions: [],
+                vouchers: [],
+                receipts: [],
+                invoices: []
+            };
+            
+            alert('用戶新增成功');
+            closeModal();
+            updateAdminPanel();
+        });
+    });
+    
+    document.getElementById('systemSettingsBtn').addEventListener('click', function() {
+        showModal('<h3>系統設定</h3><p>系統設定功能正在開發中...</p>');
+    });
+    
+    document.getElementById('backupDataBtn').addEventListener('click', function() {
+        const dataStr = JSON.stringify({
+            users: users,
+            announcements: announcements
+        }, null, 2);
+        
+        showModal(`
+            <h3>數據備份</h3>
+            <p>請複製以下數據並妥善保存:</p>
+            <textarea style="width:100%; height:200px; font-family:monospace">${dataStr}</textarea>
+        `);
+    });
+    
+    document.getElementById('restoreDataBtn').addEventListener('click', function() {
+        showModal(`
+            <h3>恢復數據</h3>
+            <p>請貼上備份數據:</p>
+            <textarea id="restoreDataText" style="width:100%; height:200px; font-family:monospace"></textarea>
+            <button id="confirmRestoreBtn">確認恢復</button>
+        `);
+        
+        document.getElementById('confirmRestoreBtn').addEventListener('click', function() {
+            const dataStr = document.getElementById('restoreDataText').value.trim();
+            if (!dataStr) {
+                alert('請輸入備份數據');
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(dataStr);
+                if (data.users && data.announcements) {
+                    users = data.users;
+                    announcements = data.announcements;
+                    alert('數據恢復成功！');
+                    closeModal();
+                    updateAdminPanel();
+                } else {
+                    alert('無效的備份數據格式');
+                }
+            } catch (e) {
+                alert('解析備份數據失敗: ' + e.message);
+            }
+        });
+    });
+}
+
+// 初始化時間顯示
+function updateTime() {
+    const now = new Date();
+    document.getElementById('userTime').textContent = now.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
+    
+    setTimeout(updateTime, 1000);
+}
+
+// 初始化
+function init() {
+    updateTime();
+    initEventListeners();
+    
+    // 動態加載JsBarcode庫
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js';
+    document.head.appendChild(script);
+    
+    // 初始化一些測試數據
+    if (!announcements || announcements.length === 0) {
+        announcements = [
+            {
+                content: '歡迎使用VIP系統！',
+                date: new Date().toISOString()
+            },
+            {
+                content: '系統維護時間: 每週三凌晨2:00-4:00',
+                date: new Date().toISOString()
+            }
+        ];
+    }
+    
+    // 為測試用戶添加一些數據
+    if (users['vip8888'].vouchers.length === 0) {
+        users['vip8888'].vouchers.push({
+            id: 1,
+            name: '歡迎禮包',
+            date: new Date().toLocaleString(),
+            code: 'WELCOME' + Math.floor(Math.random() * 10000)
+        });
+    }
+    
+    if (users['vip8888'].receipts.length === 0) {
+        users['vip8888'].receipts.push({
+            title: '歡迎通知',
+            content: '感謝您成為我們的VIP會員！',
+            date: new Date().toLocaleString()
+        });
+    }
+    
+    if (users['vip8888'].invoices.length === 0) {
+        users['vip8888'].invoices.push({
+            number: 'INV' + Math.floor(Math.random() * 1000000),
+            amount: 1000,
+            date: new Date().toLocaleString(),
+            paid: true
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', init);
